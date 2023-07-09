@@ -7,12 +7,20 @@ export class MainConfig {
   readonly entry: string;
   readonly preloads?: ReadonlyArray<PreloadConfig>;
   readonly loaders?: ReadonlyArray<LoaderConfig>;
+  readonly exclude?: ReadonlyArray<string>;
   readonly output?: OutputConfig;
 
-  constructor(entry: string, preloads?: PreloadConfig[], loaders?: LoaderConfig[], output?: OutputConfig) {
+  constructor(
+    entry: string,
+    preloads?: PreloadConfig[],
+    loaders?: LoaderConfig[],
+    exclude?: string[],
+    output?: OutputConfig,
+  ) {
     this.entry = entry;
     this.preloads = preloads;
     this.loaders = loaders;
+    this.exclude = exclude;
     this.output = output;
   }
 
@@ -28,9 +36,10 @@ export class MainConfig {
 
     const preloads = MainConfig.preparePreloadsFromJson(json.preloads);
     const loaders = MainConfig.prepareLoadersFromJson(json.loaders);
+    const excludes = MainConfig.prepareExcludesFromJson(json.exclude);
     const output = json.output ? OutputConfig.fromJson(json.output) : undefined;
 
-    return new MainConfig(entry, preloads, loaders, output);
+    return new MainConfig(entry, preloads, loaders, excludes, output);
   }
 
   private static preparePreloadsFromJson(preloads: any): PreloadConfig[] | undefined {
@@ -55,5 +64,23 @@ export class MainConfig {
     }
 
     return loaders.map(LoaderConfig.fromJson);
+  }
+
+  private static prepareExcludesFromJson(excludes: any): string[] | undefined {
+    if (excludes === undefined) {
+      return undefined;
+    }
+
+    if (!Array.isArray(excludes)) {
+      excludes = [excludes];
+    }
+
+    return excludes.map((exclude: any) => {
+      if (typeof exclude !== 'string') {
+        throw new Error(`MainConfig.fromJson: <${exclude}> must be a string`);
+      }
+
+      return exclude;
+    });
   }
 }
