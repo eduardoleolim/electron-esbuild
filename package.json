@@ -7,7 +7,11 @@
     "lint": "eslint src --quiet --fix",
     "prepare": "husky install",
     "dist": "rimraf dist && tsc",
+    "dev": "ts-node src/cli/index.ts",
     "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "bin": {
+    "electron-esbuild": "dist/cli/index.js"
   },
   "repository": {
     "type": "git",
@@ -42,5 +46,8 @@
       "eslint src --fix",
       "git add"
     ]
+  },
+  "dependencies": {
+    "commander": "^11.0.0"
   }
 }
