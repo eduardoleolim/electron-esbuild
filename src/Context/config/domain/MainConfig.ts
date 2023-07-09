@@ -8,14 +8,14 @@ export class MainConfig {
   readonly preloads?: ReadonlyArray<PreloadConfig>;
   readonly loaders?: ReadonlyArray<LoaderConfig>;
   readonly exclude?: ReadonlyArray<string>;
-  readonly output?: OutputConfig;
+  readonly output: OutputConfig;
 
   constructor(
     entry: string,
+    output: OutputConfig,
     preloads?: PreloadConfig[],
     loaders?: LoaderConfig[],
     exclude?: string[],
-    output?: OutputConfig,
   ) {
     this.entry = entry;
     this.preloads = preloads;
@@ -34,12 +34,15 @@ export class MainConfig {
       throw new Error('MainConfig.fromJson: entry must be a relative path');
     }
 
+    if (json.output === undefined) {
+      throw new Error('MainConfig.fromJson: output is required');
+    }
+    const output = OutputConfig.fromJson(json.output);
     const preloads = MainConfig.preparePreloadsFromJson(json.preloads);
     const loaders = MainConfig.prepareLoadersFromJson(json.loaders);
     const excludes = MainConfig.prepareExcludesFromJson(json.exclude);
-    const output = json.output ? OutputConfig.fromJson(json.output) : undefined;
 
-    return new MainConfig(entry, preloads, loaders, excludes, output);
+    return new MainConfig(entry, output, preloads, loaders, excludes);
   }
 
   private static preparePreloadsFromJson(preloads: any): PreloadConfig[] | undefined {
