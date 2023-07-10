@@ -13,6 +13,9 @@
   "bin": {
     "electron-esbuild": "dist/cli/index.js"
   },
+  "files": [
+    "dist"
+  ],
   "repository": {
     "type": "git",
     "url": "git+https://github.com/eduardoleolim/electron-esbuild.git"
