@@ -10,24 +10,9 @@ export class MainEsbuildElectronBuilder {
   private readonly loaders: ReadonlyArray<string>;
   private context?: BuildContext;
 
-  constructor(mainConfig: MainConfig) {
+  constructor(mainConfig: MainConfig, loaders: string[]) {
     this.mainConfig = mainConfig;
-    this.loaders = [
-      'base64',
-      'binary',
-      'copy',
-      'css',
-      'dataurl',
-      'default',
-      'empty',
-      'file',
-      'js',
-      'json',
-      'jsx',
-      'text',
-      'ts',
-      'tsx',
-    ];
+    this.loaders = loaders;
   }
 
   public async build(): Promise<void> {
