@@ -16,7 +16,6 @@ export class MainProcessStarter {
   }
 
   async start() {
-    console.log('Starting main process');
     if (this.mainProcess !== undefined) {
       try {
         this.kill();

@@ -94,7 +94,7 @@ export class MainEsbuildElectronBuilder {
         let outfile;
 
         if (preloadConfig.output !== undefined) {
-          outfile = path.resolve(this.mainConfig.output.directory, preloadConfig.output.filename);
+          outfile = path.resolve(preloadConfig.output.directory, preloadConfig.output.filename);
         } else {
           outfile = path.resolve(this.mainConfig.output.directory, `preload_${index}.js`);
         }
