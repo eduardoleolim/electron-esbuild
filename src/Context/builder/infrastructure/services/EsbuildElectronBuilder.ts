@@ -12,7 +12,13 @@ export class EsbuildElectronBuilder implements ElectronBuilderService {
   }
 
   async build(config: ElectronConfig): Promise<void> {
-    return Promise.resolve(undefined);
+    const mainBuilder = new MainEsbuildElectronBuilder(config.main, this.loaders);
+    const rendererBuilders = config.renderers.map((rendererConfig) => {
+      return new RendererEsbuildElectronBuilder(config.main, rendererConfig, this.loaders);
+    });
+
+    await Promise.all(rendererBuilders.map((builder) => builder.build()));
+    await mainBuilder.build();
   }
 
   async dev(config: ElectronConfig): Promise<void> {

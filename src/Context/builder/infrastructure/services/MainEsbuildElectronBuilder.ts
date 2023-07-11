@@ -25,6 +25,11 @@ export class MainEsbuildElectronBuilder {
     const buildOptions = this.prepareBuildOptions();
     this.context = await esbuild.context<BuildOptions>(buildOptions);
     await this.context.rebuild();
+
+    if (process.env.NODE_ENV === 'production') {
+      await this.context.cancel();
+      await this.context.dispose();
+    }
     console.log('Main process built');
   }
 

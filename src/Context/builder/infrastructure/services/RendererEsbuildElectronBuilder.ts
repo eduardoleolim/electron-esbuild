@@ -24,6 +24,8 @@ export class RendererEsbuildElectronBuilder {
     const buildOptions = this.prepareBuildOptions();
     const context = await esbuild.context<BuildOptions>(buildOptions);
     await context.rebuild();
+    await context.cancel();
+    await context.dispose();
     this.copyHtml();
     console.log('Renderer process built');
   }

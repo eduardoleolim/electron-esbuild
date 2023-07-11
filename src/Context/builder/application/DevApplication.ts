@@ -1,6 +1,6 @@
 import { ElectronBuilderService } from '../domain/ElectronBuilderService';
 import { ElectronConfig } from '../../config/domain/ElectronConfig';
-import * as fs from 'fs';
+import fs from 'fs';
 
 export class DevApplication {
   private readonly builder: ElectronBuilderService;
