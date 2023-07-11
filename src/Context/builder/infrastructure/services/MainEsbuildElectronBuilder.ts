@@ -25,6 +25,7 @@ export class MainEsbuildElectronBuilder {
     const buildOptions = this.prepareBuildOptions();
     this.context = await esbuild.context<BuildOptions>(buildOptions);
     await this.context.rebuild();
+    console.log('Main process built');
   }
 
   public async dev(start: () => void): Promise<void> {
@@ -56,7 +57,7 @@ export class MainEsbuildElectronBuilder {
   private prepareBuildOptions(): BuildOptions {
     const outfile = path.resolve(this.mainConfig.output.directory, this.mainConfig.output.filename);
 
-    const external = ['electron', 'esbuild'];
+    const external = ['electron'];
     if (this.mainConfig.exclude !== undefined) {
       external.push(...this.mainConfig.exclude);
     }
