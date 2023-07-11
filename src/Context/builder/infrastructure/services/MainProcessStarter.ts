@@ -4,12 +4,14 @@ import path from 'path';
 
 export class MainProcessStarter {
   private readonly mainConfig: MainConfig;
+  private readonly outputDirectory: string;
   private mainProcess?: ChildProcess;
   private readonly isWindows: boolean;
   private readonly electronBin: string;
 
-  constructor(mainConfig: MainConfig) {
+  constructor(mainConfig: MainConfig, outputDirectory: string) {
     this.mainConfig = mainConfig;
+    this.outputDirectory = outputDirectory;
     this.isWindows = process.platform === 'win32';
     this.electronBin = this.isWindows ? 'electron.cmd' : 'electron';
     this.cleanupProcess();
@@ -24,7 +26,11 @@ export class MainProcessStarter {
       }
     }
 
-    const filePath = path.resolve(this.mainConfig.output.directory, this.mainConfig.output.filename);
+    const filePath = path.resolve(
+      this.outputDirectory,
+      this.mainConfig.output.directory,
+      this.mainConfig.output.filename,
+    );
 
     console.log('Starting main process');
 

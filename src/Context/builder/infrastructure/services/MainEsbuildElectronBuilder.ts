@@ -7,11 +7,13 @@ import { getDependencies } from '../../../shared/infrastructure/getDependencies'
 
 export class MainEsbuildElectronBuilder {
   private readonly mainConfig: MainConfig;
+  private readonly outputDirectory: string;
   private readonly loaders: ReadonlyArray<string>;
   private context?: BuildContext;
 
-  constructor(mainConfig: MainConfig, loaders: string[]) {
+  constructor(mainConfig: MainConfig, outputDirectory: string, loaders: string[]) {
     this.mainConfig = mainConfig;
+    this.outputDirectory = outputDirectory;
     this.loaders = loaders;
   }
 
@@ -60,7 +62,11 @@ export class MainEsbuildElectronBuilder {
   }
 
   private prepareBuildOptions(): BuildOptions {
-    const outfile = path.resolve(this.mainConfig.output.directory, this.mainConfig.output.filename);
+    const outfile = path.resolve(
+      this.outputDirectory,
+      this.mainConfig.output.directory,
+      this.mainConfig.output.filename,
+    );
 
     const external = ['electron'];
     if (this.mainConfig.exclude !== undefined) {
@@ -85,9 +91,9 @@ export class MainEsbuildElectronBuilder {
         let outfile;
 
         if (preloadConfig.output !== undefined) {
-          outfile = path.resolve(preloadConfig.output.directory, preloadConfig.output.filename);
+          outfile = path.resolve(this.outputDirectory, preloadConfig.output.directory, preloadConfig.output.filename);
         } else {
-          outfile = path.resolve(this.mainConfig.output.directory, `preload_${index}.js`);
+          outfile = path.resolve(this.outputDirectory, this.mainConfig.output.directory, `preload_${index}.js`);
         }
 
         preloadConfigs.push({

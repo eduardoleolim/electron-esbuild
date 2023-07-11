@@ -10,15 +10,18 @@ import { getDependencies } from '../../../shared/infrastructure/getDependencies'
 
 export class RendererEsbuildElectronBuilder {
   private readonly mainConfig: MainConfig;
+  private readonly outputDirectory: string;
   private readonly rendererConfig: RendererConfig;
   private readonly loaders: ReadonlyArray<string>;
   private readonly outRendererPath: string;
 
-  constructor(mainConfig: MainConfig, rendererConfig: RendererConfig, loaders: string[]) {
+  constructor(mainConfig: MainConfig, rendererConfig: RendererConfig, outputDirectory: string, loaders: string[]) {
     this.mainConfig = mainConfig;
     this.rendererConfig = rendererConfig;
+    this.outputDirectory = outputDirectory;
     this.loaders = loaders;
     this.outRendererPath = path.resolve(
+      this.outputDirectory,
       this.rendererConfig.output?.directory ?? this.mainConfig.output.directory,
       this.rendererConfig.output?.filename ?? 'renderer.js',
     );
@@ -40,7 +43,10 @@ export class RendererEsbuildElectronBuilder {
     const context = await esbuild.context<BuildOptions>(buildOptions);
     const host = '127.0.0.1';
     const portContext = await findFreePort(8000);
-    const servedir = path.resolve(this.rendererConfig.output?.directory ?? this.mainConfig.output.directory);
+    const servedir = path.resolve(
+      this.outputDirectory,
+      this.rendererConfig.output?.directory ?? this.mainConfig.output.directory,
+    );
     const htmlPath = path.resolve(this.rendererConfig.html);
     const outHtml = path.resolve(servedir, path.basename(htmlPath));
     const relativeRendererScriptPath = path.relative(path.dirname(outHtml), this.outRendererPath);
@@ -109,7 +115,10 @@ export class RendererEsbuildElectronBuilder {
 
   private copyHtml(): void {
     const html = path.resolve(this.rendererConfig.html);
-    const outDir = path.resolve(this.rendererConfig.output?.directory ?? this.mainConfig.output.directory);
+    const outDir = path.resolve(
+      this.outputDirectory,
+      this.rendererConfig.output?.directory ?? this.mainConfig.output.directory,
+    );
     const outHtml = path.resolve(outDir, path.basename(html));
     const relativeRendererScriptPath = path.relative(path.dirname(outHtml), this.outRendererPath);
 

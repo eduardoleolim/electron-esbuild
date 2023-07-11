@@ -9,9 +9,9 @@ export class DevApplication {
     this.builder = builder;
   }
 
-  public dev(configPath: string) {
+  public dev(configPath: string, clean: boolean) {
     const configs = this.prepareConfigs(configPath);
-    configs.forEach((config) => this.builder.dev(config));
+    configs.forEach((config) => this.builder.dev(config, clean));
   }
 
   private prepareConfigs(configPath: string): ElectronConfig[] {
