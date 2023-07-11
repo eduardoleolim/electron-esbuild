@@ -5,13 +5,22 @@ import { LoaderConfig } from './LoaderConfig';
 export class RendererConfig {
   readonly entry: string;
   readonly html: string;
+  readonly devPort?: number;
   readonly loaders?: ReadonlyArray<LoaderConfig>;
   readonly exclude?: ReadonlyArray<string>;
   readonly output?: OutputConfig;
 
-  constructor(entry: string, html: string, loaders?: LoaderConfig[], exclude?: string[], output?: OutputConfig) {
+  constructor(
+    entry: string,
+    html: string,
+    devPort?: number,
+    loaders?: LoaderConfig[],
+    exclude?: string[],
+    output?: OutputConfig,
+  ) {
     this.entry = entry;
     this.html = html;
+    this.devPort = devPort;
     this.loaders = loaders;
     this.exclude = exclude;
     this.output = output;
@@ -20,6 +29,8 @@ export class RendererConfig {
   static fromJson(json: any): RendererConfig {
     const entry = json.entry;
     const html = json.html;
+    const devPort = json.devPort;
+
     if (typeof entry !== 'string') {
       throw new Error('RendererConfig.fromJson: entry must be a string');
     }
@@ -36,11 +47,15 @@ export class RendererConfig {
       throw new Error('RendererConfig.fromJson: html must be a relative path');
     }
 
+    if (devPort !== undefined && typeof devPort !== 'number') {
+      throw new Error('RendererConfig.fromJson: devPort must be a number');
+    }
+
     const output = json.output ? OutputConfig.fromJson(json.output) : undefined;
     const loaders = RendererConfig.prepareLoadersFromJson(json.loaders);
     const excludes = RendererConfig.prepareExcludesFromJson(json.exclude);
 
-    return new RendererConfig(entry, html, loaders, excludes, output);
+    return new RendererConfig(entry, html, devPort, loaders, excludes, output);
   }
 
   private static prepareLoadersFromJson(loaders: any): LoaderConfig[] | undefined {
@@ -66,7 +81,7 @@ export class RendererConfig {
 
     return excludes.map((exclude: any) => {
       if (typeof exclude !== 'string') {
-        throw new Error(`MainConfig.fromJson: <${exclude}> must be a string`);
+        throw new Error(`RendererConfig.fromJson: <${exclude}> must be a string`);
       }
 
       return exclude;

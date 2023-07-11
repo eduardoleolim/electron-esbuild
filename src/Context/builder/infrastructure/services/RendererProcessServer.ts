@@ -93,11 +93,15 @@ export class RendererProcessServer {
   }
 
   public start(port: number, host: string): void {
-    this.server.listen(port, host, async () => {
-      if (this.reloadServer === undefined) {
-        const reloadPort = await findFreePort(35729);
-        this.loadReloadServer(reloadPort);
-      }
+    this.server.listen(port, host, () => {
+      (async () => {
+        if (this.reloadServer === undefined) {
+          const reloadPort = await findFreePort(35729);
+          this.loadReloadServer(reloadPort);
+        }
+      })();
+
+      console.log(`Renderer process server listening on http://${host}:${port}`);
     });
   }
 

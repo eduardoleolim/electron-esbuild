@@ -64,7 +64,7 @@ export class RendererEsbuildElectronBuilder {
         await context.dispose();
       });
 
-      const devPort = await findFreePort(8000);
+      const devPort = await findFreePort(this.rendererConfig.devPort || 8000);
       server.start(devPort, host);
     });
   }
