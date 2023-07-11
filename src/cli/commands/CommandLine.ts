@@ -3,9 +3,15 @@ import path from 'path';
 import * as fs from 'fs';
 import { buildEsbuild, devEsbuild } from '../builders/Builders';
 
-type DevOptions = {
+type Options = {
   config?: string;
 };
+
+type DevOptions = Options & {
+  clean?: boolean;
+};
+
+type BuildOptions = Options;
 
 export class CommandLine {
   private readonly program: Command;
@@ -29,13 +35,14 @@ export class CommandLine {
     commandDevelopment
       .description('Starts the development server')
       .option('-c, --config <path>', 'Path to the config file')
+      .option('--clean', 'Clean the output directory')
       .action((options: DevOptions) => {
         process.env.NODE_ENV = 'development';
         const pathConfig = options.config || 'electron-esbuild.config.json';
         const fullConfigPath = path.resolve(process.cwd(), pathConfig);
 
         try {
-          devEsbuild.dev(fullConfigPath);
+          devEsbuild.dev(fullConfigPath, options.clean || false);
         } catch (error: any) {
           console.log(error.message);
         }
@@ -44,13 +51,13 @@ export class CommandLine {
     commandBuild
       .description('Builds the application')
       .option('-c, --config <path>', 'Path to the config file')
-      .action((options) => {
+      .action((options: BuildOptions) => {
         process.env.NODE_ENV = 'production';
         const pathConfig = options.config || 'electron-esbuild.config.json';
         const fullConfigPath = path.resolve(process.cwd(), pathConfig);
 
         try {
-          buildEsbuild.build(fullConfigPath);
+          buildEsbuild.build(fullConfigPath, true);
         } catch (error: any) {
           console.log(error.message);
         }
