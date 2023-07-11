@@ -12,11 +12,16 @@ export class RendererEsbuildElectronBuilder {
   private readonly mainConfig: MainConfig;
   private readonly rendererConfig: RendererConfig;
   private readonly loaders: ReadonlyArray<string>;
+  private readonly outRendererPath: string;
 
   constructor(mainConfig: MainConfig, rendererConfig: RendererConfig, loaders: string[]) {
     this.mainConfig = mainConfig;
     this.rendererConfig = rendererConfig;
     this.loaders = loaders;
+    this.outRendererPath = path.resolve(
+      this.rendererConfig.output?.directory ?? this.mainConfig.output.directory,
+      this.rendererConfig.output?.filename ?? 'renderer.js',
+    );
   }
 
   public async build(): Promise<void> {
@@ -37,11 +42,13 @@ export class RendererEsbuildElectronBuilder {
     const portContext = await findFreePort(8000);
     const servedir = path.resolve(this.rendererConfig.output?.directory ?? this.mainConfig.output.directory);
     const htmlPath = path.resolve(this.rendererConfig.html);
+    const outHtml = path.resolve(servedir, path.basename(htmlPath));
+    const relativeRendererScriptPath = path.relative(path.dirname(outHtml), this.outRendererPath);
 
     console.log('Building renderer process...');
     context.serve({ port: portContext, host, servedir }).then(async (result) => {
       console.log('Renderer process built');
-      const server = new RendererProcessServer(result, htmlPath);
+      const server = new RendererProcessServer(result, htmlPath, relativeRendererScriptPath);
 
       let sources = getDependencies(path.resolve(this.rendererConfig.entry));
       const watcher = chokidar.watch(sources, { disableGlobbing: false });
@@ -72,10 +79,6 @@ export class RendererEsbuildElectronBuilder {
   }
 
   private prepareBuildOptions(): BuildOptions {
-    const outfile = path.resolve(
-      this.rendererConfig.output?.directory ?? this.mainConfig.output.directory,
-      this.rendererConfig.output?.filename ?? 'renderer.js',
-    );
     const external = ['electron'];
     if (this.rendererConfig.exclude !== undefined) {
       external.push(...this.rendererConfig.exclude);
@@ -96,7 +99,7 @@ export class RendererEsbuildElectronBuilder {
     return {
       platform: 'browser',
       entryPoints: [this.rendererConfig.entry],
-      outfile: outfile,
+      outfile: this.outRendererPath,
       bundle: true,
       minify: process.env.NODE_ENV === 'production',
       external: external,
@@ -108,6 +111,7 @@ export class RendererEsbuildElectronBuilder {
     const html = path.resolve(this.rendererConfig.html);
     const outDir = path.resolve(this.rendererConfig.output?.directory ?? this.mainConfig.output.directory);
     const outHtml = path.resolve(outDir, path.basename(html));
+    const relativeRendererScriptPath = path.relative(path.dirname(outHtml), this.outRendererPath);
 
     if (!fs.existsSync(html)) {
       throw new Error(`Html file not found in <${html}>`);
@@ -117,6 +121,11 @@ export class RendererEsbuildElectronBuilder {
       fs.mkdirSync(outDir, { recursive: true });
     }
 
-    fs.copyFileSync(html, outHtml);
+    const content = fs.readFileSync(html, 'utf-8').replace(
+      '</body>',
+      `  <script src="${relativeRendererScriptPath}"></script>
+  </body>`,
+    );
+    fs.writeFileSync(outHtml, content, 'utf-8');
   }
 }
