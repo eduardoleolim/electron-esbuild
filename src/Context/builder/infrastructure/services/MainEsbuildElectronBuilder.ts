@@ -100,8 +100,9 @@ export class MainEsbuildElectronBuilder {
           platform: 'node',
           entryPoints: [preloadConfig.entry],
           outfile: outfile,
-          bundle: process.env.NODE_ENV === 'production',
+          bundle: true,
           minify: process.env.NODE_ENV === 'production',
+          external: external,
         });
       });
     }
