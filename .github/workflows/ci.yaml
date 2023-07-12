@@ -4,21 +4,21 @@ on: push
 
 jobs:
   test:
-    name: Test
+    name: 🧪 Test
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout
+      - name: 👍 Checkout
         uses: actions/checkout@v3
 
-      - name: Setup Node.js
+      - name: ❇️ Setup Node.js
         uses: actions/setup-node@v3
         with:
           node-version: 18
           cache: npm
 
-      - name: Install Dependencies
+      - name: ⬇️ Install Dependencies
         run: npm install
 
-      - name: Execute Tests
+      - name: 🧑‍🔬 Execute Tests
         run: npm test
