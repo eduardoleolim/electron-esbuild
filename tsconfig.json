@@ -14,5 +14,6 @@
     "noEmit": false,
     "forceConsistentCasingInFileNames": true,
     "skipLibCheck": true
-  }
+  },
+  "include": ["src/**/*"],
 }
