@@ -7,7 +7,6 @@
     "strictNullChecks": true,
     "moduleResolution": "node",
     "resolveJsonModule": true,
-    "sourceMap": true,
     "rootDir": "tests",
     "strict": true,
     "noEmit": false,

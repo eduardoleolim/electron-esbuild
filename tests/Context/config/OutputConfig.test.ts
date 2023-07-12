@@ -30,7 +30,7 @@ describe('OutputConfig module', () => {
     }
   });
 
-  test('Invalid absolute path', () => {
+  test('Invalid directory, absolute path', () => {
     try {
       const jsonParsed = JSON.parse(invalidAbsolutePathConfigData);
       OutputConfig.fromJson(jsonParsed);
