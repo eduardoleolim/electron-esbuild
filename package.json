@@ -6,7 +6,7 @@
   "scripts": {
     "lint": "eslint src --quiet --fix",
     "prepare": "husky install",
-    "dist": "rimraf dist && tsc",
+    "build": "rimraf dist && tsc",
     "dev": "ts-node src/cli/index.ts",
     "test": "jest"
   },
