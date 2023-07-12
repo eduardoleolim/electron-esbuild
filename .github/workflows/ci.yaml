@@ -46,13 +46,16 @@ jobs:
           cache: 'npm'
 
       - name: 📥 Install Dependencies
+        if: steps.release.outputs.released == 'true'
         run: npm install
 
       - name: 🛠️ Build
+        if: steps.release.outputs.released == 'true'
         run: npm run build
 
       - name: 🚀 Publish to npm
         uses: JS-DevTools/npm-publish@v1
+        if: steps.release.outputs.released == 'true'
         with:
           token: ${{ secrets.NPM_PUBLISH_TOKEN }}
           access: public
