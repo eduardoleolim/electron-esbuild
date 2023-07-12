@@ -86,7 +86,7 @@ export class RendererProcessServer {
       target: `http://${this.serveResult.host}:${port}`,
     });
 
-    this.server.on('upgrade', (req, socket, head) => {
+    this.server.on('upgrade', (req, socket, head): void => {
       reloadProxy.ws(req, socket, head);
     });
 
