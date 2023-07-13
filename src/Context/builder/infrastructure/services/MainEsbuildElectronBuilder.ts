@@ -103,6 +103,9 @@ export class MainEsbuildElectronBuilder {
           bundle: true,
           minify: process.env.NODE_ENV === 'production',
           external: external,
+          define: {
+            'process.env.NODE_ENV': `"${process.env.NODE_ENV}"`,
+          },
         });
       });
     }
@@ -133,6 +136,9 @@ export class MainEsbuildElectronBuilder {
       external: external,
       loader: loader,
       plugins: [preloadPlugin],
+      define: {
+        'process.env.NODE_ENV': `"${process.env.NODE_ENV}"`,
+      },
     };
   }
 }

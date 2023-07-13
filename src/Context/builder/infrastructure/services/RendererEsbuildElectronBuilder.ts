@@ -56,11 +56,7 @@ export class RendererEsbuildElectronBuilder {
     const relativeRendererScriptPath = path.relative(path.dirname(outHtml), this.outRendererFile);
 
     function calculateCssRelativePath(): string | undefined {
-      const relativeCssPath: string | undefined = undefined;
-
-      if (!fs.existsSync(outCss)) {
-        return undefined;
-      }
+      if (!fs.existsSync(outCss)) return undefined;
 
       return path.relative(path.dirname(outHtml), outCss);
     }
@@ -125,6 +121,9 @@ export class RendererEsbuildElectronBuilder {
       minify: process.env.NODE_ENV === 'production',
       external: external,
       loader: loader,
+      define: {
+        'process.env.NODE_ENV': `"${process.env.NODE_ENV}"`,
+      },
     };
   }
 
