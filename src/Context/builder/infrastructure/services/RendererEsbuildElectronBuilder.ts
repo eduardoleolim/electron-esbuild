@@ -7,7 +7,6 @@ import { findFreePort } from '../../../shared/infrastructure/findFreePort';
 import chokidar from 'chokidar';
 import { RendererProcessServer } from './RendererProcessServer';
 import { getDependencies } from '../../../shared/infrastructure/getDependencies';
-import { isDev, nodeEnv } from '../../../shared/infrastructure/environment';
 
 export class RendererEsbuildElectronBuilder {
   private readonly mainConfig: MainConfig;
@@ -119,13 +118,13 @@ export class RendererEsbuildElectronBuilder {
       entryPoints: [this.rendererConfig.entry],
       outfile: this.outRendererFile,
       bundle: true,
-      minify: !isDev,
+      minify: process.env.NODE_ENV === 'production',
       external: external,
       loader: loader,
       define: {
-        'process.env.NODE_ENV': `"${nodeEnv}"`,
+        'process.env.NODE_ENV': `"${process.env.NODE_ENV}"`,
       },
-      sourcemap: isDev,
+      sourcemap: process.env.NODE_ENV !== 'production',
     };
   }
 
