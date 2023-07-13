@@ -4,6 +4,7 @@ import debounce from 'debounce';
 import esbuild, { BuildContext, BuildOptions, Plugin, PluginBuild } from 'esbuild';
 import path from 'path';
 import { getDependencies } from '../../../shared/infrastructure/getDependencies';
+import { isDev, nodeEnv } from '../../../shared/infrastructure/environment';
 
 export class MainEsbuildElectronBuilder {
   private readonly mainConfig: MainConfig;
@@ -28,7 +29,7 @@ export class MainEsbuildElectronBuilder {
     this.context = await esbuild.context<BuildOptions>(buildOptions);
     await this.context.rebuild();
 
-    if (process.env.NODE_ENV === 'production') {
+    if (!isDev) {
       await this.context.cancel();
       await this.context.dispose();
     }
@@ -101,11 +102,12 @@ export class MainEsbuildElectronBuilder {
           entryPoints: [preloadConfig.entry],
           outfile: outfile,
           bundle: true,
-          minify: process.env.NODE_ENV === 'production',
+          minify: !isDev,
           external: external,
           define: {
-            'process.env.NODE_ENV': `"${process.env.NODE_ENV}"`,
+            'process.env.NODE_ENV': `"${nodeEnv}"`,
           },
+          sourcemap: isDev,
         });
       });
     }
@@ -132,13 +134,14 @@ export class MainEsbuildElectronBuilder {
       entryPoints: [this.mainConfig.entry],
       outfile: outfile,
       bundle: true,
-      minify: process.env.NODE_ENV === 'production',
+      minify: !isDev,
       external: external,
       loader: loader,
       plugins: [preloadPlugin],
       define: {
-        'process.env.NODE_ENV': `"${process.env.NODE_ENV}"`,
+        'process.env.NODE_ENV': `"${nodeEnv}"`,
       },
+      sourcemap: isDev,
     };
   }
 }
