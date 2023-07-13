@@ -43,7 +43,10 @@ export class EsbuildElectronBuilder implements ElectronBuilderService {
       return new RendererEsbuildElectronBuilder(config.main, rendererConfig, config.output, this.loaders);
     });
 
-    await Promise.all(rendererBuilders.map((builder) => builder.dev()));
+    for (let i = 0; i < rendererBuilders.length; i++) {
+      const builder = rendererBuilders[i];
+      await builder.dev();
+    }
 
     await mainBuilder.build();
     await mainProcessStarter.start();
