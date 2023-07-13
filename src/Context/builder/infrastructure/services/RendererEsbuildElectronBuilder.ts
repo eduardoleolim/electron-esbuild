@@ -13,14 +13,14 @@ export class RendererEsbuildElectronBuilder {
   private readonly outputDirectory: string;
   private readonly rendererConfig: RendererConfig;
   private readonly loaders: ReadonlyArray<string>;
-  private readonly outRendererPath: string;
+  private readonly outRendererFile: string;
 
   constructor(mainConfig: MainConfig, rendererConfig: RendererConfig, outputDirectory: string, loaders: string[]) {
     this.mainConfig = mainConfig;
     this.rendererConfig = rendererConfig;
     this.outputDirectory = outputDirectory;
     this.loaders = loaders;
-    this.outRendererPath = path.resolve(
+    this.outRendererFile = path.resolve(
       this.outputDirectory,
       this.rendererConfig.output?.directory ?? this.mainConfig.output.directory,
       this.rendererConfig.output?.filename ?? 'renderer.js',
@@ -49,12 +49,27 @@ export class RendererEsbuildElectronBuilder {
     );
     const htmlPath = path.resolve(this.rendererConfig.html);
     const outHtml = path.resolve(servedir, path.basename(htmlPath));
-    const relativeRendererScriptPath = path.relative(path.dirname(outHtml), this.outRendererPath);
+    const outCss = path.resolve(
+      path.dirname(this.outRendererFile),
+      path.basename(this.outRendererFile, '.js') + '.css',
+    );
+    const relativeRendererScriptPath = path.relative(path.dirname(outHtml), this.outRendererFile);
+
+    function calculateCssRelativePath(): string | undefined {
+      const relativeCssPath: string | undefined = undefined;
+
+      if (!fs.existsSync(outCss)) {
+        return undefined;
+      }
+
+      return path.relative(path.dirname(outHtml), outCss);
+    }
 
     console.log('Building renderer process...');
     context.serve({ port: portContext, host, servedir }).then(async (result) => {
       console.log('Renderer process built');
-      const server = new RendererProcessServer(result, htmlPath, relativeRendererScriptPath);
+
+      const server = new RendererProcessServer(result, htmlPath, relativeRendererScriptPath, calculateCssRelativePath);
 
       let sources = getDependencies(path.resolve(this.rendererConfig.entry));
       const watcher = chokidar.watch(sources, { disableGlobbing: false });
@@ -105,7 +120,7 @@ export class RendererEsbuildElectronBuilder {
     return {
       platform: 'browser',
       entryPoints: [this.rendererConfig.entry],
-      outfile: this.outRendererPath,
+      outfile: this.outRendererFile,
       bundle: true,
       minify: process.env.NODE_ENV === 'production',
       external: external,
@@ -120,7 +135,7 @@ export class RendererEsbuildElectronBuilder {
       this.rendererConfig.output?.directory ?? this.mainConfig.output.directory,
     );
     const outHtml = path.resolve(outDir, path.basename(html));
-    const relativeRendererScriptPath = path.relative(path.dirname(outHtml), this.outRendererPath);
+    const relativeRendererScriptPath = path.relative(path.dirname(outHtml), this.outRendererFile);
 
     if (!fs.existsSync(html)) {
       throw new Error(`Html file not found in <${html}>`);
@@ -130,11 +145,27 @@ export class RendererEsbuildElectronBuilder {
       fs.mkdirSync(outDir, { recursive: true });
     }
 
-    const content = fs.readFileSync(html, 'utf-8').replace(
+    let content = fs.readFileSync(html, 'utf-8').replace(
       '</body>',
       `  <script src="${relativeRendererScriptPath}"></script>
   </body>`,
     );
+
+    const outCss = path.resolve(
+      path.dirname(this.outRendererFile),
+      path.basename(this.outRendererFile, '.js') + '.css',
+    );
+
+    if (fs.existsSync(outCss)) {
+      const outCssRelative = path.relative(path.dirname(outHtml), outCss);
+
+      content = content.replace(
+        '</head>',
+        `  <link rel="stylesheet" href="${outCssRelative}">
+</head>`,
+      );
+    }
+
     fs.writeFileSync(outHtml, content, 'utf-8');
   }
 }

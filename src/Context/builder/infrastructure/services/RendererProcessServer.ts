@@ -10,15 +10,22 @@ import { findFreePort } from '../../../shared/infrastructure/findFreePort';
 export class RendererProcessServer {
   private readonly htmlPath: string;
   private readonly rendererScriptPath: string;
+  private readonly calculateCssPath: () => string | undefined;
   private readonly serveResult: ServeResult;
   private readonly handler: connect.Server;
   private readonly middlewares: Map<string, HandleFunction>;
   private readonly server: Server;
   private reloadServer?: LiveReloadServer;
 
-  constructor(serveResult: ServeResult, htmlPath: string, rendererScriptPath: string) {
+  constructor(
+    serveResult: ServeResult,
+    htmlPath: string,
+    rendererScriptPath: string,
+    calculateCssPath: () => string | undefined,
+  ) {
     this.htmlPath = htmlPath;
     this.rendererScriptPath = rendererScriptPath;
+    this.calculateCssPath = calculateCssPath;
     this.serveResult = serveResult;
     this.middlewares = new Map<string, HandleFunction>();
     this.handler = connect();
@@ -64,14 +71,26 @@ export class RendererProcessServer {
   private loadMiddlewares(): void {
     const htmlPath = this.htmlPath;
     const rendererScriptPath = this.rendererScriptPath;
+    const calculateCssPath = this.calculateCssPath;
 
     function getIndex(req: IncomingMessage, res: http.ServerResponse): void {
-      const html = fs.readFileSync(htmlPath, 'utf-8').replace(
+      let html = fs.readFileSync(htmlPath, 'utf-8').replace(
         '</body>',
         `  <script src='${rendererScriptPath}'></script>
     <script src='/livereload.js?snipver=1'></script>
   </body>`,
       );
+
+      const cssPath = calculateCssPath();
+
+      if (cssPath !== undefined) {
+        html = html.replace(
+          '</head>',
+          `  <link rel="stylesheet" href="${cssPath}">
+</head>`,
+        );
+      }
+
       res.writeHead(200, { 'Content-Type': 'text/html' });
       res.end(html);
     }
