@@ -106,7 +106,7 @@ export class MainEsbuildElectronBuilder {
           define: {
             'process.env.NODE_ENV': `"${process.env.NODE_ENV}"`,
           },
-          sourcemap: process.env.NODE_ENV === 'development' ? 'linked' : false,
+          sourcemap: process.env.NODE_ENV === 'development' ? 'inline' : false,
         });
       });
     }
