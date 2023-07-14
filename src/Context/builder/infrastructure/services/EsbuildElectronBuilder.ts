@@ -1,10 +1,10 @@
 import { ElectronBuilderService } from '../../domain/ElectronBuilderService';
-import { ElectronConfig } from '../../../config/domain/ElectronConfig';
+import { ElectronConfig, ExtraFileConfig } from '../../../config/domain/ElectronConfig';
 import { MainEsbuildElectronBuilder } from './MainEsbuildElectronBuilder';
 import { MainProcessStarter } from './MainProcessStarter';
 import { RendererEsbuildElectronBuilder } from './RendererEsbuildElectronBuilder';
 import path from 'path';
-import fs from 'fs';
+import fs, { fstat, fstatSync } from 'fs';
 
 export class EsbuildElectronBuilder implements ElectronBuilderService {
   private readonly loaders: string[];
@@ -30,6 +30,7 @@ export class EsbuildElectronBuilder implements ElectronBuilderService {
 
     await Promise.all(rendererBuilders.map((builder) => builder.build()));
     await mainBuilder.build();
+    this.copyExtraFiles(config.output, config.extraFiles);
   }
 
   async dev(config: ElectronConfig, clean: boolean): Promise<void> {
@@ -49,7 +50,39 @@ export class EsbuildElectronBuilder implements ElectronBuilderService {
     }
 
     await mainBuilder.build();
+
+    this.copyExtraFiles(config.output, config.extraFiles);
+
     await mainProcessStarter.start();
     await mainBuilder.dev(mainProcessStarter.start.bind(mainProcessStarter));
+  }
+
+  copyExtraFiles(output: string, extraFiles: ExtraFileConfig[]): void {
+    extraFiles.forEach((item) => {
+      try {
+        if (typeof item === 'string') {
+          const sourcePath = path.resolve(process.cwd(), item);
+          let outputPath = path.resolve(process.cwd(), output);
+          const stats = fs.statSync(sourcePath);
+
+          if (stats.isFile()) {
+            outputPath = path.resolve(outputPath, path.basename(sourcePath));
+          }
+
+          if (stats.isDirectory()) {
+            outputPath = path.resolve(outputPath, item);
+          }
+
+          fs.cpSync(sourcePath, outputPath, { recursive: true });
+        } else {
+          const sourcePath = path.resolve(process.cwd(), item.from);
+          const outputPath = path.resolve(process.cwd(), output, item.to);
+
+          fs.cpSync(sourcePath, outputPath, { recursive: true });
+        }
+      } catch (error: any) {
+        console.error(error.message);
+      }
+    });
   }
 }
