@@ -97,8 +97,15 @@ You can configure the build with a `electron-esbuild.config.json` file in the ro
           }
         ]
       }
+    ],
+    "extraFiles" : [ // optional, copy files in <output> directory
+      "path/to/file-directory", // copy the file or directory in <output>
+      {
+        "from": "src/main/main.ts",
+        "to": "main/main.tsx"
+      }
     ]
-  }
+  },
 ]
 ```
 
