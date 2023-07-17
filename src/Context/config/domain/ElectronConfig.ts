@@ -1,17 +1,17 @@
 import { RendererConfig } from './RendererConfig';
 import { MainConfig } from './MainConfig';
 import path from 'path';
-import { FileConfig } from './FileConfig';
+import { ExtraFileConfig } from './ExtraFileConfig';
 
-export type ExtraFileConfig = string | FileConfig;
+export type ExtraFile = string | ExtraFileConfig;
 
 export class ElectronConfig {
   readonly output: string;
   readonly main: MainConfig;
   readonly renderers: ReadonlyArray<RendererConfig>;
-  readonly extraFiles: ExtraFileConfig[];
+  readonly extraFiles: ExtraFile[];
 
-  constructor(output: string, main: MainConfig, renderers: RendererConfig[], extraFiles: ExtraFileConfig[]) {
+  constructor(output: string, main: MainConfig, renderers: RendererConfig[], extraFiles: ExtraFile[]) {
     this.output = output;
     this.main = main;
     this.renderers = renderers;
@@ -36,7 +36,7 @@ export class ElectronConfig {
     const main = MainConfig.fromObject(object.main);
     const renderers = ElectronConfig.prepareRenderersFromObject(object.renderers);
 
-    const extraFiles: (string | FileConfig)[] = [];
+    const extraFiles: (string | ExtraFile)[] = [];
 
     if (Array.isArray(object.extraFiles)) {
       for (let i = 0; i < object.extraFiles.length; i++) {
@@ -48,7 +48,7 @@ export class ElectronConfig {
         }
 
         try {
-          extraFiles.push(FileConfig.fromObject(fileConfig));
+          extraFiles.push(ExtraFileConfig.fromObject(fileConfig));
         } catch (error: any) {
           console.log(error.message);
         }

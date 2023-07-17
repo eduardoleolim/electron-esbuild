@@ -1,4 +1,4 @@
-export class FileConfig {
+export class ExtraFileConfig {
   readonly from: string;
   readonly to: string;
 
@@ -7,7 +7,7 @@ export class FileConfig {
     this.to = to;
   }
 
-  static fromObject(object: any): FileConfig {
+  static fromObject(object: any): ExtraFileConfig {
     const from = object.from;
     const to = object.to;
 
@@ -19,6 +19,6 @@ export class FileConfig {
       throw new Error('OutputConfig.fromObject: <to> must be a string');
     }
 
-    return new FileConfig(from, to);
+    return new ExtraFileConfig(from, to);
   }
 }

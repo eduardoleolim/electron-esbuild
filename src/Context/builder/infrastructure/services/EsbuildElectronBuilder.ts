@@ -1,5 +1,5 @@
 import { ElectronBuilderService } from '../../domain/ElectronBuilderService';
-import { ElectronConfig, ExtraFileConfig } from '../../../config/domain/ElectronConfig';
+import { ElectronConfig, ExtraFile } from '../../../config/domain/ElectronConfig';
 import { MainEsbuildElectronBuilder } from './MainEsbuildElectronBuilder';
 import { MainProcessStarter } from './MainProcessStarter';
 import { RendererEsbuildElectronBuilder } from './RendererEsbuildElectronBuilder';
@@ -57,7 +57,7 @@ export class EsbuildElectronBuilder implements ElectronBuilderService {
     await mainBuilder.dev(mainProcessStarter.start.bind(mainProcessStarter));
   }
 
-  copyExtraFiles(output: string, extraFiles: ExtraFileConfig[]): void {
+  copyExtraFiles(output: string, extraFiles: ExtraFile[]): void {
     extraFiles.forEach((item) => {
       try {
         if (typeof item === 'string') {
