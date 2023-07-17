@@ -1,7 +1,7 @@
 import { Command } from 'commander';
 import path from 'path';
 import * as fs from 'fs';
-import { buildEsbuild, devEsbuild } from '../builders/Builders';
+import { jsonBuildEsbuild, jsonDevEsbuild } from '../builders/Builders';
 
 type Options = {
   config?: string;
@@ -42,7 +42,7 @@ export class CommandLine {
         const fullConfigPath = path.resolve(process.cwd(), pathConfig);
 
         try {
-          devEsbuild.dev(fullConfigPath, options.clean || false);
+          jsonDevEsbuild.dev(fullConfigPath, options.clean || false);
         } catch (error: any) {
           console.log(error.message);
         }
@@ -57,7 +57,7 @@ export class CommandLine {
         const fullConfigPath = path.resolve(process.cwd(), pathConfig);
 
         try {
-          buildEsbuild.build(fullConfigPath, true);
+          jsonBuildEsbuild.build(fullConfigPath, true);
         } catch (error: any) {
           console.log(error.message);
         }

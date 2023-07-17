@@ -2,7 +2,10 @@ import { EsbuildElectronBuilder } from '../../Context/builder/infrastructure/ser
 import { DevApplication } from '../../Context/builder/application/DevApplication';
 import { loaders } from '../../Context/shared/infrastructure/esbuidLoaders';
 import { BuildApplication } from '../../Context/builder/application/BuildApplication';
+import { JsonFileConfigParser } from '../../Context/config/infrastructure/JsonFileConfigParser';
 
-export const devEsbuild = new DevApplication(new EsbuildElectronBuilder(loaders));
+const jsonParser = new JsonFileConfigParser();
+const esbuildBuilder = new EsbuildElectronBuilder(loaders);
 
-export const buildEsbuild = new BuildApplication(new EsbuildElectronBuilder(loaders));
+export const jsonDevEsbuild = new DevApplication(jsonParser, esbuildBuilder);
+export const jsonBuildEsbuild = new BuildApplication(jsonParser, esbuildBuilder);

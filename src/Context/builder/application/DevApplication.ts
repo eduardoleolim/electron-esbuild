@@ -1,11 +1,14 @@
 import { ElectronBuilderService } from '../domain/ElectronBuilderService';
 import { ElectronConfig } from '../../config/domain/ElectronConfig';
 import fs from 'fs';
+import { FileConfigParser } from '../../config/domain/FileConfigParser';
 
 export class DevApplication {
+  private readonly parser: FileConfigParser;
   private readonly builder: ElectronBuilderService;
 
-  constructor(builder: ElectronBuilderService) {
+  constructor(parser: FileConfigParser, builder: ElectronBuilderService) {
+    this.parser = parser;
     this.builder = builder;
   }
 
@@ -17,7 +20,7 @@ export class DevApplication {
   private prepareConfigs(configPath: string): ElectronConfig[] {
     if (!fs.existsSync(configPath)) throw new Error('Config file not found');
 
-    let configs = JSON.parse(fs.readFileSync(configPath, 'utf8'));
+    let configs = this.parser.parse(configPath);
     if (!Array.isArray(configs)) {
       configs = [configs];
     }
