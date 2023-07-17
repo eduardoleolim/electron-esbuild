@@ -26,7 +26,7 @@ describe('OutputConfig module', () => {
 
       expect(true).toBe(false);
     } catch (error: any) {
-      expect(error.message).toBe('OutputConfig.fromJson: directory must be a string');
+      expect(error.message).toBe('OutputConfig.fromObject: directory must be a string');
     }
   });
 
@@ -37,7 +37,7 @@ describe('OutputConfig module', () => {
 
       expect(true).toBe(false);
     } catch (error: any) {
-      expect(error.message).toBe('OutputConfig.fromJson: directory must be a relative path');
+      expect(error.message).toBe('OutputConfig.fromObject: directory must be a relative path');
     }
   });
 
@@ -48,7 +48,7 @@ describe('OutputConfig module', () => {
 
       expect(true).toBe(false);
     } catch (error: any) {
-      expect(error.message).toBe('OutputConfig.fromJson: filename must be a string');
+      expect(error.message).toBe('OutputConfig.fromObject: filename must be a string');
     }
   });
 });
