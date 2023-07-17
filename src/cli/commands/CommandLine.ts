@@ -38,22 +38,21 @@ export class CommandLine {
       .option('--clean', 'Clean the output directory')
       .action((options: DevOptions) => {
         process.env.NODE_ENV = 'development';
-        const pathConfig = options.config || 'electron-esbuild.config.json';
-        const fullConfigPath = path.resolve(process.cwd(), pathConfig);
-
-        const extension = path.extname(fullConfigPath);
 
         try {
+          const pathConfig = this.prepareConfigPath(options.config);
+          const extension = path.extname(pathConfig);
+
           switch (extension) {
             case '.json':
-              jsonDevEsbuild.dev(fullConfigPath, options.clean || false);
+              jsonDevEsbuild.dev(pathConfig, options.clean || false);
               break;
             case '.yml':
             case '.yaml':
-              yamlDevEsbuild.dev(fullConfigPath, options.clean || false);
+              yamlDevEsbuild.dev(pathConfig, options.clean || false);
               break;
             default:
-              throw new Error('Config file not supported');
+              console.log('Config file not supported');
           }
         } catch (error: any) {
           console.log(error.message);
@@ -65,27 +64,55 @@ export class CommandLine {
       .option('-c, --config <path>', 'Path to the config file')
       .action((options: BuildOptions) => {
         process.env.NODE_ENV = 'production';
-        const pathConfig = options.config || 'electron-esbuild.config.json';
-        const fullConfigPath = path.resolve(process.cwd(), pathConfig);
-
-        const extension = path.extname(fullConfigPath);
-
         try {
+          const pathConfig = this.prepareConfigPath(options.config);
+          const extension = path.extname(pathConfig);
+
           switch (extension) {
             case '.json':
-              jsonBuildEsbuild.build(fullConfigPath, true);
+              jsonBuildEsbuild.build(pathConfig, true);
               break;
             case '.yml':
             case '.yaml':
-              yamlBuildEsbuild.build(fullConfigPath, true);
+              yamlBuildEsbuild.build(pathConfig, true);
               break;
             default:
-              throw new Error('Config file not supported');
+              console.log('Config file not supported');
           }
         } catch (error: any) {
           console.log(error.message);
         }
       });
+  }
+
+  private prepareConfigPath(config: string | undefined): string {
+    const jsonConfig = 'electron-esbuild.config.json';
+    const yamlConfig = 'electron-esbuild.config.yaml';
+    let pathConfig: string;
+
+    if (config) {
+      pathConfig = path.resolve(process.cwd(), config);
+
+      if (!fs.existsSync(pathConfig)) {
+        throw new Error('Config file not found');
+      }
+
+      return pathConfig;
+    }
+
+    pathConfig = path.resolve(process.cwd(), yamlConfig);
+
+    if (fs.existsSync(path.resolve(process.cwd(), yamlConfig))) {
+      console.log('Using default config file: electron-esbuild.config.yaml');
+      return pathConfig;
+    }
+
+    if (fs.existsSync(path.resolve(process.cwd(), jsonConfig))) {
+      console.log('Using default config file: electron-esbuild.config.json');
+      return path.resolve(process.cwd(), jsonConfig);
+    }
+
+    throw new Error('Config file not found');
   }
 
   public parse(argv: string[]): void {
