@@ -22,7 +22,10 @@
   },
   "keywords": [
     "esbuild",
-    "electron"
+    "electron",
+    "hot reload",
+    "renderer",
+    "cli"
   ],
   "author": "eduardoleolim",
   "license": "MIT",

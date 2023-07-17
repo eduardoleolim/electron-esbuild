@@ -1,39 +1,50 @@
-# @eduardoleolim/electron-esbuild
+<h1 align="center">
+  <img src="https://upload.wikimedia.org/wikipedia/commons/9/91/Electron_Software_Framework_Logo.svg" height="35" alt="electron logo">
+  electron-esbuild
+  <img src="https://raw.githubusercontent.com/evanw/esbuild/a846a60af6bf679e158e486b9da82dcf270fc613/images/logo.svg" height="35" alt="esbuild logo">
+</h1>
 
-[![license](https://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/eduardoleolim/electron-esbuild/blob/master/LICENSE)
+<p align="center">
+    <a href="https://github.com/eduardoleolim/electron-esbuild/actions/workflows/ci.yaml"><img src="https://github.com/eduardoleolim/electron-esbuild/actions/workflows/ci.yaml/badge.svg" alt="Build status"/></a>
+    <a href="https://www.npmjs.com/package/@eduardoleolim/electron-esbuild"><img src="https://img.shields.io/npm/v/@eduardoleolim/electron-esbuild" alt="NPM version"/></a>
+    <a href="https://www.npmjs.com/package/@eduardoleolim/electron-esbuild"><img src="https://img.shields.io/npm/dt/@eduardoleolim/electron-esbuild" alt="NPM downloads"/></a>
+    <a href="https://github.com/eduardoleolim/electron-esbuild/blob/master/LICENSE"><img src="https://img.shields.io/npm/l/@eduardoleolim/electron-esbuild" alt="License"/></a>
+</p>
+
+<p align="center">
+  <a href="https://github.com/eduardoleolim/electron-esbuild/stargazers">Stars are welcome 😊</a>
+</p>
 
 Inspired by [electron-esbuild](https://github.com/Kiyozz/electron-esbuild) of [Kiyozz](https://github.com/Kiyozz).
 
 A package to build your electron app with esbuild.
 
-## Features
+## ✨ Features
 
 - Build your electron app with esbuild
-- Build your renderer process with esbuild
 - Start a dev server for your renderer process
-- Hot reload for your renderer process
+- Hot reload for dev server
 - Copy extra files to the output directory
 - Support for preload files
 - Support for esbuild loaders
 - Support for exclude libs
-- Support for multiple main and renderer configurations
-- Support for multiple preloads
+- Support for multiple main, preload and renderer configurations
 
-## Installation
+## 📥 Installation
 
 ```bash
 npm install @eduardoleolim/electron-esbuild --save-dev
 ```
 
-## Usage
+## 🖥️ Usage
 
 ```bash
 npx electron-esbuild <command> [options]
 ```
 
-### Commands
+### ⌨️ Commands
 
-#### build
+#### 🛠️ build
 
 Builds your electron app.
 
@@ -45,7 +56,7 @@ Options:
 npx electron-esbuild build [--config electron-esbuild.config.json]
 ```
 
-#### dev
+#### 👨‍💻 dev
 
 Builds your electron app and starts a dev server for your renderer process.
 
@@ -58,7 +69,7 @@ Options:
 npx electron-esbuild dev [--config electron-esbuild.config.json] [--clean]
 ```
 
-## Configuration
+## ⚙️ Configuration
 
 You can configure the build with a json or yaml file in the root of your project. The default name is `electron-esbuild.config.json` or `electron-esbuild.config.yaml`.
 
@@ -179,7 +190,7 @@ If it is an object, it is composed of the following properties:
 ]
 ```
 
-## Examples
+## 👀 Examples
 
 ### Simple configuration
 
