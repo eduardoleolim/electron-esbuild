@@ -1,7 +1,7 @@
 import { Command } from 'commander';
 import path from 'path';
 import * as fs from 'fs';
-import { jsonBuildEsbuild, jsonDevEsbuild } from '../builders/Builders';
+import { jsonBuildEsbuild, jsonDevEsbuild, yamlBuildEsbuild, yamlDevEsbuild } from '../builders/Builders';
 
 type Options = {
   config?: string;
@@ -41,8 +41,20 @@ export class CommandLine {
         const pathConfig = options.config || 'electron-esbuild.config.json';
         const fullConfigPath = path.resolve(process.cwd(), pathConfig);
 
+        const extension = path.extname(fullConfigPath);
+
         try {
-          jsonDevEsbuild.dev(fullConfigPath, options.clean || false);
+          switch (extension) {
+            case '.json':
+              jsonDevEsbuild.dev(fullConfigPath, options.clean || false);
+              break;
+            case '.yml':
+            case '.yaml':
+              yamlDevEsbuild.dev(fullConfigPath, options.clean || false);
+              break;
+            default:
+              throw new Error('Config file not supported');
+          }
         } catch (error: any) {
           console.log(error.message);
         }
@@ -56,8 +68,20 @@ export class CommandLine {
         const pathConfig = options.config || 'electron-esbuild.config.json';
         const fullConfigPath = path.resolve(process.cwd(), pathConfig);
 
+        const extension = path.extname(fullConfigPath);
+
         try {
-          jsonBuildEsbuild.build(fullConfigPath, true);
+          switch (extension) {
+            case '.json':
+              jsonBuildEsbuild.build(fullConfigPath, true);
+              break;
+            case '.yml':
+            case '.yaml':
+              yamlBuildEsbuild.build(fullConfigPath, true);
+              break;
+            default:
+              throw new Error('Config file not supported');
+          }
         } catch (error: any) {
           console.log(error.message);
         }
