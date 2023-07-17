@@ -18,7 +18,47 @@ export class ElectronConfig {
     this.extraFiles = extraFiles;
   }
 
-  private static prepareRenderersFromJson(renderers: any): RendererConfig[] {
+  public static fromObject(object: any): ElectronConfig {
+    let output = object.output;
+
+    if (output === undefined) {
+      output = 'dist';
+      console.warn(`ElectronConfig.fromObject: output is undefined, using default value: ${output}`);
+    } else if (typeof output !== 'string') {
+      throw new Error('ElectronConfig.fromObject: output must be a string');
+    } else {
+      output = path.resolve(output);
+    }
+
+    if (object.main === undefined) {
+      throw new Error('ElectronConfig.fromObject: main is required');
+    }
+    const main = MainConfig.fromObject(object.main);
+    const renderers = ElectronConfig.prepareRenderersFromObject(object.renderers);
+
+    const extraFiles: (string | FileConfig)[] = [];
+
+    if (Array.isArray(object.extraFiles)) {
+      for (let i = 0; i < object.extraFiles.length; i++) {
+        const fileConfig = object.extraFiles[i];
+
+        if (typeof fileConfig === 'string') {
+          extraFiles.push(fileConfig);
+          continue;
+        }
+
+        try {
+          extraFiles.push(FileConfig.fromObject(fileConfig));
+        } catch (error: any) {
+          console.log(error.message);
+        }
+      }
+    }
+
+    return new ElectronConfig(output, main, renderers, extraFiles);
+  }
+
+  private static prepareRenderersFromObject(renderers: any): RendererConfig[] {
     if (renderers === undefined) {
       return [];
     }
@@ -27,46 +67,6 @@ export class ElectronConfig {
       renderers = [renderers];
     }
 
-    return renderers.map(RendererConfig.fromJson);
-  }
-
-  public static fromJson(json: any): ElectronConfig {
-    let output = json.output;
-
-    if (output === undefined) {
-      output = 'dist';
-      console.warn(`ElectronConfig.fromJson: output is undefined, using default value: ${output}`);
-    } else if (typeof output !== 'string') {
-      throw new Error('ElectronConfig.fromJson: output must be a string');
-    } else {
-      output = path.resolve(output);
-    }
-
-    if (json.main === undefined) {
-      throw new Error('ElectronConfig.fromJson: main is required');
-    }
-    const main = MainConfig.fromJson(json.main);
-    const renderers = ElectronConfig.prepareRenderersFromJson(json.renderers);
-
-    const extraFiles: (string | FileConfig)[] = [];
-
-    if (Array.isArray(json.extraFiles)) {
-      for (let i = 0; i < json.extraFiles.length; i++) {
-        const fileConfig = json.extraFiles[i];
-
-        if (typeof fileConfig === 'string') {
-          extraFiles.push(fileConfig);
-          continue;
-        }
-
-        try {
-          extraFiles.push(FileConfig.fromJson(fileConfig));
-        } catch (error: any) {
-          console.log(error.message);
-        }
-      }
-    }
-
-    return new ElectronConfig(output, main, renderers, extraFiles);
+    return renderers.map(RendererConfig.fromObject);
   }
 }

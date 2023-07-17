@@ -7,16 +7,16 @@ export class LoaderConfig {
     this.loader = loader;
   }
 
-  static fromJson(json: any): LoaderConfig {
-    const extension = json.extension;
-    const loader = json.loader;
+  static fromObject(object: any): LoaderConfig {
+    const extension = object.extension;
+    const loader = object.loader;
 
     if (typeof extension !== 'string') {
-      throw new Error('LoaderConfig.fromJson: extension must be a string');
+      throw new Error('LoaderConfig.fromObject: extension must be a string');
     }
 
     if (typeof loader !== 'string') {
-      throw new Error('LoaderConfig.fromJson: loader must be a string');
+      throw new Error('LoaderConfig.fromObject: loader must be a string');
     }
 
     return new LoaderConfig(extension, loader);

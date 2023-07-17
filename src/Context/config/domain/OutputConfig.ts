@@ -9,20 +9,20 @@ export class OutputConfig {
     this.filename = filename;
   }
 
-  static fromJson(json: any): OutputConfig {
-    const directory = json.directory;
-    const filename = json.filename;
+  static fromObject(object: any): OutputConfig {
+    const directory = object.directory;
+    const filename = object.filename;
 
     if (typeof directory !== 'string') {
-      throw new Error('OutputConfig.fromJson: directory must be a string');
+      throw new Error('OutputConfig.fromObject: directory must be a string');
     }
 
     if (path.isAbsolute(directory)) {
-      throw new Error('OutputConfig.fromJson: directory must be a relative path');
+      throw new Error('OutputConfig.fromObject: directory must be a relative path');
     }
 
     if (typeof filename !== 'string') {
-      throw new Error('OutputConfig.fromJson: filename must be a string');
+      throw new Error('OutputConfig.fromObject: filename must be a string');
     }
 
     return new OutputConfig(directory, filename);

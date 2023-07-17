@@ -24,28 +24,32 @@ export class MainConfig {
     this.output = output;
   }
 
-  static fromJson(json: any): MainConfig {
-    const entry = json.entry;
+  static fromObject(object: any): MainConfig {
+    if (object === undefined) {
+      throw new Error('MainConfig.fromObject: config is required');
+    }
+
+    const entry = object.entry;
     if (typeof entry !== 'string') {
-      throw new Error('MainConfig.fromJson: entry must be a string');
+      throw new Error('MainConfig.fromObject: entry must be a string');
     }
 
     if (path.isAbsolute(entry)) {
-      throw new Error('MainConfig.fromJson: entry must be a relative path');
+      throw new Error('MainConfig.fromObject: entry must be a relative path');
     }
 
-    if (json.output === undefined) {
-      throw new Error('MainConfig.fromJson: output is required');
+    if (object.output === undefined) {
+      throw new Error('MainConfig.fromObject: output is required');
     }
-    const output = OutputConfig.fromJson(json.output);
-    const preloads = MainConfig.preparePreloadsFromJson(json.preloads);
-    const loaders = MainConfig.prepareLoadersFromJson(json.loaders);
-    const excludes = MainConfig.prepareExcludesFromJson(json.exclude);
+    const output = OutputConfig.fromObject(object.output);
+    const preloads = MainConfig.preparePreloadsFromObject(object.preloads);
+    const loaders = MainConfig.prepareLoadersFromObject(object.loaders);
+    const excludes = MainConfig.prepareExcludesFroObject(object.exclude);
 
     return new MainConfig(entry, output, preloads, loaders, excludes);
   }
 
-  private static preparePreloadsFromJson(preloads: any): PreloadConfig[] | undefined {
+  private static preparePreloadsFromObject(preloads: any): PreloadConfig[] | undefined {
     if (preloads === undefined) {
       return undefined;
     }
@@ -54,10 +58,10 @@ export class MainConfig {
       preloads = [preloads];
     }
 
-    return preloads.map(PreloadConfig.fromJson);
+    return preloads.map(PreloadConfig.fromObject);
   }
 
-  private static prepareLoadersFromJson(loaders: any): LoaderConfig[] | undefined {
+  private static prepareLoadersFromObject(loaders: any): LoaderConfig[] | undefined {
     if (loaders === undefined) {
       return undefined;
     }
@@ -66,10 +70,10 @@ export class MainConfig {
       loaders = [loaders];
     }
 
-    return loaders.map(LoaderConfig.fromJson);
+    return loaders.map(LoaderConfig.fromObject);
   }
 
-  private static prepareExcludesFromJson(excludes: any): string[] | undefined {
+  private static prepareExcludesFroObject(excludes: any): string[] | undefined {
     if (excludes === undefined) {
       return undefined;
     }
@@ -80,7 +84,7 @@ export class MainConfig {
 
     return excludes.map((exclude: any) => {
       if (typeof exclude !== 'string') {
-        throw new Error(`MainConfig.fromJson: <${exclude}> must be a string`);
+        throw new Error(`MainConfig.fromObject: <${exclude}> must be a string`);
       }
 
       return exclude;

@@ -22,6 +22,6 @@ export class DevApplication {
       configs = [configs];
     }
 
-    return configs.map(ElectronConfig.fromJson);
+    return configs.map(ElectronConfig.fromObject);
   }
 }

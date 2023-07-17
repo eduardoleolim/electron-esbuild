@@ -1,5 +1,3 @@
-import { OutputConfig } from './OutputConfig';
-
 export class FileConfig {
   readonly from: string;
   readonly to: string;
@@ -9,16 +7,16 @@ export class FileConfig {
     this.to = to;
   }
 
-  static fromJson(json: any): FileConfig {
-    const from = json.from;
-    const to = json.to;
+  static fromObject(object: any): FileConfig {
+    const from = object.from;
+    const to = object.to;
 
     if (typeof from !== 'string') {
-      throw new Error('OutputConfig.fromJson: <from> must be a string');
+      throw new Error('OutputConfig.fromObject: <from> must be a string');
     }
 
     if (typeof to !== 'string') {
-      throw new Error('OutputConfig.fromJson: <to> must be a string');
+      throw new Error('OutputConfig.fromObject: <to> must be a string');
     }
 
     return new FileConfig(from, to);

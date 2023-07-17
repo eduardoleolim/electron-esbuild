@@ -10,17 +10,17 @@ export class PreloadConfig {
     this.output = output;
   }
 
-  static fromJson(json: any): PreloadConfig {
-    const entry = json.entry;
+  static fromObject(object: any): PreloadConfig {
+    const entry = object.entry;
     if (typeof entry !== 'string') {
-      throw new Error('PreloadConfig.fromJson: entry must be a string');
+      throw new Error('PreloadConfig.fromObject: entry must be a string');
     }
 
     if (path.isAbsolute(entry)) {
-      throw new Error('PreloadConfig.fromJson: entry must be a relative path');
+      throw new Error('PreloadConfig.fromObject: entry must be a relative path');
     }
 
-    const output = json.output ? OutputConfig.fromJson(json.output) : undefined;
+    const output = object.output ? OutputConfig.fromObject(object.output) : undefined;
 
     return new PreloadConfig(entry, output);
   }

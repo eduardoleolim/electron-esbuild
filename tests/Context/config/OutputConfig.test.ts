@@ -10,7 +10,7 @@ describe('OutputConfig module', () => {
   test('Parse from json', () => {
     try {
       const jsonParsed = JSON.parse(validConfigData);
-      const outputConfig = OutputConfig.fromJson(jsonParsed);
+      const outputConfig = OutputConfig.fromObject(jsonParsed);
 
       expect(outputConfig.directory).toBe(jsonParsed.directory);
       expect(outputConfig.filename).toBe(jsonParsed.filename);
@@ -22,7 +22,7 @@ describe('OutputConfig module', () => {
   test('Invalid directory', () => {
     try {
       const jsonParsed = JSON.parse(invalidDirectoryConfigData);
-      OutputConfig.fromJson(jsonParsed);
+      OutputConfig.fromObject(jsonParsed);
 
       expect(true).toBe(false);
     } catch (error: any) {
@@ -33,7 +33,7 @@ describe('OutputConfig module', () => {
   test('Invalid directory, absolute path', () => {
     try {
       const jsonParsed = JSON.parse(invalidAbsolutePathConfigData);
-      OutputConfig.fromJson(jsonParsed);
+      OutputConfig.fromObject(jsonParsed);
 
       expect(true).toBe(false);
     } catch (error: any) {
@@ -44,7 +44,7 @@ describe('OutputConfig module', () => {
   test('Invalid filename', () => {
     try {
       const jsonParsed = JSON.parse(invalidFilenameConfigData);
-      OutputConfig.fromJson(jsonParsed);
+      OutputConfig.fromObject(jsonParsed);
 
       expect(true).toBe(false);
     } catch (error: any) {

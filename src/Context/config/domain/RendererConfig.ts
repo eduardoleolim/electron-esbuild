@@ -26,34 +26,38 @@ export class RendererConfig {
     this.output = output;
   }
 
-  static fromJson(json: any): RendererConfig {
-    const entry = json.entry;
-    const html = json.html;
-    const devPort = json.devPort;
+  static fromObject(object: any): RendererConfig {
+    if (object === undefined) {
+      throw new Error('RendererConfig.fromObject: config is required');
+    }
+
+    const entry = object.entry;
+    const html = object.html;
+    const devPort = object.devPort;
 
     if (typeof entry !== 'string') {
-      throw new Error('RendererConfig.fromJson: entry must be a string');
+      throw new Error('RendererConfig.fromObject: entry must be a string');
     }
 
     if (path.isAbsolute(entry)) {
-      throw new Error('RendererConfig.fromJson: entry must be a relative path');
+      throw new Error('RendererConfig.fromObject: entry must be a relative path');
     }
 
     if (typeof html !== 'string') {
-      throw new Error('RendererConfig.fromJson: html must be a string');
+      throw new Error('RendererConfig.fromObject: html must be a string');
     }
 
     if (path.isAbsolute(html)) {
-      throw new Error('RendererConfig.fromJson: html must be a relative path');
+      throw new Error('RendererConfig.fromObject: html must be a relative path');
     }
 
     if (devPort !== undefined && typeof devPort !== 'number') {
-      throw new Error('RendererConfig.fromJson: devPort must be a number');
+      throw new Error('RendererConfig.fromObject: devPort must be a number');
     }
 
-    const output = json.output ? OutputConfig.fromJson(json.output) : undefined;
-    const loaders = RendererConfig.prepareLoadersFromJson(json.loaders);
-    const excludes = RendererConfig.prepareExcludesFromJson(json.exclude);
+    const output = object.output ? OutputConfig.fromObject(object.output) : undefined;
+    const loaders = RendererConfig.prepareLoadersFromJson(object.loaders);
+    const excludes = RendererConfig.prepareExcludesFromJson(object.exclude);
 
     return new RendererConfig(entry, html, devPort, loaders, excludes, output);
   }
@@ -67,7 +71,7 @@ export class RendererConfig {
       loaders = [loaders];
     }
 
-    return loaders.map(LoaderConfig.fromJson);
+    return loaders.map(LoaderConfig.fromObject);
   }
 
   private static prepareExcludesFromJson(excludes: any): string[] | undefined {
@@ -81,7 +85,7 @@ export class RendererConfig {
 
     return excludes.map((exclude: any) => {
       if (typeof exclude !== 'string') {
-        throw new Error(`RendererConfig.fromJson: <${exclude}> must be a string`);
+        throw new Error(`RendererConfig.fromObject: <${exclude}> must be a string`);
       }
 
       return exclude;
