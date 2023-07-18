@@ -10,7 +10,8 @@ hotReload.addEventListener('change', (event) => {
       const url = new URL(link.href);
 
       for (const resource of updated) {
-        if (url.host !== location.host && url.pathname !== resource) continue;
+        if (url.host !== location.host) continue;
+        if (url.pathname !== resource) continue;
 
         const next = link.cloneNode();
         next.href = resource + '?' + Math.random().toString(36).slice(2);
