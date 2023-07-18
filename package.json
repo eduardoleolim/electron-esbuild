@@ -37,13 +37,11 @@
   "dependencies": {
     "chokidar": "^3.5.3",
     "commander": "^11.0.0",
-    "connect": "^3.7.0",
     "debounce": "^1.2.1",
     "dependency-tree": "^10.0.9",
     "js-yaml": "^4.1.0"
   },
   "devDependencies": {
-    "@types/connect": "^3.4.35",
     "@types/debounce": "^1.2.1",
     "@types/jest": "^29.5.3",
     "@types/js-yaml": "^4.0.5",
