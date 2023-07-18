@@ -4,7 +4,7 @@
   "description": "Use esbuild with electron",
   "main": "dist/cli/index.js",
   "scripts": {
-    "lint": "eslint src --quiet --fix",
+    "lint": "eslint src scripts --quiet --fix",
     "prepare": "husky install",
     "build": "rimraf dist && tsc",
     "dev": "ts-node src/cli/index.ts",
@@ -68,7 +68,7 @@
   },
   "lint-staged": {
     "*.{js,ts}": [
-      "eslint src --fix",
+      "eslint src scripts --fix",
       "git add"
     ]
   }

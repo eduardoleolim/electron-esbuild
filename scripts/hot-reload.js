@@ -5,9 +5,6 @@ hotReload.addEventListener('change', (event) => {
   const { added, removed, updated } = JSON.parse(event.data);
 
   if (added.length === 0 && removed.length === 0) {
-    /**
-     * @type {HTMLCollectionOf<HTMLLinkElement & Node>}
-     */
     const links = document.getElementsByTagName('link');
     for (const link of links) {
       const url = new URL(link.href);
