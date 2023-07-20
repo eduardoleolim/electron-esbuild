@@ -5,6 +5,7 @@ import fs from 'fs';
 import { MainConfig } from '../../../config/domain/MainConfig';
 import { findFreePort } from '../../../shared/infrastructure/findFreePort';
 import chokidar from 'chokidar';
+import { Logger } from '../../../shared/domain/Logger';
 import { RendererProcessServer } from './RendererProcessServer';
 import { getDependencies } from '../../../shared/infrastructure/getDependencies';
 import debounce from 'debounce';
@@ -15,12 +16,20 @@ export class RendererEsbuildElectronBuilder {
   private readonly rendererConfig: RendererConfig;
   private readonly loaders: ReadonlyArray<string>;
   private readonly outRendererFile: string;
+  private readonly logger: Logger;
 
-  constructor(mainConfig: MainConfig, rendererConfig: RendererConfig, outputDirectory: string, loaders: string[]) {
+  constructor(
+    mainConfig: MainConfig,
+    rendererConfig: RendererConfig,
+    outputDirectory: string,
+    loaders: string[],
+    logger: Logger,
+  ) {
     this.mainConfig = mainConfig;
     this.rendererConfig = rendererConfig;
     this.outputDirectory = outputDirectory;
     this.loaders = loaders;
+    this.logger = logger;
     this.outRendererFile = path.resolve(
       this.outputDirectory,
       this.rendererConfig.output?.directory ?? this.mainConfig.output.directory,
@@ -29,14 +38,14 @@ export class RendererEsbuildElectronBuilder {
   }
 
   public async build(): Promise<void> {
-    console.log('Building renderer process...');
+    this.logger.log('RENDERER', 'Building renderer process');
     const buildOptions = this.prepareBuildOptions();
     const context = await esbuild.context<BuildOptions>(buildOptions);
     await context.rebuild();
     await context.cancel();
     await context.dispose();
     this.copyHtml();
-    console.log('Renderer process built');
+    this.logger.log('RENDERER', 'Renderer process built');
   }
 
   public async dev(): Promise<void> {
@@ -62,11 +71,17 @@ export class RendererEsbuildElectronBuilder {
       return path.relative(path.dirname(outHtml), outCss);
     }
 
-    console.log('Building renderer process...');
+    this.logger.log('RENDERER', 'Building renderer process');
     context.serve({ port: portContext, host, servedir }).then(async (result) => {
-      console.log('Renderer process built');
+      this.logger.log('RENDERER', 'Renderer process built');
 
-      const server = new RendererProcessServer(result, htmlPath, relativeRendererScriptPath, calculateCssRelativePath);
+      const server = new RendererProcessServer(
+        result,
+        htmlPath,
+        relativeRendererScriptPath,
+        calculateCssRelativePath,
+        this.logger,
+      );
 
       let sources = getDependencies(path.resolve(this.rendererConfig.entry));
       const watcher = chokidar.watch(sources, { disableGlobbing: false });
@@ -109,7 +124,10 @@ export class RendererEsbuildElectronBuilder {
     if (this.rendererConfig.loaders !== undefined) {
       this.rendererConfig.loaders.forEach((loaderConfig) => {
         if (!this.loaders.includes(loaderConfig.loader)) {
-          console.log(`Unknown loader ${loaderConfig.loader} for extension ${loaderConfig.extension}`);
+          this.logger.log(
+            'RENDERER',
+            `Unknown loader <${loaderConfig.loader}> for extension <${loaderConfig.extension}>`,
+          );
           return;
         }
 

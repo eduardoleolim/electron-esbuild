@@ -4,38 +4,44 @@ import debounce from 'debounce';
 import esbuild, { BuildContext, BuildOptions, Plugin, PluginBuild } from 'esbuild';
 import path from 'path';
 import { getDependencies } from '../../../shared/infrastructure/getDependencies';
+import { MainProcessStarter } from './MainProcessStarter';
+import { Logger } from '../../../shared/domain/Logger';
 
 export class MainEsbuildElectronBuilder {
   private readonly mainConfig: MainConfig;
   private readonly outputDirectory: string;
   private readonly loaders: ReadonlyArray<string>;
+  private readonly logger: Logger;
   private context?: BuildContext;
 
-  constructor(mainConfig: MainConfig, outputDirectory: string, loaders: string[]) {
+  constructor(mainConfig: MainConfig, outputDirectory: string, loaders: string[], logger: Logger) {
     this.mainConfig = mainConfig;
     this.outputDirectory = outputDirectory;
     this.loaders = loaders;
+    this.logger = logger;
   }
 
   public async build(): Promise<void> {
-    console.log('Building main process...');
     if (this.context !== undefined) {
+      this.logger.log('MAIN', 'Rebuilding main process');
       await this.context.rebuild();
+      this.logger.log('MAIN', 'Main process rebuilt');
       return;
     }
 
+    this.logger.log('MAIN', 'Building main process');
     const buildOptions = this.prepareBuildOptions();
     this.context = await esbuild.context<BuildOptions>(buildOptions);
     await this.context.rebuild();
+    this.logger.log('MAIN', 'Main process built');
 
     if (process.env.NODE_ENV === 'production') {
       await this.context.cancel();
       await this.context.dispose();
     }
-    console.log('Main process built');
   }
 
-  public async dev(start: () => void): Promise<void> {
+  public async dev(mainProcessStarter: MainProcessStarter): Promise<void> {
     const sources = [
       ...getDependencies(path.resolve(this.mainConfig.entry)),
       ...(this.mainConfig.preloads?.map((preload) => preload.entry) ?? []),
@@ -49,9 +55,9 @@ export class MainEsbuildElectronBuilder {
         debounce(async () => {
           if (this.context) await this.context.cancel();
           await this.build();
-          start();
+          await mainProcessStarter.start();
           await watcher.close();
-          await this.dev(start);
+          await this.dev(mainProcessStarter);
         }, 500),
       );
     });
@@ -77,7 +83,7 @@ export class MainEsbuildElectronBuilder {
     if (this.mainConfig.loaders !== undefined) {
       this.mainConfig.loaders.forEach((loaderConfig) => {
         if (!this.loaders.includes(loaderConfig.loader)) {
-          console.log(`Unknown loader ${loaderConfig.loader} for extension ${loaderConfig.extension}`);
+          this.logger.log('MAIN', `Unknown loader <${loaderConfig.loader}> for extension <${loaderConfig.extension}>`);
           return;
         }
 
@@ -111,6 +117,7 @@ export class MainEsbuildElectronBuilder {
       });
     }
 
+    const logger = this.logger;
     const preloadPlugin: Plugin = {
       name: 'preload',
       setup(build: PluginBuild) {
@@ -121,7 +128,7 @@ export class MainEsbuildElectronBuilder {
             try {
               build.esbuild.buildSync(preloadConfig);
             } catch (error: any) {
-              console.log(error.message);
+              logger.error('MAIN', error.message);
             }
           });
         });

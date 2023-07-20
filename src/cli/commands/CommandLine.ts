@@ -1,7 +1,13 @@
 import { Command } from 'commander';
 import path from 'path';
 import * as fs from 'fs';
-import { jsonBuildEsbuild, jsonDevEsbuild, yamlBuildEsbuild, yamlDevEsbuild } from '../builders/Builders';
+import { Logger } from '../../Context/shared/domain/Logger';
+import { DevApplication } from '../../Context/builder/application/DevApplication';
+import { BuildApplication } from '../../Context/builder/application/BuildApplication';
+import { EsbuildElectronBuilder } from '../../Context/builder/infrastructure/services/EsbuildElectronBuilder';
+import { loaders } from '../../Context/shared/infrastructure/esbuidLoaders';
+import { JsonFileConfigParser } from '../../Context/config/infrastructure/JsonFileConfigParser';
+import { YamlFileConfigParser } from '../../Context/config/infrastructure/YamlFileConfigParser';
 
 type Options = {
   config?: string;
@@ -16,19 +22,33 @@ type BuildOptions = Options;
 export class CommandLine {
   private readonly program: Command;
   private readonly packageJson: any;
+  private readonly jsonEsbuildDev: DevApplication;
+  private readonly jsonEsbuildBuild: BuildApplication;
+  private readonly yamlEsbuildDev: DevApplication;
+  private readonly yamlEsbuildBuild: BuildApplication;
+  private readonly logger: Logger;
 
-  constructor() {
+  constructor(logger: Logger) {
     this.packageJson = JSON.parse(fs.readFileSync(path.resolve(__dirname, '../../../package.json'), 'utf8'));
+    this.logger = logger;
     this.program = new Command();
+    this.loadCommands();
+
+    const jsonParser = new JsonFileConfigParser();
+    const yamlParser = new YamlFileConfigParser();
+    const esbuildBuilder = new EsbuildElectronBuilder(loaders, logger);
+
+    this.jsonEsbuildDev = new DevApplication(jsonParser, esbuildBuilder, logger);
+    this.jsonEsbuildBuild = new BuildApplication(jsonParser, esbuildBuilder, logger);
+    this.yamlEsbuildDev = new DevApplication(yamlParser, esbuildBuilder, logger);
+    this.yamlEsbuildBuild = new BuildApplication(yamlParser, esbuildBuilder, logger);
+  }
+
+  private loadCommands(): void {
     this.program
       .name('electron-esbuild')
       .description('CLI for building Electron apps with esbuild')
       .version(this.packageJson.version);
-
-    this.loadCommands();
-  }
-
-  private loadCommands(): void {
     const commandDevelopment = this.program.command('dev');
     const commandBuild = this.program.command('build');
 
@@ -45,17 +65,17 @@ export class CommandLine {
 
           switch (extension) {
             case '.json':
-              jsonDevEsbuild.dev(pathConfig, options.clean || false);
+              this.jsonEsbuildDev.dev(pathConfig, options.clean || false);
               break;
             case '.yml':
             case '.yaml':
-              yamlDevEsbuild.dev(pathConfig, options.clean || false);
+              this.yamlEsbuildDev.dev(pathConfig, options.clean || false);
               break;
             default:
-              console.log('Config file not supported');
+              this.logger.warn('CLI', 'Config file not supported');
           }
         } catch (error: any) {
-          console.log(error.message);
+          this.logger.error('CLI', error.message);
         }
       });
 
@@ -70,17 +90,17 @@ export class CommandLine {
 
           switch (extension) {
             case '.json':
-              jsonBuildEsbuild.build(pathConfig, true);
+              this.jsonEsbuildBuild.build(pathConfig, true);
               break;
             case '.yml':
             case '.yaml':
-              yamlBuildEsbuild.build(pathConfig, true);
+              this.yamlEsbuildBuild.build(pathConfig, true);
               break;
             default:
-              console.log('Config file not supported');
+              this.logger.warn('CLI', 'Config file not supported');
           }
         } catch (error: any) {
-          console.log(error.message);
+          this.logger.error('CLI', error.message);
         }
       });
   }
@@ -103,12 +123,12 @@ export class CommandLine {
     pathConfig = path.resolve(process.cwd(), yamlConfig);
 
     if (fs.existsSync(path.resolve(process.cwd(), yamlConfig))) {
-      console.log('Using default config file: electron-esbuild.config.yaml');
+      this.logger.info('CLI', 'Using default config file: electron-esbuild.config.yaml');
       return pathConfig;
     }
 
     if (fs.existsSync(path.resolve(process.cwd(), jsonConfig))) {
-      console.log('Using default config file: electron-esbuild.config.json');
+      this.logger.info('CLI', 'Using default config file: electron-esbuild.config.json');
       return path.resolve(process.cwd(), jsonConfig);
     }
 

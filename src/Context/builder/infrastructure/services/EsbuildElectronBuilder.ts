@@ -4,18 +4,16 @@ import { MainEsbuildElectronBuilder } from './MainEsbuildElectronBuilder';
 import { MainProcessStarter } from './MainProcessStarter';
 import { RendererEsbuildElectronBuilder } from './RendererEsbuildElectronBuilder';
 import path from 'path';
-import fs, { fstat, fstatSync } from 'fs';
+import fs from 'fs';
+import { Logger } from '../../../shared/domain/Logger';
 
 export class EsbuildElectronBuilder implements ElectronBuilderService {
   private readonly loaders: string[];
+  private readonly logger: Logger;
 
-  constructor(loaders: string[]) {
+  constructor(loaders: string[], logger: Logger) {
     this.loaders = loaders;
-  }
-
-  clean(config: ElectronConfig) {
-    const outputDirectory = path.resolve(config.output);
-    fs.rmSync(outputDirectory, { recursive: true, force: true });
+    this.logger = logger;
   }
 
   async build(config: ElectronConfig, clean: boolean): Promise<void> {
@@ -23,9 +21,9 @@ export class EsbuildElectronBuilder implements ElectronBuilderService {
       this.clean(config);
     }
 
-    const mainBuilder = new MainEsbuildElectronBuilder(config.main, config.output, this.loaders);
+    const mainBuilder = new MainEsbuildElectronBuilder(config.main, config.output, this.loaders, this.logger);
     const rendererBuilders = config.renderers.map((rendererConfig) => {
-      return new RendererEsbuildElectronBuilder(config.main, rendererConfig, config.output, this.loaders);
+      return new RendererEsbuildElectronBuilder(config.main, rendererConfig, config.output, this.loaders, this.logger);
     });
 
     await Promise.all(rendererBuilders.map((builder) => builder.build()));
@@ -38,10 +36,10 @@ export class EsbuildElectronBuilder implements ElectronBuilderService {
       this.clean(config);
     }
 
-    const mainBuilder = new MainEsbuildElectronBuilder(config.main, config.output, this.loaders);
-    const mainProcessStarter = new MainProcessStarter(config.main, config.output);
+    const mainProcessStarter = new MainProcessStarter(config.main, config.output, this.logger);
+    const mainBuilder = new MainEsbuildElectronBuilder(config.main, config.output, this.loaders, this.logger);
     const rendererBuilders = config.renderers.map((rendererConfig) => {
-      return new RendererEsbuildElectronBuilder(config.main, rendererConfig, config.output, this.loaders);
+      return new RendererEsbuildElectronBuilder(config.main, rendererConfig, config.output, this.loaders, this.logger);
     });
 
     for (let i = 0; i < rendererBuilders.length; i++) {
@@ -50,11 +48,15 @@ export class EsbuildElectronBuilder implements ElectronBuilderService {
     }
 
     await mainBuilder.build();
-
     this.copyExtraFiles(config.output, config.extraFiles);
-
     await mainProcessStarter.start();
-    await mainBuilder.dev(mainProcessStarter.start.bind(mainProcessStarter));
+    await mainBuilder.dev(mainProcessStarter);
+  }
+
+  clean(config: ElectronConfig) {
+    const outputDirectory = path.resolve(config.output);
+    fs.rmSync(outputDirectory, { recursive: true, force: true });
+    this.logger.info('CLEAN', 'Output directory cleaned');
   }
 
   copyExtraFiles(output: string, extraFiles: ExtraFile[]): void {
@@ -81,8 +83,9 @@ export class EsbuildElectronBuilder implements ElectronBuilderService {
           fs.cpSync(sourcePath, outputPath, { recursive: true });
         }
       } catch (error: any) {
-        console.error(error.message);
+        this.logger.error('COPY', error.message);
       }
     });
+    this.logger.info('COPY', 'Extra files copied');
   }
 }

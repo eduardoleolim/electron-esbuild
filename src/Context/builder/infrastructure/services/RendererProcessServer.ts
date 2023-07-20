@@ -6,6 +6,7 @@ import http, { Server } from 'http';
 import httpProxy from 'http-proxy';
 import livereload, { LiveReloadServer } from 'livereload';
 import { findFreePort } from '../../../shared/infrastructure/findFreePort';
+import { Logger } from '../../../shared/domain/Logger';
 
 export class RendererProcessServer {
   private readonly htmlPath: string;
@@ -16,12 +17,14 @@ export class RendererProcessServer {
   private readonly middlewares: Map<string, HandleFunction>;
   private readonly server: Server;
   private reloadServer?: LiveReloadServer;
+  private readonly logger: Logger;
 
   constructor(
     serveResult: ServeResult,
     htmlPath: string,
     rendererScriptPath: string,
     calculateCssPath: () => string | undefined,
+    logger: Logger,
   ) {
     this.htmlPath = htmlPath;
     this.rendererScriptPath = rendererScriptPath;
@@ -29,6 +32,7 @@ export class RendererProcessServer {
     this.serveResult = serveResult;
     this.middlewares = new Map<string, HandleFunction>();
     this.handler = connect();
+    this.logger = logger;
     this.loadMiddlewares();
     this.loadHandlerConfig();
     this.server = http.createServer(this.handler);
@@ -117,6 +121,7 @@ export class RendererProcessServer {
   }
 
   public start(port: number, host: string): void {
+    const logger = this.logger;
     this.server.listen(port, host, () => {
       (async () => {
         if (this.reloadServer === undefined) {
@@ -125,17 +130,18 @@ export class RendererProcessServer {
         }
       })();
 
-      console.log(`Renderer process server listening on http://${host}:${port}`);
+      logger.info('RENDERER', `Renderer process server listening on http://${host}:${port}`);
     });
   }
 
   public reload(filePath: string): void {
-    console.log('Reloading renderer process server...');
+    this.logger.log('RENDERER', 'Reloading renderer process server');
     this.reloadServer?.refresh(filePath);
   }
 
   public stop(): void {
     this.reloadServer?.close();
     this.server.close();
+    this.logger.info('RENDERER', 'Renderer process server stopped');
   }
 }

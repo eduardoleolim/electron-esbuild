@@ -1,6 +1,7 @@
 import { MainConfig } from '../../../config/domain/MainConfig';
 import { ChildProcess, spawn } from 'child_process';
 import path from 'path';
+import { Logger } from '../../../shared/domain/Logger';
 
 export class MainProcessStarter {
   private readonly mainConfig: MainConfig;
@@ -8,12 +9,14 @@ export class MainProcessStarter {
   private mainProcess?: ChildProcess;
   private readonly isWindows: boolean;
   private readonly electronBin: string;
+  private readonly logger: Logger;
 
-  constructor(mainConfig: MainConfig, outputDirectory: string) {
+  constructor(mainConfig: MainConfig, outputDirectory: string, logger: Logger) {
     this.mainConfig = mainConfig;
     this.outputDirectory = outputDirectory;
     this.isWindows = process.platform === 'win32';
     this.electronBin = this.isWindows ? 'electron.cmd' : 'electron';
+    this.logger = logger;
     this.cleanupProcess();
   }
 
@@ -21,8 +24,8 @@ export class MainProcessStarter {
     if (this.mainProcess !== undefined) {
       try {
         this.kill();
-      } catch (e) {
-        console.error('Error while killing main process', e);
+      } catch (error: any) {
+        this.logger.error('MAIN', error.message);
       }
     }
 
@@ -32,7 +35,7 @@ export class MainProcessStarter {
       this.mainConfig.output.filename,
     );
 
-    console.log('Starting main process');
+    this.logger.log('MAIN', 'Starting main process');
 
     this.mainProcess = spawn(path.resolve(`node_modules/.bin/${this.electronBin}`), [filePath], {
       stdio: 'inherit',
@@ -46,11 +49,11 @@ export class MainProcessStarter {
       this.mainProcess.removeAllListeners('close');
 
       if (this.isWindows) {
-        console.debug('kill electron process on windows');
+        this.logger.debug('MAIN', 'kill electron process on windows');
 
         spawn('taskkill', ['/pid', `${this.mainProcess.pid}`, '/f', '/t']);
       } else {
-        console.debug('kill electron process on macOS/linux');
+        this.logger.debug('MAIN', 'kill electron process on macOS/linux');
         const pid = this.mainProcess.pid;
         const killed = this.mainProcess.killed;
         this.mainProcess = undefined;
@@ -65,10 +68,11 @@ export class MainProcessStarter {
   private configCleanup() {
     this.mainProcess?.on('close', (code, signal) => {
       if (code === null) {
-        console.error('Main Process exited with signal', signal);
+        this.logger.error('MAIN', `Main Process exited with signal ${signal}`);
         process.exit(1);
       }
 
+      this.logger.info('MAIN', `Main Process exited with code ${code}`);
       process.exit(code);
     });
   }
@@ -76,8 +80,8 @@ export class MainProcessStarter {
   private cleanupProcess() {
     const clean = (signal: NodeJS.Signals) => {
       process.on(signal, () => {
-        console.log('Cleanup before exit...');
-        console.debug('Signal', signal);
+        this.logger.log('MAIN', `Cleanup before exit`);
+        this.logger.debug('MAIN', `Signal ${signal}`);
 
         if (!this.mainProcess?.killed ?? false) {
           this.kill();

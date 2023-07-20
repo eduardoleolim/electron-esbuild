@@ -2,17 +2,21 @@ import { ElectronBuilderService } from '../domain/ElectronBuilderService';
 import { ElectronConfig } from '../../config/domain/ElectronConfig';
 import fs from 'fs';
 import { FileConfigParser } from '../../config/domain/FileConfigParser';
+import { Logger } from '../../shared/domain/Logger';
 
 export class BuildApplication {
   private readonly parser: FileConfigParser;
   private readonly builder: ElectronBuilderService;
+  private readonly logger: Logger;
 
-  constructor(parser: FileConfigParser, builder: ElectronBuilderService) {
+  constructor(parser: FileConfigParser, builder: ElectronBuilderService, logger: Logger) {
     this.parser = parser;
     this.builder = builder;
+    this.logger = logger;
   }
 
   public build(configPath: string, clean: boolean) {
+    this.logger.info('BUILD', 'Starting build mode');
     const configs = this.prepareConfigs(configPath);
     configs.forEach((config) => this.builder.build(config, clean));
   }
