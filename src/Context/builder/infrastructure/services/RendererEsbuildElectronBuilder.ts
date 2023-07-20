@@ -7,6 +7,7 @@ import { findFreePort } from '../../../shared/infrastructure/findFreePort';
 import chokidar from 'chokidar';
 import { RendererProcessServer } from './RendererProcessServer';
 import { getDependencies } from '../../../shared/infrastructure/getDependencies';
+import debounce from 'debounce';
 
 export class RendererEsbuildElectronBuilder {
   private readonly mainConfig: MainConfig;
@@ -71,17 +72,20 @@ export class RendererEsbuildElectronBuilder {
       const watcher = chokidar.watch(sources, { disableGlobbing: false });
 
       watcher.on('ready', () => {
-        watcher.on('all', async (eventName, file) => {
-          server.reload(file);
+        watcher.on(
+          'all',
+          debounce((eventName, file) => {
+            server.reload(file);
 
-          const newSources = getDependencies(path.resolve(this.rendererConfig.entry));
-          const removedSources = sources.filter((s) => !newSources.includes(s));
-          const addedSources = newSources.filter((s) => !sources.includes(s));
-          sources = newSources;
+            const newSources = getDependencies(path.resolve(this.rendererConfig.entry));
+            const removedSources = sources.filter((s) => !newSources.includes(s));
+            const addedSources = newSources.filter((s) => !sources.includes(s));
+            sources = newSources;
 
-          watcher.unwatch(removedSources);
-          watcher.add(addedSources);
-        });
+            watcher.unwatch(removedSources);
+            watcher.add(addedSources);
+          }, 200),
+        );
       });
 
       process.on('exit', async () => {
