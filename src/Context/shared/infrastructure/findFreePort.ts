@@ -110,7 +110,7 @@ export function findFreePort<S extends boolean | string, T extends number | stri
         return;
       }
 
-      server.close(() => findFreePort(usePortBegin, usePortEnd, useHost, useReservePort).then(resolve, reject));
+      server.close(() => findFreePort(usePortBegin + 1, usePortEnd, useHost, useReservePort).then(resolve, reject));
     });
 
     server.listen(portBegin, useHost);
