@@ -26,7 +26,7 @@ export class EsbuildElectronBuilder implements ElectronBuilderService {
       return new RendererEsbuildElectronBuilder(config.main, rendererConfig, config.output, this.loaders, this.logger);
     });
 
-    await Promise.all(rendererBuilders.map((builder) => builder.build()));
+    rendererBuilders.forEach((builder) => builder.build());
     await mainBuilder.build();
     this.copyExtraFiles(config.output, config.extraFiles);
   }
@@ -42,10 +42,7 @@ export class EsbuildElectronBuilder implements ElectronBuilderService {
       return new RendererEsbuildElectronBuilder(config.main, rendererConfig, config.output, this.loaders, this.logger);
     });
 
-    for (let i = 0; i < rendererBuilders.length; i++) {
-      const builder = rendererBuilders[i];
-      await builder.dev();
-    }
+    rendererBuilders.forEach((builder) => builder.dev());
 
     await mainBuilder.build();
     this.copyExtraFiles(config.output, config.extraFiles);

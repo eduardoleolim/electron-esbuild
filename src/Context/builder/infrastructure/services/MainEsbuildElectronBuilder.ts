@@ -55,7 +55,7 @@ export class MainEsbuildElectronBuilder {
         debounce(async () => {
           if (this.context) await this.context.cancel();
           await this.build();
-          await mainProcessStarter.start();
+          mainProcessStarter.start();
           await watcher.close();
           await this.dev(mainProcessStarter);
         }, 500),
