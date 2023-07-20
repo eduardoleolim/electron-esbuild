@@ -1,6 +1,6 @@
 {
   "name": "@eduardoleolim/electron-esbuild",
-  "version": "1.8.0",
+  "version": "1.8.1",
   "description": "Use esbuild with electron",
   "main": "dist/cli/index.js",
   "scripts": {
@@ -9,6 +9,9 @@
     "build": "rimraf dist && tsc",
     "dev": "ts-node src/cli/index.ts",
     "test": "jest"
+  },
+  "engines": {
+    "node": ">=18.15.0"
   },
   "bin": {
     "electron-esbuild": "dist/cli/index.js"
