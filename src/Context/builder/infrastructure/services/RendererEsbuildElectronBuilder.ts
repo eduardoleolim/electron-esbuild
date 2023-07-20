@@ -52,7 +52,7 @@ export class RendererEsbuildElectronBuilder {
     const buildOptions = this.prepareBuildOptions();
     const context = await esbuild.context<BuildOptions>(buildOptions);
     const host = '127.0.0.1';
-    const portContext = await findFreePort(8000);
+    const portContext = await findFreePort(8000, true);
     const servedir = path.resolve(
       this.outputDirectory,
       this.rendererConfig.output?.directory ?? this.mainConfig.output.directory,
@@ -109,7 +109,7 @@ export class RendererEsbuildElectronBuilder {
         await context.dispose();
       });
 
-      const devPort = await findFreePort(this.rendererConfig.devPort || 8000);
+      const devPort = await findFreePort(this.rendererConfig.devPort || 8000, true);
       server.start(devPort, host);
     });
   }

@@ -125,7 +125,7 @@ export class RendererProcessServer {
     this.server.listen(port, host, () => {
       (async () => {
         if (this.reloadServer === undefined) {
-          const reloadPort = await findFreePort(35729);
+          const reloadPort = await findFreePort(35729, true);
           this.loadReloadServer(reloadPort);
         }
       })();
