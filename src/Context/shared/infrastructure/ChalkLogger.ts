@@ -1,5 +1,6 @@
-import { Logger } from '../domain/Logger.js';
 import chalk from 'chalk';
+
+import { Logger } from '../domain/Logger.js';
 
 export class ChalkLogger implements Logger {
   beginTime: Date;

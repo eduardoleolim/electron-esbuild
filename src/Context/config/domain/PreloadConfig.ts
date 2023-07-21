@@ -1,5 +1,6 @@
-import { OutputConfig } from './OutputConfig.js';
 import path from 'path';
+
+import { OutputConfig } from './OutputConfig.js';
 
 export class PreloadConfig {
   readonly entry: string;

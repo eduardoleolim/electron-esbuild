@@ -1,8 +1,9 @@
-import { ElectronBuilderService } from '../domain/ElectronBuilderService.js';
-import { ElectronConfig } from '../../config/domain/ElectronConfig.js';
 import fs from 'fs';
+
+import { ElectronConfig } from '../../config/domain/ElectronConfig.js';
 import { FileConfigParser } from '../../config/domain/FileConfigParser.js';
 import { Logger } from '../../shared/domain/Logger.js';
+import { ElectronBuilderService } from '../domain/ElectronBuilderService.js';
 
 export class BuildApplication {
   private readonly parser: FileConfigParser;

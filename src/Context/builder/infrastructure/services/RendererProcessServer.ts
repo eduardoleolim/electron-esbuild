@@ -1,12 +1,13 @@
-import { ServeResult } from 'esbuild';
-import connect, { HandleFunction, IncomingMessage, SimpleHandleFunction } from 'connect';
 import compression from 'compression';
+import connect, { HandleFunction, IncomingMessage, SimpleHandleFunction } from 'connect';
+import { ServeResult } from 'esbuild';
 import fs from 'fs';
 import http, { Server } from 'http';
 import httpProxy from 'http-proxy';
 import livereload, { LiveReloadServer } from 'livereload';
-import { findFreePort } from '../../../shared/infrastructure/findFreePort.js';
+
 import { Logger } from '../../../shared/domain/Logger.js';
+import { findFreePort } from '../../../shared/infrastructure/findFreePort.js';
 
 export class RendererProcessServer {
   private readonly htmlPath: string;

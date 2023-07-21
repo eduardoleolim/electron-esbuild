@@ -1,5 +1,6 @@
-import { FileConfigParser } from '../domain/FileConfigParser.js';
 import fs from 'fs';
+
+import { FileConfigParser } from '../domain/FileConfigParser.js';
 
 export class JsonFileConfigParser implements FileConfigParser {
   parse(path: string): any {

@@ -1,6 +1,7 @@
-import { OutputConfig } from './OutputConfig.js';
 import path from 'path';
+
 import { LoaderConfig } from './LoaderConfig.js';
+import { OutputConfig } from './OutputConfig.js';
 
 export class RendererConfig {
   readonly entry: string;

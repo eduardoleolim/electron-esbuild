@@ -1,14 +1,15 @@
 import { Command } from 'commander';
-import path from 'path';
 import * as fs from 'fs';
-import { Logger } from '../../Context/shared/domain/Logger.js';
-import { DevApplication } from '../../Context/builder/application/DevApplication.js';
+import path from 'path';
+import { fileURLToPath } from 'url';
+
 import { BuildApplication } from '../../Context/builder/application/BuildApplication.js';
+import { DevApplication } from '../../Context/builder/application/DevApplication.js';
 import { EsbuildElectronBuilder } from '../../Context/builder/infrastructure/services/EsbuildElectronBuilder.js';
-import { loaders } from '../../Context/shared/infrastructure/esbuidLoaders.js';
 import { JsonFileConfigParser } from '../../Context/config/infrastructure/JsonFileConfigParser.js';
 import { YamlFileConfigParser } from '../../Context/config/infrastructure/YamlFileConfigParser.js';
-import { fileURLToPath } from 'url';
+import { Logger } from '../../Context/shared/domain/Logger.js';
+import { loaders } from '../../Context/shared/infrastructure/esbuidLoaders.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
