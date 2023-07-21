@@ -5,7 +5,7 @@
 </h1>
 
 <p align="center">
-    <a href="https://github.com/eduardoleolim/electron-esbuild/actions/workflows/ci.yaml"><img src="https://github.com/eduardoleolim/electron-esbuild/actions/workflows/ci.yaml/badge.svg" alt="Build status"/></a>
+    <a href="https://github.com/eduardoleolim/electron-esbuild/actions/workflows/publish.yaml"><img src="https://github.com/eduardoleolim/electron-esbuild/actions/workflows/publish.yaml/badge.svg" alt="Build status"/></a>
     <a href="https://www.npmjs.com/package/@eduardoleolim/electron-esbuild"><img src="https://img.shields.io/npm/v/@eduardoleolim/electron-esbuild" alt="NPM version"/></a>
     <a href="https://www.npmjs.com/package/@eduardoleolim/electron-esbuild"><img src="https://img.shields.io/npm/dt/@eduardoleolim/electron-esbuild" alt="NPM downloads"/></a>
     <a href="https://github.com/eduardoleolim/electron-esbuild/blob/master/LICENSE"><img src="https://img.shields.io/npm/l/@eduardoleolim/electron-esbuild" alt="License"/></a>
@@ -568,7 +568,7 @@ If it is an object, it is composed of the following properties:
 </details>
 
 <details>
-  <summary>Json syntax</summary>
+  <summary>Yaml syntax</summary>
 
   ```yaml
   # electron-esbuild.config.yaml
