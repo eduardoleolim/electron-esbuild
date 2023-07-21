@@ -1,13 +1,13 @@
-import { RendererConfig } from '../../../config/domain/RendererConfig';
+import { RendererConfig } from '../../../config/domain/RendererConfig.js';
 import esbuild, { BuildOptions } from 'esbuild';
 import path from 'path';
 import fs from 'fs';
-import { MainConfig } from '../../../config/domain/MainConfig';
-import { findFreePort } from '../../../shared/infrastructure/findFreePort';
+import { MainConfig } from '../../../config/domain/MainConfig.js';
+import { findFreePort } from '../../../shared/infrastructure/findFreePort.js';
 import chokidar from 'chokidar';
-import { Logger } from '../../../shared/domain/Logger';
-import { RendererProcessServer } from './RendererProcessServer';
-import { getDependencies } from '../../../shared/infrastructure/getDependencies';
+import { Logger } from '../../../shared/domain/Logger.js';
+import { RendererProcessServer } from './RendererProcessServer.js';
+import { getDependencies } from '../../../shared/infrastructure/getDependencies.js';
 import debounce from 'debounce';
 
 export class RendererEsbuildElectronBuilder {

@@ -1,11 +1,11 @@
-import { MainConfig } from '../../../config/domain/MainConfig';
+import { MainConfig } from '../../../config/domain/MainConfig.js';
 import chikidar from 'chokidar';
 import debounce from 'debounce';
 import esbuild, { BuildContext, BuildOptions, Plugin, PluginBuild } from 'esbuild';
 import path from 'path';
-import { getDependencies } from '../../../shared/infrastructure/getDependencies';
-import { MainProcessStarter } from './MainProcessStarter';
-import { Logger } from '../../../shared/domain/Logger';
+import { getDependencies } from '../../../shared/infrastructure/getDependencies.js';
+import { MainProcessStarter } from './MainProcessStarter.js';
+import { Logger } from '../../../shared/domain/Logger.js';
 
 export class MainEsbuildElectronBuilder {
   private readonly mainConfig: MainConfig;

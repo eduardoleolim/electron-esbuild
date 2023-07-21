@@ -1,4 +1,4 @@
-import { Logger } from '../domain/Logger';
+import { Logger } from '../domain/Logger.js';
 import chalk from 'chalk';
 
 export class ChalkLogger implements Logger {

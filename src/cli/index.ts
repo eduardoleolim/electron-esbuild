@@ -1,6 +1,6 @@
 #!/usr/bin/env node
-import { CommandLine } from './commands/CommandLine';
-import { ChalkLogger } from '../Context/shared/infrastructure/ChalkLogger';
+import { CommandLine } from './commands/CommandLine.js';
+import { ChalkLogger } from '../Context/shared/infrastructure/ChalkLogger.js';
 
 const logger = new ChalkLogger(new Date());
 

@@ -1,4 +1,4 @@
-import { FileConfigParser } from '../domain/FileConfigParser';
+import { FileConfigParser } from '../domain/FileConfigParser.js';
 import * as fs from 'fs';
 import * as yaml from 'js-yaml';
 

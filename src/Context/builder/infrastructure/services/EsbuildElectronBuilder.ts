@@ -1,11 +1,11 @@
-import { ElectronBuilderService } from '../../domain/ElectronBuilderService';
-import { ElectronConfig, ExtraFile } from '../../../config/domain/ElectronConfig';
-import { MainEsbuildElectronBuilder } from './MainEsbuildElectronBuilder';
-import { MainProcessStarter } from './MainProcessStarter';
-import { RendererEsbuildElectronBuilder } from './RendererEsbuildElectronBuilder';
+import { ElectronBuilderService } from '../../domain/ElectronBuilderService.js';
+import { ElectronConfig, ExtraFile } from '../../../config/domain/ElectronConfig.js';
+import { MainEsbuildElectronBuilder } from './MainEsbuildElectronBuilder.js';
+import { MainProcessStarter } from './MainProcessStarter.js';
+import { RendererEsbuildElectronBuilder } from './RendererEsbuildElectronBuilder.js';
 import path from 'path';
 import fs from 'fs';
-import { Logger } from '../../../shared/domain/Logger';
+import { Logger } from '../../../shared/domain/Logger.js';
 
 export class EsbuildElectronBuilder implements ElectronBuilderService {
   private readonly loaders: string[];

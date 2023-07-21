@@ -1,4 +1,4 @@
-import { FileConfigParser } from '../domain/FileConfigParser';
+import { FileConfigParser } from '../domain/FileConfigParser.js';
 import fs from 'fs';
 
 export class JsonFileConfigParser implements FileConfigParser {

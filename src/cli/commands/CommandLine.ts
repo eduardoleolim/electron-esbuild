@@ -1,13 +1,17 @@
 import { Command } from 'commander';
 import path from 'path';
 import * as fs from 'fs';
-import { Logger } from '../../Context/shared/domain/Logger';
-import { DevApplication } from '../../Context/builder/application/DevApplication';
-import { BuildApplication } from '../../Context/builder/application/BuildApplication';
-import { EsbuildElectronBuilder } from '../../Context/builder/infrastructure/services/EsbuildElectronBuilder';
-import { loaders } from '../../Context/shared/infrastructure/esbuidLoaders';
-import { JsonFileConfigParser } from '../../Context/config/infrastructure/JsonFileConfigParser';
-import { YamlFileConfigParser } from '../../Context/config/infrastructure/YamlFileConfigParser';
+import { Logger } from '../../Context/shared/domain/Logger.js';
+import { DevApplication } from '../../Context/builder/application/DevApplication.js';
+import { BuildApplication } from '../../Context/builder/application/BuildApplication.js';
+import { EsbuildElectronBuilder } from '../../Context/builder/infrastructure/services/EsbuildElectronBuilder.js';
+import { loaders } from '../../Context/shared/infrastructure/esbuidLoaders.js';
+import { JsonFileConfigParser } from '../../Context/config/infrastructure/JsonFileConfigParser.js';
+import { YamlFileConfigParser } from '../../Context/config/infrastructure/YamlFileConfigParser.js';
+import { fileURLToPath } from 'url';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 type Options = {
   config?: string;

@@ -1,6 +1,6 @@
-import { PreloadConfig } from './PreloadConfig';
-import { OutputConfig } from './OutputConfig';
-import { LoaderConfig } from './LoaderConfig';
+import { PreloadConfig } from './PreloadConfig.js';
+import { OutputConfig } from './OutputConfig.js';
+import { LoaderConfig } from './LoaderConfig.js';
 import path from 'path';
 
 export class MainConfig {

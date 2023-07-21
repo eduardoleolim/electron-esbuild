@@ -1,4 +1,4 @@
-import { OutputConfig } from './OutputConfig';
+import { OutputConfig } from './OutputConfig.js';
 import path from 'path';
 
 export class PreloadConfig {

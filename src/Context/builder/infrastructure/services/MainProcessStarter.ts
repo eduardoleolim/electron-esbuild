@@ -1,7 +1,7 @@
-import { MainConfig } from '../../../config/domain/MainConfig';
+import { MainConfig } from '../../../config/domain/MainConfig.js';
 import { ChildProcess, spawn } from 'child_process';
 import path from 'path';
-import { Logger } from '../../../shared/domain/Logger';
+import { Logger } from '../../../shared/domain/Logger.js';
 
 export class MainProcessStarter {
   private readonly mainConfig: MainConfig;

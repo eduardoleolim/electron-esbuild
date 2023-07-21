@@ -1,7 +1,7 @@
-import { RendererConfig } from './RendererConfig';
-import { MainConfig } from './MainConfig';
+import { RendererConfig } from './RendererConfig.js';
+import { MainConfig } from './MainConfig.js';
 import path from 'path';
-import { ExtraFileConfig } from './ExtraFileConfig';
+import { ExtraFileConfig } from './ExtraFileConfig.js';
 
 export type ExtraFile = string | ExtraFileConfig;
 

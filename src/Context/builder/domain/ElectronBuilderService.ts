@@ -1,4 +1,4 @@
-import { ElectronConfig, ExtraFile } from '../../config/domain/ElectronConfig';
+import { ElectronConfig, ExtraFile } from '../../config/domain/ElectronConfig.js';
 
 export interface ElectronBuilderService {
   build(config: ElectronConfig, clean: boolean): Promise<void>;
