@@ -6,6 +6,7 @@ import path from 'path';
 import { MainConfig } from '../../../config/domain/MainConfig.js';
 import { Logger } from '../../../shared/domain/Logger.js';
 import { getDependencies } from '../../../shared/infrastructure/getDependencies.js';
+import { getEsbuildPlugins } from '../utils/getEsbuildPlugins.js';
 import { MainProcessStarter } from './MainProcessStarter.js';
 
 export class MainEsbuildElectronBuilder {
@@ -31,7 +32,7 @@ export class MainEsbuildElectronBuilder {
     }
 
     this.logger.log('MAIN', 'Building main process');
-    const buildOptions = this.prepareBuildOptions();
+    const buildOptions = await this.prepareBuildOptions();
     this.context = await esbuild.context<BuildOptions>(buildOptions);
     await this.context.rebuild();
     this.logger.log('MAIN', 'Main process built');
@@ -68,7 +69,10 @@ export class MainEsbuildElectronBuilder {
     });
   }
 
-  private prepareBuildOptions(): BuildOptions {
+  private async prepareBuildOptions(): Promise<BuildOptions> {
+    const mainPlugins: Plugin[] = [];
+    const logger = this.logger;
+
     const outfile = path.resolve(
       this.outputDirectory,
       this.mainConfig.output.directory,
@@ -94,13 +98,27 @@ export class MainEsbuildElectronBuilder {
 
     const preloadConfigs: BuildOptions[] = [];
     if (this.mainConfig.preloads !== undefined) {
-      this.mainConfig.preloads.forEach((preloadConfig, index) => {
+      const preloads = this.mainConfig.preloads;
+
+      for (let i = 0; i < preloads.length; i++) {
+        const preloadConfig = preloads[i];
+        const plugins: Plugin[] = [];
         let outfile;
 
         if (preloadConfig.output !== undefined) {
           outfile = path.resolve(this.outputDirectory, preloadConfig.output.directory, preloadConfig.output.filename);
         } else {
-          outfile = path.resolve(this.outputDirectory, this.mainConfig.output.directory, `preload_${index}.js`);
+          outfile = path.resolve(this.outputDirectory, this.mainConfig.output.directory, `preload_${i}.js`);
+        }
+
+        if (preloadConfig.pluginsEntry !== undefined) {
+          try {
+            const pluginsEntry = path.resolve(preloadConfig.pluginsEntry);
+            plugins.push(...(await getEsbuildPlugins(pluginsEntry)));
+            logger.info('MAIN', `Loaded plugins from <${preloadConfig.pluginsEntry}>`);
+          } catch (error: any) {
+            this.logger.error('MAIN', error.message);
+          }
         }
 
         preloadConfigs.push({
@@ -110,15 +128,15 @@ export class MainEsbuildElectronBuilder {
           bundle: true,
           minify: process.env.NODE_ENV !== 'development',
           external: external,
+          plugins: plugins,
           define: {
             'process.env.NODE_ENV': `"${process.env.NODE_ENV}"`,
           },
           sourcemap: process.env.NODE_ENV === 'development' ? 'inline' : false,
         });
-      });
+      }
     }
 
-    const logger = this.logger;
     const preloadPlugin: Plugin = {
       name: 'preload',
       setup(build: PluginBuild) {
@@ -129,12 +147,24 @@ export class MainEsbuildElectronBuilder {
             try {
               build.esbuild.buildSync(preloadConfig);
             } catch (error: any) {
-              logger.error('MAIN', error.message);
+              logger.warn('MAIN', error.message);
             }
           });
         });
       },
     };
+
+    mainPlugins.push(preloadPlugin);
+
+    if (this.mainConfig.pluginsEntry !== undefined) {
+      try {
+        const pluginsEntry = path.resolve(this.mainConfig.pluginsEntry);
+        mainPlugins.push(...(await getEsbuildPlugins(pluginsEntry)));
+        logger.info('MAIN', `Loaded plugins from <${this.mainConfig.pluginsEntry}>`);
+      } catch (error: any) {
+        this.logger.warn('MAIN', error.message);
+      }
+    }
 
     return {
       platform: 'node',
@@ -144,7 +174,7 @@ export class MainEsbuildElectronBuilder {
       minify: process.env.NODE_ENV !== 'development',
       external: external,
       loader: loader,
-      plugins: [preloadPlugin],
+      plugins: mainPlugins,
       define: {
         'process.env.NODE_ENV': `"${process.env.NODE_ENV}"`,
       },

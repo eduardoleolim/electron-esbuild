@@ -1,9 +1,10 @@
 import path from 'path';
 
+import { BaseConfig } from './BaseConfig.js';
 import { LoaderConfig } from './LoaderConfig.js';
 import { OutputConfig } from './OutputConfig.js';
 
-export class RendererConfig {
+export class RendererConfig extends BaseConfig {
   readonly entry: string;
   readonly html: string;
   readonly devPort?: number;
@@ -18,7 +19,9 @@ export class RendererConfig {
     loaders?: LoaderConfig[],
     exclude?: string[],
     output?: OutputConfig,
+    pluginsEntry?: string,
   ) {
+    super(pluginsEntry);
     this.entry = entry;
     this.html = html;
     this.devPort = devPort;
@@ -35,6 +38,7 @@ export class RendererConfig {
     const entry = object.entry;
     const html = object.html;
     const devPort = object.devPort;
+    const pluginsEntry = object.plugins;
 
     if (typeof entry !== 'string') {
       throw new Error('RendererConfig.fromObject: entry must be a string');
@@ -56,11 +60,17 @@ export class RendererConfig {
       throw new Error('RendererConfig.fromObject: devPort must be a number');
     }
 
+    if (pluginsEntry !== undefined) {
+      if (typeof pluginsEntry !== 'string') throw new Error('RendererConfig.fromObject: plugins must be a string');
+
+      if (path.isAbsolute(pluginsEntry)) throw new Error('RendererConfig.fromObject: plugins must be a relative path');
+    }
+
     const output = object.output ? OutputConfig.fromObject(object.output) : undefined;
     const loaders = RendererConfig.prepareLoadersFromJson(object.loaders);
     const excludes = RendererConfig.prepareExcludesFromJson(object.exclude);
 
-    return new RendererConfig(entry, html, devPort, loaders, excludes, output);
+    return new RendererConfig(entry, html, devPort, loaders, excludes, output, pluginsEntry);
   }
 
   private static prepareLoadersFromJson(loaders: any): LoaderConfig[] | undefined {

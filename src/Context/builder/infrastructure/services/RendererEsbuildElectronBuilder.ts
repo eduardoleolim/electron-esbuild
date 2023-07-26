@@ -1,6 +1,6 @@
 import chokidar from 'chokidar';
 import debounce from 'debounce';
-import esbuild, { BuildOptions } from 'esbuild';
+import esbuild, { BuildOptions, Plugin } from 'esbuild';
 import fs from 'fs';
 import path from 'path';
 
@@ -9,6 +9,7 @@ import { RendererConfig } from '../../../config/domain/RendererConfig.js';
 import { Logger } from '../../../shared/domain/Logger.js';
 import { findFreePort } from '../../../shared/infrastructure/findFreePort.js';
 import { getDependencies } from '../../../shared/infrastructure/getDependencies.js';
+import { getEsbuildPlugins } from '../utils/getEsbuildPlugins.js';
 import { RendererProcessServer } from './RendererProcessServer.js';
 
 export class RendererEsbuildElectronBuilder {
@@ -40,7 +41,7 @@ export class RendererEsbuildElectronBuilder {
 
   public async build(): Promise<void> {
     this.logger.log('RENDERER', 'Building renderer process');
-    const buildOptions = this.prepareBuildOptions();
+    const buildOptions = await this.prepareBuildOptions();
     const context = await esbuild.context<BuildOptions>(buildOptions);
     await context.rebuild();
     await context.cancel();
@@ -50,7 +51,7 @@ export class RendererEsbuildElectronBuilder {
   }
 
   public async dev(): Promise<void> {
-    const buildOptions = this.prepareBuildOptions();
+    const buildOptions = await this.prepareBuildOptions();
     const context = await esbuild.context<BuildOptions>(buildOptions);
     const host = '127.0.0.1';
     const portContext = await findFreePort(8000, true);
@@ -115,7 +116,9 @@ export class RendererEsbuildElectronBuilder {
     });
   }
 
-  private prepareBuildOptions(): BuildOptions {
+  private async prepareBuildOptions(): Promise<BuildOptions> {
+    const plugins: Plugin[] = [];
+
     const external = ['electron'];
     if (this.rendererConfig.exclude !== undefined) {
       external.push(...this.rendererConfig.exclude);
@@ -136,6 +139,16 @@ export class RendererEsbuildElectronBuilder {
       });
     }
 
+    if (this.rendererConfig.pluginsEntry !== undefined) {
+      try {
+        const pluginsEntry = path.resolve(this.rendererConfig.pluginsEntry);
+        plugins.push(...(await getEsbuildPlugins(pluginsEntry)));
+        this.logger.info('RENDERER', `Loaded plugins from <${pluginsEntry}>`);
+      } catch (error: any) {
+        this.logger.warn('RENDERER', error.message);
+      }
+    }
+
     return {
       platform: 'browser',
       entryPoints: [this.rendererConfig.entry],
@@ -144,6 +157,7 @@ export class RendererEsbuildElectronBuilder {
       minify: process.env.NODE_ENV === 'production',
       external: external,
       loader: loader,
+      plugins: plugins,
       define: {
         'process.env.NODE_ENV': `"${process.env.NODE_ENV}"`,
       },
