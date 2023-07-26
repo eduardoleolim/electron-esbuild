@@ -143,7 +143,7 @@ export class RendererEsbuildElectronBuilder {
       try {
         const pluginsEntry = path.resolve(this.rendererConfig.pluginsEntry);
         plugins.push(...(await getEsbuildPlugins(pluginsEntry)));
-        this.logger.info('RENDERER', `Loaded plugins from <${pluginsEntry}>`);
+        this.logger.info('RENDERER', `Loaded plugins from <${this.rendererConfig.pluginsEntry}>`);
       } catch (error: any) {
         this.logger.warn('RENDERER', error.message);
       }
