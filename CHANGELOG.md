@@ -1,3 +1,10 @@
+## [2.1.0](https://github.com/eduardoleolim/electron-esbuild/compare/2.0.0...2.1.0) (2023-07-26)
+
+
+### Features
+
+* **config:** include esbuild plugins to main, renderer and preload config ([1118a6a](https://github.com/eduardoleolim/electron-esbuild/commit/1118a6a44c8dc93712790ee97295ecfc0146a776))
+
 ## [2.0.0](https://github.com/eduardoleolim/electron-esbuild/compare/1.8.1...2.0.0) (2023-07-23)
 
 
