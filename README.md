@@ -79,7 +79,7 @@ Electron-esbuild will look for the config file in the following order:
 - The default yaml file
 - The default json file
 
-### ElectronConfig
+### Electron Config
 
 The electron config is composed of the following properties:
 
@@ -97,7 +97,7 @@ The electron config is composed of the following properties:
 }
 ```
 
-### MainConfig
+### Main Config
 
 The main config is composed of the following properties:
 
@@ -105,6 +105,7 @@ The main config is composed of the following properties:
 - `output` - The output configuration of bundle
   - `directory` - The output directory of your main process
   - `filename` - The output filename of your main process
+- `plugins` - Optional. Path to a javascript file exporting an array of esbuild plugins
 - `preloads` - Optional. A preload config can be an array of configs or a single config
 - `exclude` - Optional. An array of libs that you don't want to bundle
 - `loaders` - Optional. An array of esbuild's loaders for specific files
@@ -116,17 +117,19 @@ The main config is composed of the following properties:
     "directory": "path/to/output/directory",
     "filename": "filename.js"
   },
+  "plugins": "path/to/plugins/file",
   "preloads": [], // or {}
   "exclude": [],
   "loaders": []
 }
 ```
 
-### PreloadConfig
+### Preload Config
 
 The preload config is composed of the following properties:
 
 - `entry` - The entry file of your preload process
+- `plugins` - Optional. Path to a javascript file exporting an array of esbuild plugins
 - `output` - Optional. The output configuration of bundle. Default: same as main's output
   - `directory` - The output directory of your preload process
   - `filename` - The output filename of your preload process
@@ -134,6 +137,7 @@ The preload config is composed of the following properties:
 ```json5
 {
   "entry": "path/to/preload/file",
+  "plugins": "path/to/plugins/file",
   "output": {
     "directory": "path/to/output/directory",
     "filename": "filename.js"
@@ -141,12 +145,13 @@ The preload config is composed of the following properties:
 }
 ```
 
-### RendererConfig
+### Renderer Config
 
 The renderer config is composed of the following properties:
 
 - `entry` - The entry file of your renderer process
 - `html` - The html file of your renderer process
+- `plugins` - Optional. Path to a javascript file exporting an array of esbuild plugins
 - `devPort` - Optional. The port of the dev server. If port is not available, it will try the next one
 - `output` - Optional. The output configuration of bundle
   - `directory` - The output directory of your renderer process
@@ -158,6 +163,7 @@ The renderer config is composed of the following properties:
 {
   "entry": "path/to/renderer/file",
   "html": "path/to/html/file",
+  "plugins": "path/to/plugins/file",
   "devPort": 8000,
   "output": {
     "directory": "path/to/output/directory",
@@ -168,7 +174,7 @@ The renderer config is composed of the following properties:
 }
 ```
 
-### ExtraFilesConfig
+### Extra Files Config
 
 The extra files config could be a string or an object.
 
@@ -609,5 +615,83 @@ If it is an object, it is composed of the following properties:
         filename: index4.js
   ```
 </details>
+
+### Add esbuild plugins
+
+<details>
+  <summary>Json syntax</summary>
+
+  ```json5
+  // electron-esbuild.config.json
+
+  {
+    "main": {
+      "entry": "src/main/index.ts",
+      "output": {
+        "directory": "dist/main",
+        "filename": "index.js"
+      },
+      "plugins": "config/plugins.js"
+    },
+    "renderers": {
+      "entry": "src/renderer/index.tsx",
+      "html": "src/renderer/index.html",
+      "output": {
+        "directory": "dist/renderer",
+        "filename": "index.js"
+      },
+      "plugins": "config/plugins.mjs"
+    }
+  }
+  ```
+
+</details>
+
+<details>
+  <summary>Yaml syntax</summary>
+
+  ```yaml
+  # electron-esbuild.config.yaml
+
+  main:
+    entry: src/main/index.ts
+    output:
+      directory: dist/main
+      filename: index.js
+    plugins: config/plugins.js
+  renderers:
+    entry: src/renderer/index.tsx
+    html: src/renderer/index.html
+    output:
+      directory: dist/renderer
+      filename: index.js
+    plugins: config/plugins.mjs
+  ```
+</details>
+
+<details>
+  <summary>Plugins scripts</summary>
+
+  ```js
+  // config/plugins.js
+
+  const { esbuildPlugin } = require('esbuild-plugin');
+
+  module.exports = [
+    esbuildPlugin()
+  ];
+  ```
+
+  ```js
+  // config/plugins.mjs
+
+  import { esbuildPlugin } from 'esbuild-plugin';
+
+  export default [
+    esbuildPlugin()
+  ];
+  ```
+</details>
+
 
 
