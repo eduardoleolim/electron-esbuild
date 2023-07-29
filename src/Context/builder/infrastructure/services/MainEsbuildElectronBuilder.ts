@@ -95,9 +95,19 @@ export class MainEsbuildElectronBuilder {
     const preloads = this.mainConfig.preloads;
 
     for (let i = 0; i < preloads.length; i++) {
-      const preloadConfig = preloads[i];
-      const plugins: Plugin[] = [];
       let outfile;
+      const preloadConfig = preloads[i];
+      const external = ['electron', ...preloadConfig.exclude];
+      const plugins: Plugin[] = [];
+      const loader: any = {};
+      preloadConfig.loaders.forEach((loaderConfig) => {
+        if (!this.loaders.includes(loaderConfig.loader)) {
+          this.logger.log('MAIN', `Unknown loader <${loaderConfig.loader}> for extension <${loaderConfig.extension}>`);
+          return;
+        }
+
+        loader[loaderConfig.extension] = loaderConfig.loader;
+      });
 
       if (preloadConfig.output !== undefined) {
         outfile = path.resolve(this.outputDirectory, preloadConfig.output.directory, preloadConfig.output.filename);
@@ -122,6 +132,7 @@ export class MainEsbuildElectronBuilder {
         bundle: true,
         minify: process.env.NODE_ENV !== 'development',
         external: external,
+        loader: loader,
         plugins: plugins,
         define: {
           'process.env.NODE_ENV': `"${process.env.NODE_ENV}"`,
