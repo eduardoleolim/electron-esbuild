@@ -1,15 +1,14 @@
 import path from 'path';
 
 import { BaseConfig } from './BaseConfig.js';
+import { LoaderConfig } from './LoaderConfig';
 import { OutputConfig } from './OutputConfig.js';
 
 export class PreloadConfig extends BaseConfig {
-  readonly entry: string;
   readonly output?: OutputConfig;
 
-  constructor(entry: string, output?: OutputConfig, pluginsEntry?: string) {
-    super(pluginsEntry);
-    this.entry = entry;
+  constructor(entry: string, loaders: LoaderConfig[], exclude: string[], output?: OutputConfig, pluginsEntry?: string) {
+    super(entry, loaders, exclude, pluginsEntry);
     this.output = output;
   }
 
@@ -37,7 +36,9 @@ export class PreloadConfig extends BaseConfig {
     }
 
     const output = object.output ? OutputConfig.fromObject(object.output) : undefined;
+    const loaders = PreloadConfig.prepareLoadersFromObject(object.loaders);
+    const excludes = PreloadConfig.prepareExcludesFromObject(object.exclude);
 
-    return new PreloadConfig(entry, output, pluginsEntry);
+    return new PreloadConfig(entry, loaders, excludes, output, pluginsEntry);
   }
 }

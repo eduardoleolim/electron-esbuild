@@ -79,62 +79,55 @@ export class MainEsbuildElectronBuilder {
       this.mainConfig.output.filename,
     );
 
-    const external = ['electron'];
-    if (this.mainConfig.exclude !== undefined) {
-      external.push(...this.mainConfig.exclude);
-    }
+    const external = ['electron', ...this.mainConfig.exclude];
 
     const loader: any = {};
-    if (this.mainConfig.loaders !== undefined) {
-      this.mainConfig.loaders.forEach((loaderConfig) => {
-        if (!this.loaders.includes(loaderConfig.loader)) {
-          this.logger.log('MAIN', `Unknown loader <${loaderConfig.loader}> for extension <${loaderConfig.extension}>`);
-          return;
-        }
+    this.mainConfig.loaders.forEach((loaderConfig) => {
+      if (!this.loaders.includes(loaderConfig.loader)) {
+        this.logger.log('MAIN', `Unknown loader <${loaderConfig.loader}> for extension <${loaderConfig.extension}>`);
+        return;
+      }
 
-        loader[loaderConfig.extension] = loaderConfig.loader;
-      });
-    }
+      loader[loaderConfig.extension] = loaderConfig.loader;
+    });
 
     const preloadConfigs: BuildOptions[] = [];
-    if (this.mainConfig.preloads !== undefined) {
-      const preloads = this.mainConfig.preloads;
+    const preloads = this.mainConfig.preloads;
 
-      for (let i = 0; i < preloads.length; i++) {
-        const preloadConfig = preloads[i];
-        const plugins: Plugin[] = [];
-        let outfile;
+    for (let i = 0; i < preloads.length; i++) {
+      const preloadConfig = preloads[i];
+      const plugins: Plugin[] = [];
+      let outfile;
 
-        if (preloadConfig.output !== undefined) {
-          outfile = path.resolve(this.outputDirectory, preloadConfig.output.directory, preloadConfig.output.filename);
-        } else {
-          outfile = path.resolve(this.outputDirectory, this.mainConfig.output.directory, `preload_${i}.js`);
-        }
-
-        if (preloadConfig.pluginsEntry !== undefined) {
-          try {
-            const pluginsEntry = path.resolve(preloadConfig.pluginsEntry);
-            plugins.push(...(await getEsbuildPlugins(pluginsEntry)));
-            logger.info('MAIN', `Loaded plugins from <${preloadConfig.pluginsEntry}>`);
-          } catch (error: any) {
-            this.logger.error('MAIN', error.message);
-          }
-        }
-
-        preloadConfigs.push({
-          platform: 'node',
-          entryPoints: [preloadConfig.entry],
-          outfile: outfile,
-          bundle: true,
-          minify: process.env.NODE_ENV !== 'development',
-          external: external,
-          plugins: plugins,
-          define: {
-            'process.env.NODE_ENV': `"${process.env.NODE_ENV}"`,
-          },
-          sourcemap: process.env.NODE_ENV === 'development' ? 'inline' : false,
-        });
+      if (preloadConfig.output !== undefined) {
+        outfile = path.resolve(this.outputDirectory, preloadConfig.output.directory, preloadConfig.output.filename);
+      } else {
+        outfile = path.resolve(this.outputDirectory, this.mainConfig.output.directory, `preload_${i}.js`);
       }
+
+      if (preloadConfig.pluginsEntry !== undefined) {
+        try {
+          const pluginsEntry = path.resolve(preloadConfig.pluginsEntry);
+          plugins.push(...(await getEsbuildPlugins(pluginsEntry)));
+          logger.info('MAIN', `Loaded plugins from <${preloadConfig.pluginsEntry}>`);
+        } catch (error: any) {
+          this.logger.error('MAIN', error.message);
+        }
+      }
+
+      preloadConfigs.push({
+        platform: 'node',
+        entryPoints: [preloadConfig.entry],
+        outfile: outfile,
+        bundle: true,
+        minify: process.env.NODE_ENV !== 'development',
+        external: external,
+        plugins: plugins,
+        define: {
+          'process.env.NODE_ENV': `"${process.env.NODE_ENV}"`,
+        },
+        sourcemap: process.env.NODE_ENV === 'development' ? 'inline' : false,
+      });
     }
 
     const preloadPlugin: Plugin = {

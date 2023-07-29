@@ -6,25 +6,19 @@ import { OutputConfig } from './OutputConfig.js';
 import { PreloadConfig } from './PreloadConfig.js';
 
 export class MainConfig extends BaseConfig {
-  readonly entry: string;
-  readonly preloads?: ReadonlyArray<PreloadConfig>;
-  readonly loaders?: ReadonlyArray<LoaderConfig>;
-  readonly exclude?: ReadonlyArray<string>;
+  readonly preloads: ReadonlyArray<PreloadConfig>;
   readonly output: OutputConfig;
 
   constructor(
     entry: string,
     output: OutputConfig,
-    preloads?: PreloadConfig[],
-    loaders?: LoaderConfig[],
-    exclude?: string[],
+    preloads: PreloadConfig[],
+    loaders: LoaderConfig[],
+    exclude: string[],
     pluginsEntry?: string,
   ) {
-    super(pluginsEntry);
-    this.entry = entry;
+    super(entry, loaders, exclude, pluginsEntry);
     this.preloads = preloads;
-    this.loaders = loaders;
-    this.exclude = exclude;
     this.output = output;
   }
 
@@ -57,14 +51,14 @@ export class MainConfig extends BaseConfig {
     const output = OutputConfig.fromObject(object.output);
     const preloads = MainConfig.preparePreloadsFromObject(object.preloads);
     const loaders = MainConfig.prepareLoadersFromObject(object.loaders);
-    const excludes = MainConfig.prepareExcludesFroObject(object.exclude);
+    const excludes = MainConfig.prepareExcludesFromObject(object.exclude);
 
     return new MainConfig(entry, output, preloads, loaders, excludes, pluginsEntry);
   }
 
-  private static preparePreloadsFromObject(preloads: any): PreloadConfig[] | undefined {
+  private static preparePreloadsFromObject(preloads: any): PreloadConfig[] {
     if (preloads === undefined) {
-      return undefined;
+      return [];
     }
 
     if (!Array.isArray(preloads)) {
@@ -72,35 +66,5 @@ export class MainConfig extends BaseConfig {
     }
 
     return preloads.map(PreloadConfig.fromObject);
-  }
-
-  private static prepareLoadersFromObject(loaders: any): LoaderConfig[] | undefined {
-    if (loaders === undefined) {
-      return undefined;
-    }
-
-    if (!Array.isArray(loaders)) {
-      loaders = [loaders];
-    }
-
-    return loaders.map(LoaderConfig.fromObject);
-  }
-
-  private static prepareExcludesFroObject(excludes: any): string[] | undefined {
-    if (excludes === undefined) {
-      return undefined;
-    }
-
-    if (!Array.isArray(excludes)) {
-      excludes = [excludes];
-    }
-
-    return excludes.map((exclude: any) => {
-      if (typeof exclude !== 'string') {
-        throw new Error(`MainConfig.fromObject: <${exclude}> must be a string`);
-      }
-
-      return exclude;
-    });
   }
 }

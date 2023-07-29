@@ -119,25 +119,20 @@ export class RendererEsbuildElectronBuilder {
   private async prepareBuildOptions(): Promise<BuildOptions> {
     const plugins: Plugin[] = [];
 
-    const external = ['electron'];
-    if (this.rendererConfig.exclude !== undefined) {
-      external.push(...this.rendererConfig.exclude);
-    }
+    const external = ['electron', ...this.rendererConfig.exclude];
 
     const loader: any = {};
-    if (this.rendererConfig.loaders !== undefined) {
-      this.rendererConfig.loaders.forEach((loaderConfig) => {
-        if (!this.loaders.includes(loaderConfig.loader)) {
-          this.logger.log(
-            'RENDERER',
-            `Unknown loader <${loaderConfig.loader}> for extension <${loaderConfig.extension}>`,
-          );
-          return;
-        }
+    this.rendererConfig.loaders.forEach((loaderConfig) => {
+      if (!this.loaders.includes(loaderConfig.loader)) {
+        this.logger.log(
+          'RENDERER',
+          `Unknown loader <${loaderConfig.loader}> for extension <${loaderConfig.extension}>`,
+        );
+        return;
+      }
 
-        loader[loaderConfig.extension] = loaderConfig.loader;
-      });
-    }
+      loader[loaderConfig.extension] = loaderConfig.loader;
+    });
 
     if (this.rendererConfig.pluginsEntry !== undefined) {
       try {

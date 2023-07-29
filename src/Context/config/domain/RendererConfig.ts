@@ -5,28 +5,22 @@ import { LoaderConfig } from './LoaderConfig.js';
 import { OutputConfig } from './OutputConfig.js';
 
 export class RendererConfig extends BaseConfig {
-  readonly entry: string;
   readonly html: string;
   readonly devPort?: number;
-  readonly loaders?: ReadonlyArray<LoaderConfig>;
-  readonly exclude?: ReadonlyArray<string>;
   readonly output?: OutputConfig;
 
   constructor(
     entry: string,
     html: string,
+    loaders: LoaderConfig[],
+    excludes: string[],
     devPort?: number,
-    loaders?: LoaderConfig[],
-    exclude?: string[],
     output?: OutputConfig,
     pluginsEntry?: string,
   ) {
-    super(pluginsEntry);
-    this.entry = entry;
+    super(entry, loaders, excludes, pluginsEntry);
     this.html = html;
     this.devPort = devPort;
-    this.loaders = loaders;
-    this.exclude = exclude;
     this.output = output;
   }
 
@@ -67,39 +61,9 @@ export class RendererConfig extends BaseConfig {
     }
 
     const output = object.output ? OutputConfig.fromObject(object.output) : undefined;
-    const loaders = RendererConfig.prepareLoadersFromJson(object.loaders);
-    const excludes = RendererConfig.prepareExcludesFromJson(object.exclude);
+    const loaders = RendererConfig.prepareLoadersFromObject(object.loaders);
+    const excludes = RendererConfig.prepareExcludesFromObject(object.exclude);
 
-    return new RendererConfig(entry, html, devPort, loaders, excludes, output, pluginsEntry);
-  }
-
-  private static prepareLoadersFromJson(loaders: any): LoaderConfig[] | undefined {
-    if (loaders === undefined) {
-      return undefined;
-    }
-
-    if (!Array.isArray(loaders)) {
-      loaders = [loaders];
-    }
-
-    return loaders.map(LoaderConfig.fromObject);
-  }
-
-  private static prepareExcludesFromJson(excludes: any): string[] | undefined {
-    if (excludes === undefined) {
-      return undefined;
-    }
-
-    if (!Array.isArray(excludes)) {
-      excludes = [excludes];
-    }
-
-    return excludes.map((exclude: any) => {
-      if (typeof exclude !== 'string') {
-        throw new Error(`RendererConfig.fromObject: <${exclude}> must be a string`);
-      }
-
-      return exclude;
-    });
+    return new RendererConfig(entry, html, loaders, excludes, devPort, output, pluginsEntry);
   }
 }
