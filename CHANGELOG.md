@@ -1,9 +1,15 @@
-## [2.2.0](https://github.com/eduardoleolim/electron-esbuild/compare/2.0.0...2.2.0) (2023-07-29)
+## [2.2.1](https://github.com/eduardoleolim/electron-esbuild/compare/2.2.0...2.2.1) (2023-07-29)
+
+
+### Bug Fixes
+
+* **preload:** include loader and external property in esbuild's preload config ([4e2c17a](https://github.com/eduardoleolim/electron-esbuild/commit/4e2c17a4cbd17f5a8e472dd61bba360abfb76c68))
+
+## [2.2.0](https://github.com/eduardoleolim/electron-esbuild/compare/2.1.0...2.2.0) (2023-07-29)
 
 
 ### Features
 
-* **config:** include esbuild plugins to main, renderer and preload config ([1118a6a](https://github.com/eduardoleolim/electron-esbuild/commit/1118a6a44c8dc93712790ee97295ecfc0146a776))
 * **preload:** add support for exclude and loaders options in preload config ([985cb6c](https://github.com/eduardoleolim/electron-esbuild/commit/985cb6ca800df291d8829ba98ff0120899ed3465))
 
 ## [2.1.0](https://github.com/eduardoleolim/electron-esbuild/compare/2.0.0...2.1.0) (2023-07-26)
