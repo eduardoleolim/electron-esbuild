@@ -133,6 +133,8 @@ The preload config is composed of the following properties:
 - `output` - Optional. The output configuration of bundle. Default: same as main's output
   - `directory` - The output directory of your preload process
   - `filename` - The output filename of your preload process
+- `exclude` - Optional. An array of libs that you don't want to bundle
+- `loaders` - Optional. An array of esbuild's loaders for specific files
 
 ```json5
 {
@@ -141,7 +143,9 @@ The preload config is composed of the following properties:
   "output": {
     "directory": "path/to/output/directory",
     "filename": "filename.js"
-  }
+  },
+  "exclude": [],
+  "loaders": []
 }
 ```
 
