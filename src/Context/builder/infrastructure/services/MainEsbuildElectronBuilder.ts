@@ -1,9 +1,10 @@
 import chikidar from 'chokidar';
 import debounce from 'debounce';
-import esbuild, { BuildContext, BuildOptions, Plugin, PluginBuild } from 'esbuild';
+import esbuild, { BuildContext, BuildOptions, Plugin, PluginBuild, buildSync } from 'esbuild';
 import path from 'path';
 
 import { MainConfig } from '../../../config/domain/MainConfig.js';
+import { PreloadConfig } from '../../../config/domain/PreloadConfig';
 import { Logger } from '../../../shared/domain/Logger.js';
 import { getDependencies } from '../../../shared/infrastructure/getDependencies.js';
 import { getEsbuildPlugins } from '../utils/getEsbuildPlugins.js';
@@ -44,11 +45,7 @@ export class MainEsbuildElectronBuilder {
   }
 
   public async dev(mainProcessStarter: MainProcessStarter): Promise<void> {
-    const sources = [
-      ...getDependencies(path.resolve(this.mainConfig.entry)),
-      ...(this.mainConfig.preloads?.map((preload) => preload.entry) ?? []),
-    ];
-
+    const sources = this.calculateDependencies();
     const watcher = chikidar.watch(sources);
 
     watcher.on('ready', () => {
@@ -67,6 +64,17 @@ export class MainEsbuildElectronBuilder {
     process.on('exit', async () => {
       await watcher.close();
     });
+  }
+
+  private calculateDependencies(): string[] {
+    const dependencies: string[] = [];
+    dependencies.push(...getDependencies(path.resolve(this.mainConfig.entry)));
+    this.mainConfig.preloads.forEach((preloadConfig) => {
+      if (!preloadConfig.reload) return;
+      dependencies.push(...getDependencies(path.resolve(preloadConfig.entry)));
+    });
+
+    return dependencies;
   }
 
   private async prepareBuildOptions(): Promise<BuildOptions> {
@@ -92,53 +100,34 @@ export class MainEsbuildElectronBuilder {
     });
 
     const preloadConfigs: BuildOptions[] = [];
-    const preloads = this.mainConfig.preloads;
+    const mainPreloads = this.mainConfig.preloads.filter((preloadConfig) => preloadConfig.reload);
+    const preloads = this.mainConfig.preloads.filter((preloadConfig) => !preloadConfig.reload);
 
     for (let i = 0; i < preloads.length; i++) {
-      let outfile;
       const preloadConfig = preloads[i];
-      const external = ['electron', ...preloadConfig.exclude];
-      const plugins: Plugin[] = [];
-      const loader: any = {};
-      preloadConfig.loaders.forEach((loaderConfig) => {
-        if (!this.loaders.includes(loaderConfig.loader)) {
-          this.logger.log('MAIN', `Unknown loader <${loaderConfig.loader}> for extension <${loaderConfig.extension}>`);
-          return;
-        }
+      const source = getDependencies(path.resolve(preloadConfig.entry));
+      const watcher = chikidar.watch(source);
+      const buildOptions = await this.preparePreloadBuildOptions(preloadConfig, i);
 
-        loader[loaderConfig.extension] = loaderConfig.loader;
+      watcher.on('ready', () => {
+        watcher.on(
+          'all',
+          debounce(async () => {
+            buildSync(buildOptions);
+            logger.log('MAIN', `Preload <${preloadConfig.entry}> rebuilt`);
+          }, 500),
+        );
       });
 
-      if (preloadConfig.output !== undefined) {
-        outfile = path.resolve(this.outputDirectory, preloadConfig.output.directory, preloadConfig.output.filename);
-      } else {
-        outfile = path.resolve(this.outputDirectory, this.mainConfig.output.directory, `preload_${i}.js`);
-      }
-
-      if (preloadConfig.pluginsEntry !== undefined) {
-        try {
-          const pluginsEntry = path.resolve(preloadConfig.pluginsEntry);
-          plugins.push(...(await getEsbuildPlugins(pluginsEntry)));
-          logger.info('MAIN', `Loaded plugins from <${preloadConfig.pluginsEntry}>`);
-        } catch (error: any) {
-          this.logger.error('MAIN', error.message);
-        }
-      }
-
-      preloadConfigs.push({
-        platform: 'node',
-        entryPoints: [preloadConfig.entry],
-        outfile: outfile,
-        bundle: true,
-        minify: process.env.NODE_ENV !== 'development',
-        external: external,
-        loader: loader,
-        plugins: plugins,
-        define: {
-          'process.env.NODE_ENV': `"${process.env.NODE_ENV}"`,
-        },
-        sourcemap: process.env.NODE_ENV === 'development' ? 'inline' : false,
+      process.on('exit', async () => {
+        await watcher.close();
       });
+    }
+
+    for (let i = 0; i < mainPreloads.length; i++) {
+      const preloadConfig = mainPreloads[i];
+      const buildOptions = await this.preparePreloadBuildOptions(preloadConfig, i + preloads.length);
+      preloadConfigs.push(buildOptions);
     }
 
     const preloadPlugin: Plugin = {
@@ -164,7 +153,7 @@ export class MainEsbuildElectronBuilder {
       try {
         const pluginsEntry = path.resolve(this.mainConfig.pluginsEntry);
         mainPlugins.push(...(await getEsbuildPlugins(pluginsEntry)));
-        logger.info('MAIN', `Loaded plugins from <${this.mainConfig.pluginsEntry}>`);
+        logger.info('MAIN', `Plugins loaded from <${this.mainConfig.pluginsEntry}>`);
       } catch (error: any) {
         this.logger.warn('MAIN', error.message);
       }
@@ -183,6 +172,52 @@ export class MainEsbuildElectronBuilder {
         'process.env.NODE_ENV': `"${process.env.NODE_ENV}"`,
       },
       sourcemap: process.env.NODE_ENV === 'development' ? 'linked' : false,
+    };
+  }
+
+  private async preparePreloadBuildOptions(preloadConfig: PreloadConfig, index: number): Promise<BuildOptions> {
+    let outfile;
+    const external = ['electron', ...preloadConfig.exclude];
+    const plugins: Plugin[] = [];
+    const loader: any = {};
+    preloadConfig.loaders.forEach((loaderConfig) => {
+      if (!this.loaders.includes(loaderConfig.loader)) {
+        this.logger.log('MAIN', `Unknown loader <${loaderConfig.loader}> for extension <${loaderConfig.extension}>`);
+        return;
+      }
+
+      loader[loaderConfig.extension] = loaderConfig.loader;
+    });
+
+    if (preloadConfig.output !== undefined) {
+      outfile = path.resolve(this.outputDirectory, preloadConfig.output.directory, preloadConfig.output.filename);
+    } else {
+      outfile = path.resolve(this.outputDirectory, this.mainConfig.output.directory, `preload_${index}.js`);
+    }
+
+    if (preloadConfig.pluginsEntry !== undefined) {
+      try {
+        const pluginsEntry = path.resolve(preloadConfig.pluginsEntry);
+        plugins.push(...(await getEsbuildPlugins(pluginsEntry)));
+        this.logger.info('MAIN', `Loaded plugins from <${preloadConfig.pluginsEntry}>`);
+      } catch (error: any) {
+        this.logger.error('MAIN', error.message);
+      }
+    }
+
+    return {
+      platform: 'node',
+      entryPoints: [preloadConfig.entry],
+      outfile: outfile,
+      bundle: true,
+      minify: process.env.NODE_ENV !== 'development',
+      external: external,
+      loader: loader,
+      plugins: plugins,
+      define: {
+        'process.env.NODE_ENV': `"${process.env.NODE_ENV}"`,
+      },
+      sourcemap: process.env.NODE_ENV === 'development' ? 'inline' : false,
     };
   }
 }

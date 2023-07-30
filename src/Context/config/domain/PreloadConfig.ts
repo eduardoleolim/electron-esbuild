@@ -6,10 +6,19 @@ import { OutputConfig } from './OutputConfig.js';
 
 export class PreloadConfig extends BaseConfig {
   readonly output?: OutputConfig;
+  readonly reload: boolean;
 
-  constructor(entry: string, loaders: LoaderConfig[], exclude: string[], output?: OutputConfig, pluginsEntry?: string) {
+  constructor(
+    entry: string,
+    reload: boolean,
+    loaders: LoaderConfig[],
+    exclude: string[],
+    output?: OutputConfig,
+    pluginsEntry?: string,
+  ) {
     super(entry, loaders, exclude, pluginsEntry);
     this.output = output;
+    this.reload = reload;
   }
 
   static fromObject(object: any): PreloadConfig {
@@ -19,6 +28,7 @@ export class PreloadConfig extends BaseConfig {
 
     const entry = object.entry;
     const pluginsEntry = object.plugins;
+    let reload = object.reload;
 
     if (typeof entry !== 'string') {
       throw new Error('PreloadConfig.fromObject: entry must be a string');
@@ -35,10 +45,16 @@ export class PreloadConfig extends BaseConfig {
         throw new Error('PreloadConfig.fromObject: pluginsEntry must be a relative path');
     }
 
+    if (reload) {
+      if (typeof reload !== 'boolean') throw new Error('PreloadConfig.fromObject: reload must be a boolean');
+    } else {
+      reload = false;
+    }
+
     const output = object.output ? OutputConfig.fromObject(object.output) : undefined;
     const loaders = PreloadConfig.prepareLoadersFromObject(object.loaders);
     const excludes = PreloadConfig.prepareExcludesFromObject(object.exclude);
 
-    return new PreloadConfig(entry, loaders, excludes, output, pluginsEntry);
+    return new PreloadConfig(entry, reload, loaders, excludes, output, pluginsEntry);
   }
 }
