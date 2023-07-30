@@ -129,6 +129,7 @@ The main config is composed of the following properties:
 The preload config is composed of the following properties:
 
 - `entry` - The entry file of your preload process
+- `reload` - Optional. If true, main process will be restarted after preload process is reloaded. Default: `false`
 - `plugins` - Optional. Path to a javascript file exporting an array of esbuild plugins
 - `output` - Optional. The output configuration of bundle. Default: same as main's output
   - `directory` - The output directory of your preload process
