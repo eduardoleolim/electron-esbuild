@@ -1,3 +1,5 @@
+## [2.4.0](https://github.com/eduardoleolim/electron-esbuild/compare/2.3.0...2.4.0) (2023-09-26)
+
 ## [2.3.0](https://github.com/eduardoleolim/electron-esbuild/compare/2.2.1...2.3.0) (2023-07-30)
 
 
