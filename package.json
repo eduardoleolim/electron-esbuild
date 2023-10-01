@@ -8,7 +8,7 @@
     "lint": "eslint src --quiet --fix",
     "prepare": "husky install",
     "build": "rimraf dist && tsc",
-    "dev": "ts-node src/cli/index.ts",
+    "dev": "ts-node src/app/index.ts",
     "test": "jest"
   },
   "engines": {
