@@ -2,7 +2,7 @@ name: tests and publish
 
 on:
   push:
-    paths-ignore:
+    paths:
       - 'src/**'
       - 'tests/**'
 
