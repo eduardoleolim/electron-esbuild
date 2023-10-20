@@ -1,0 +1,16 @@
+@startuml
+'https://plantuml.com/use-case-diagram
+
+left to right direction
+
+:Developer: as dev
+
+rectangle electron-esbuild {
+  (Start development server) as (dev server)
+  (Compile application) as (compile)
+}
+
+dev --> (dev server)
+dev --> (compile)
+
+@enduml
