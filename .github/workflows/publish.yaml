@@ -1,10 +1,16 @@
-name: tests and publish
+name: publish
 
 on:
   push:
     paths:
       - 'src/**'
       - 'tests/**'
+      - 'package.json'
+      - 'package-lock.json'
+      - '.github/workflows/publish.yaml'
+      - 'tsconfig.json'
+      - 'tsconfig.test.json'
+      - 'jest.config.js'
 
 jobs:
   test:
