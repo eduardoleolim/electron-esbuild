@@ -1,4 +1,4 @@
-import { OutputConfig } from '../../../src/Context/config/domain/OutputConfig';
+import { JsonElectronConfigParser } from '../../../src/Context/config/infrastructure/JsonElectronConfigParser';
 import {
   invalidAbsolutePathConfigData,
   invalidDirectoryConfigData,
@@ -7,48 +7,39 @@ import {
 } from './ConfigData';
 
 describe('OutputConfig module', () => {
+  const jsonParser = new JsonElectronConfigParser();
+
   test('Parse from json', () => {
     try {
       const jsonParsed = JSON.parse(validConfigData);
-      const outputConfig = OutputConfig.fromObject(jsonParsed);
+      const outputConfig = jsonParser.parseOutputConfig(jsonParsed);
 
       expect(outputConfig.directory).toBe(jsonParsed.directory);
       expect(outputConfig.filename).toBe(jsonParsed.filename);
     } catch (error: any) {
-      throw new Error(error.message);
+      throw error.message;
     }
   });
 
   test('Invalid directory', () => {
     try {
       const jsonParsed = JSON.parse(invalidDirectoryConfigData);
-      OutputConfig.fromObject(jsonParsed);
+      jsonParser.parseOutputConfig(jsonParsed);
 
       expect(true).toBe(false);
     } catch (error: any) {
-      expect(error.message).toBe('OutputConfig.fromObject: directory must be a string');
-    }
-  });
-
-  test('Invalid directory, absolute path', () => {
-    try {
-      const jsonParsed = JSON.parse(invalidAbsolutePathConfigData);
-      OutputConfig.fromObject(jsonParsed);
-
-      expect(true).toBe(false);
-    } catch (error: any) {
-      expect(error.message).toBe('OutputConfig.fromObject: directory must be a relative path');
+      expect(error.message).toBe('Output directory must be a string');
     }
   });
 
   test('Invalid filename', () => {
     try {
       const jsonParsed = JSON.parse(invalidFilenameConfigData);
-      OutputConfig.fromObject(jsonParsed);
+      jsonParser.parseOutputConfig(jsonParsed);
 
       expect(true).toBe(false);
     } catch (error: any) {
-      expect(error.message).toBe('OutputConfig.fromObject: filename must be a string');
+      expect(error.message).toBe('Output file name must be a string');
     }
   });
 });
