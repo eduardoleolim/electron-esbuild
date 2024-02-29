@@ -2268,7 +2268,7 @@
 									"$ref": "AAAAAAGLUt620Wfyhpo="
 								},
 								"navigable": "navigable",
-								"multiplicity": "1"
+								"multiplicity": "0..*"
 							}
 						},
 						{
@@ -2305,6 +2305,16 @@
 					"attributes": [
 						{
 							"_type": "UMLAttribute",
+							"_id": "AAAAAAGN8VHRQF7IE6g=",
+							"_parent": {
+								"$ref": "AAAAAAGLUsslqmPT9wA="
+							},
+							"name": "output",
+							"type": "string",
+							"isReadOnly": true
+						},
+						{
+							"_type": "UMLAttribute",
 							"_id": "AAAAAAGN7wT2IdlJ1LM=",
 							"_parent": {
 								"$ref": "AAAAAAGLUsslqmPT9wA="
@@ -2321,10 +2331,11 @@
 							"_parent": {
 								"$ref": "AAAAAAGLUsslqmPT9wA="
 							},
-							"name": "rendererConfig",
+							"name": "rendererConfigs",
 							"type": {
 								"$ref": "AAAAAAGLUuOiiGsDP68="
 							},
+							"multiplicity": "0..*",
 							"isReadOnly": true
 						},
 						{
@@ -2338,16 +2349,6 @@
 								"$ref": "AAAAAAGLUs9T82RJ4DA="
 							},
 							"multiplicity": "0..*",
-							"isReadOnly": true
-						},
-						{
-							"_type": "UMLAttribute",
-							"_id": "AAAAAAGN8VHRQF7IE6g=",
-							"_parent": {
-								"$ref": "AAAAAAGLUsslqmPT9wA="
-							},
-							"name": "outputDirectory",
-							"type": "string",
 							"isReadOnly": true
 						}
 					]
@@ -3979,6 +3980,23 @@
 									"subViews": [
 										{
 											"_type": "UMLAttributeView",
+											"_id": "AAAAAAGN8VHRbF7LtHU=",
+											"_parent": {
+												"$ref": "AAAAAAGN7wNm3dbQTYA="
+											},
+											"model": {
+												"$ref": "AAAAAAGN8VHRQF7IE6g="
+											},
+											"font": "Arial;13;0",
+											"left": 645,
+											"top": 760,
+											"width": 294.4677734375,
+											"height": 13,
+											"text": "+output: string {readOnly}",
+											"horizontalAlignment": 0
+										},
+										{
+											"_type": "UMLAttributeView",
 											"_id": "AAAAAAGN7wT2MNlMgvw=",
 											"_parent": {
 												"$ref": "AAAAAAGN7wNm3dbQTYA="
@@ -3988,7 +4006,7 @@
 											},
 											"font": "Arial;13;0",
 											"left": 645,
-											"top": 760,
+											"top": 775,
 											"width": 294.4677734375,
 											"height": 13,
 											"text": "+mainConfig: MainConfig {readOnly}",
@@ -4005,10 +4023,10 @@
 											},
 											"font": "Arial;13;0",
 											"left": 645,
-											"top": 775,
+											"top": 790,
 											"width": 294.4677734375,
 											"height": 13,
-											"text": "+rendererConfig: RendererConfig {readOnly}",
+											"text": "+rendererConfigs: RendererConfig[0..*] {readOnly}",
 											"horizontalAlignment": 0
 										},
 										{
@@ -4022,27 +4040,10 @@
 											},
 											"font": "Arial;13;0",
 											"left": 645,
-											"top": 790,
-											"width": 294.4677734375,
-											"height": 13,
-											"text": "+resourceConfigs: ResourceConfig[0..*] {readOnly}",
-											"horizontalAlignment": 0
-										},
-										{
-											"_type": "UMLAttributeView",
-											"_id": "AAAAAAGN8VHRbF7LtHU=",
-											"_parent": {
-												"$ref": "AAAAAAGN7wNm3dbQTYA="
-											},
-											"model": {
-												"$ref": "AAAAAAGN8VHRQF7IE6g="
-											},
-											"font": "Arial;13;0",
-											"left": 645,
 											"top": 805,
 											"width": 294.4677734375,
 											"height": 13,
-											"text": "+outputDirectory: string {readOnly}",
+											"text": "+resourceConfigs: ResourceConfig[0..*] {readOnly}",
 											"horizontalAlignment": 0
 										}
 									],
@@ -5953,16 +5954,16 @@
 										"$ref": "AAAAAAGLUt8cKGhmRko="
 									},
 									"font": "Arial;13;0",
-									"left": 733,
+									"left": 727,
 									"top": 593,
-									"width": 7.22998046875,
+									"width": 19.5126953125,
 									"height": 13,
 									"alpha": 0.5235987755982988,
 									"distance": 25,
 									"hostEdge": {
 										"$ref": "AAAAAAGN7wWmcdpmyM4="
 									},
-									"text": "1"
+									"text": "0..*"
 								},
 								{
 									"_type": "UMLQualifierCompartmentView",
