@@ -1,5 +1,3 @@
-import path from 'path';
-
 import { BaseConfig } from './BaseConfig';
 import { LoaderConfig } from './LoaderConfig';
 import { OutputConfig } from './OutputConfig';
