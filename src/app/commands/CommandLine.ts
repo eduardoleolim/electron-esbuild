@@ -5,7 +5,7 @@ import path from 'path';
 import { BuildApplication } from '../../Context/builder/application/BuildApplication';
 import { DevApplication } from '../../Context/builder/application/DevApplication';
 import { EsbuildElectronBuildService } from '../../Context/builder/infrastructure/services/EsbuildElectronBuildService';
-import { EsbuildElectronBuilder } from '../../Context/builder/infrastructure/services/EsbuildElectronBuilder';
+import { EsbuildElectronDevelopService } from '../../Context/builder/infrastructure/services/EsbuildElectronDevelopService';
 import { EsbuildMainBuilder } from '../../Context/builder/infrastructure/services/EsbuildMainBuilder';
 import { EsbuildPreloadBuilder } from '../../Context/builder/infrastructure/services/EsbuildPreloadBuilder';
 import { EsbuildRendererBuilder } from '../../Context/builder/infrastructure/services/EsbuildRendererBuilder';
@@ -41,17 +41,17 @@ export class CommandLine {
 
     const jsonParser = new JsonElectronConfigParser();
     const yamlParser = new YamlElectronConfigParser();
-    const esbuildBuilder = new EsbuildElectronBuilder(loaders, logger);
 
     const mainBuilder = new EsbuildMainBuilder(loaders, logger);
     const preloadBuilder = new EsbuildPreloadBuilder(loaders, logger);
     const rendererBuilder = new EsbuildRendererBuilder(loaders, logger);
     const buildService = new EsbuildElectronBuildService(mainBuilder, preloadBuilder, rendererBuilder, logger);
+    const developService = new EsbuildElectronDevelopService(mainBuilder, logger);
 
-    this.jsonEsbuildDev = new DevApplication(jsonParser, esbuildBuilder, logger);
+    this.jsonEsbuildDev = new DevApplication(jsonParser, developService, logger);
     this.jsonEsbuildBuild = new BuildApplication(jsonParser, buildService, logger);
 
-    this.yamlEsbuildDev = new DevApplication(yamlParser, esbuildBuilder, logger);
+    this.yamlEsbuildDev = new DevApplication(yamlParser, developService, logger);
     this.yamlEsbuildBuild = new BuildApplication(yamlParser, buildService, logger);
   }
 

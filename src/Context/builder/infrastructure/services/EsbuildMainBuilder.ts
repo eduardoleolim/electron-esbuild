@@ -1,9 +1,12 @@
-import esbuild, { BuildOptions, Plugin } from 'esbuild';
+import chikidar from 'chokidar';
+import esbuild, { BuildContext, BuildOptions, Plugin } from 'esbuild';
 import path from 'path';
 
 import { MainConfig } from '../../../config/domain/MainConfig';
 import { Logger } from '../../../shared/domain/Logger';
+import { getDependencies } from '../../../shared/infrastructure/getDependencies';
 import { getEsbuildPlugins } from '../utils/getEsbuildPlugins';
+import { MainProcessStarter } from './MainProcessStarter';
 
 export class EsbuildMainBuilder {
   private readonly loaders: ReadonlyArray<string>;
@@ -17,10 +20,63 @@ export class EsbuildMainBuilder {
   public async build(output: string, config: MainConfig): Promise<void> {
     this.logger.log('MAIN-BUILDER', 'Building main electron process');
 
-    const esbuildOptions = await this.loadMainEsbuildOptions(output, config);
-    await esbuild.build(esbuildOptions);
+    const context = await this.generateEsbuilContext(output, config);
+    await context.rebuild();
+    await context.dispose();
 
     this.logger.log('MAIN-BUILDER', 'Build finished');
+  }
+
+  public async develop(output: string, config: MainConfig): Promise<void> {
+    const context = await this.generateEsbuilContext(output, config);
+    let dependencies = this.resolveDependencies(config);
+    const watcher = chikidar.watch(dependencies);
+    const processStarter = new MainProcessStarter(output, config, this.logger);
+
+    watcher
+      .on('ready', async () => {
+        this.logger.log('MAIN-BUILDER', 'Building main electron process');
+        await context.rebuild();
+        this.logger.log('MAIN-BUILDER', 'Main process built');
+
+        processStarter.start();
+      })
+      .on('change', async () => {
+        await context.cancel();
+        await context.rebuild();
+        this.logger.log('MAIN-BUILDER', 'Main process rebuilt');
+
+        watcher.unwatch(dependencies);
+        dependencies = this.resolveDependencies(config);
+        watcher.add(dependencies);
+
+        processStarter.start();
+      });
+
+    process.on('SIGINT', async () => {
+      await watcher.close();
+      await context.cancel();
+      await context.dispose();
+    });
+  }
+
+  private resolveDependencies(config: MainConfig): string[] {
+    const dependencies: string[] = [];
+    dependencies.push(...getDependencies(path.resolve(config.entryPoint)));
+
+    config.preloadConfigs.forEach((preloadConfig) => {
+      if (preloadConfig.reloadMainProcess) {
+        const preloadDependencies = getDependencies(path.resolve(preloadConfig.entryPoint));
+        dependencies.push(...preloadDependencies);
+      }
+    });
+
+    return dependencies;
+  }
+
+  private async generateEsbuilContext(output: string, config: MainConfig): Promise<BuildContext> {
+    const esbuildOptions = await this.loadMainEsbuildOptions(output, config);
+    return await esbuild.context(esbuildOptions);
   }
 
   public async loadMainEsbuildOptions(output: string, config: MainConfig): Promise<BuildOptions> {

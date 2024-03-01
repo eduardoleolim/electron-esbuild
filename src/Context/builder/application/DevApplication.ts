@@ -1,35 +1,30 @@
-import fs from 'fs';
+import path from 'path';
 
-import { ElectronConfig } from '../../config/domain/ElectronConfig.js';
-import { FileConfigParser } from '../../config/domain/FileConfigParser.js';
-import { Logger } from '../../shared/domain/Logger.js';
-import { ElectronBuilderService } from '../domain/ElectronBuilderService.js';
+import { ElectronConfigParser } from '../../config/domain/ElectronConfigParser';
+import { Logger } from '../../shared/domain/Logger';
+import { ElectronDevelopService } from '../domain/ElectronDevelopService';
 
 export class DevApplication {
-  private readonly parser: FileConfigParser;
-  private readonly builder: ElectronBuilderService;
+  private readonly parser: ElectronConfigParser;
+  private readonly builder: ElectronDevelopService;
   private readonly logger: Logger;
 
-  constructor(parser: FileConfigParser, builder: ElectronBuilderService, logger: Logger) {
+  constructor(parser: ElectronConfigParser, builder: ElectronDevelopService, logger: Logger) {
     this.parser = parser;
     this.builder = builder;
     this.logger = logger;
   }
 
-  public dev(configPath: string, clean: boolean) {
+  async dev(configPath: string, clean: boolean): Promise<void> {
     this.logger.log('DEV', 'Starting dev mode');
-    const configs = this.prepareConfigs(configPath);
-    configs.forEach((config) => this.builder.dev(config, clean));
-  }
+    const config = this.parser.parse(configPath);
 
-  private prepareConfigs(configPath: string): ElectronConfig[] {
-    if (!fs.existsSync(configPath)) throw new Error('Config file not found');
+    if (clean) {
+      const outputDir = path.resolve(process.cwd(), config.output);
 
-    let configs = this.parser.parse(configPath);
-    if (!Array.isArray(configs)) {
-      configs = [configs];
+      await this.builder.clean(outputDir);
     }
 
-    return configs.map(ElectronConfig.fromObject);
+    this.builder.develop(config);
   }
 }
