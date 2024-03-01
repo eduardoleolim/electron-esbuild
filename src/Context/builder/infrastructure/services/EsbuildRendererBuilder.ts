@@ -1,11 +1,11 @@
 import esbuild, { BuildOptions, Plugin } from 'esbuild';
 import path from 'path';
 
-import { MainConfig } from '../../../config/domain/MainConfig';
+import { RendererConfig } from '../../../config/domain/RendererConfig';
 import { Logger } from '../../../shared/domain/Logger';
 import { getEsbuildPlugins } from '../utils/getEsbuildPlugins';
 
-export class EsbuildMainBuilder {
+export class EsbuildRendererBuilder {
   private readonly loaders: ReadonlyArray<string>;
   private readonly logger: Logger;
 
@@ -14,16 +14,16 @@ export class EsbuildMainBuilder {
     this.logger = logger;
   }
 
-  public async build(output: string, config: MainConfig): Promise<void> {
-    this.logger.log('MAIN-BUILDER', 'Building main electron process');
+  public async build(output: string, config: RendererConfig): Promise<void> {
+    this.logger.log('RENDERER-BUILDER', 'Building renderer electron process');
 
-    const esbuildOptions = await this.loadMainEsbuildOptions(output, config);
+    const esbuildOptions = await this.loadRendererEsbuildOptions(output, config);
     esbuild.build(esbuildOptions);
 
-    this.logger.log('MAIN-BUILDER', 'Build finished');
+    this.logger.log('RENDERER-BUILDER', 'Build finished');
   }
 
-  public async loadMainEsbuildOptions(output: string, config: MainConfig): Promise<BuildOptions> {
+  public async loadRendererEsbuildOptions(output: string, config: RendererConfig): Promise<BuildOptions> {
     const plugins: Plugin[] = [];
     const outputFileDirectory = path.resolve(process.cwd(), output, config.output.directory, config.output.filename);
     const external = ['electron', ...config.excludedLibraries];
@@ -31,7 +31,7 @@ export class EsbuildMainBuilder {
 
     for (const loader of config.loaderConfigs) {
       if (!this.loaders.includes(loader.loaderName)) {
-        this.logger.warn('MAIN-BUILDER', `Loader ${loader.loaderName} not found`);
+        this.logger.warn('RENDERER-BUILDER', `Loader ${loader.loaderName} not found`);
       } else {
         loaders[loader.fileExtension] = loader.loaderName;
       }
@@ -42,25 +42,25 @@ export class EsbuildMainBuilder {
         const pluginsEntry = path.resolve(config.pluginsEntryPoint);
         const externalPlugins = await getEsbuildPlugins(pluginsEntry);
         plugins.push(...externalPlugins);
-        this.logger.info('MAIN-BUILDER', `Plugins loaded from <${config.pluginsEntryPoint}>`);
+        this.logger.info('RENDERER-BUILDER', `Loaded plugins from <${config.pluginsEntryPoint}>`);
       } catch (error: any) {
-        this.logger.warn('MAIN-BUILDER', error.message);
+        this.logger.warn('RENDERER-BUILDER', error.message);
       }
     }
 
     return {
-      platform: 'node',
+      platform: 'browser',
       entryPoints: [config.entryPoint],
       outfile: outputFileDirectory,
       bundle: true,
-      minify: process.env.NODE_ENV !== 'development',
+      minify: process.env.NODE_ENV === 'production',
       external: external,
       loader: loaders,
       plugins: plugins,
       define: {
         'process.env.NODE_ENV': `"${process.env.NODE_ENV}"`,
       },
-      sourcemap: process.env.NODE_ENV === 'development' ? 'linked' : false,
+      sourcemap: process.env.NODE_ENV !== 'production',
     };
   }
 }

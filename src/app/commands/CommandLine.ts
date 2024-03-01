@@ -7,6 +7,7 @@ import { DevApplication } from '../../Context/builder/application/DevApplication
 import { EsbuildElectronBuildService } from '../../Context/builder/infrastructure/services/EsbuildElectronBuildService';
 import { EsbuildElectronBuilder } from '../../Context/builder/infrastructure/services/EsbuildElectronBuilder';
 import { EsbuildMainBuilder } from '../../Context/builder/infrastructure/services/EsbuildMainBuilder';
+import { EsbuildRendererBuilder } from '../../Context/builder/infrastructure/services/EsbuildRendererBuilder';
 import { JsonElectronConfigParser } from '../../Context/config/infrastructure/JsonElectronConfigParser';
 import { YamlElectronConfigParser } from '../../Context/config/infrastructure/YamlElectronConfigParser';
 import { Logger } from '../../Context/shared/domain/Logger';
@@ -41,7 +42,8 @@ export class CommandLine {
     const yamlParser = new YamlElectronConfigParser();
     const esbuildBuilder = new EsbuildElectronBuilder(loaders, logger);
     const mainBuilder = new EsbuildMainBuilder(loaders, logger);
-    const buildService = new EsbuildElectronBuildService(mainBuilder, logger);
+    const rendererBuilder = new EsbuildRendererBuilder(loaders, logger);
+    const buildService = new EsbuildElectronBuildService(mainBuilder, rendererBuilder, logger);
 
     this.jsonEsbuildDev = new DevApplication(jsonParser, esbuildBuilder, logger);
     this.jsonEsbuildBuild = new BuildApplication(jsonParser, buildService, logger);

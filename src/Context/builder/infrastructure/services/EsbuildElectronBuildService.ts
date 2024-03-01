@@ -9,13 +9,16 @@ import { CustomResourceConfig, ResourceConfig, SimpleResourceConfig } from '../.
 import { Logger } from '../../../shared/domain/Logger';
 import { ElectronBuildService } from '../../domain/ElectronBuildService';
 import { EsbuildMainBuilder } from './EsbuildMainBuilder';
+import { EsbuildRendererBuilder } from './EsbuildRendererBuilder';
 
 export class EsbuildElectronBuildService implements ElectronBuildService {
   private readonly mainBuilder: EsbuildMainBuilder;
+  private readonly rendererBuilder: EsbuildRendererBuilder;
   private readonly logger: Logger;
 
-  constructor(mainBuilder: EsbuildMainBuilder, logger: Logger) {
+  constructor(mainBuilder: EsbuildMainBuilder, rendererBuilder: EsbuildRendererBuilder, logger: Logger) {
     this.mainBuilder = mainBuilder;
+    this.rendererBuilder = rendererBuilder;
     this.logger = logger;
   }
 
@@ -83,6 +86,7 @@ export class EsbuildElectronBuildService implements ElectronBuildService {
   }
 
   private async buildRenderer(output: string, config: RendererConfig): Promise<void> {
+    await this.rendererBuilder.build(output, config);
     this.logger.info('BUILD', 'Renderer built');
   }
 }
