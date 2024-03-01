@@ -31,7 +31,7 @@ export class EsbuildElectronBuildService implements ElectronBuildService {
   }
 
   async clean(directory: string): Promise<void> {
-    const outputDir = path.resolve(__dirname, directory);
+    const outputDir = path.resolve(process.cwd(), directory);
     fs.rmSync(outputDir, { recursive: true, force: true });
 
     this.logger.info('BUILD', `Directory ${directory} cleaned`);
@@ -39,15 +39,15 @@ export class EsbuildElectronBuildService implements ElectronBuildService {
 
   async copyResources(configs: Array<ResourceConfig>, output: string): Promise<void> {
     configs.forEach((config) => {
-      const destination = path.resolve(__dirname, output);
+      const destination = path.resolve(process.cwd(), output);
       let source = '';
 
       if (config instanceof SimpleResourceConfig) {
         const simpleConfig = config as SimpleResourceConfig;
-        source = path.resolve(__dirname, simpleConfig.to);
+        source = path.resolve(process.cwd(), simpleConfig.to);
       } else if (config instanceof CustomResourceConfig) {
         const customConfig = config as CustomResourceConfig;
-        source = path.resolve(__dirname, customConfig.output.directory, customConfig.output.filename);
+        source = path.resolve(process.cwd(), customConfig.output.directory, customConfig.output.filename);
       } else {
         throw new Error('Invalid resource config');
       }

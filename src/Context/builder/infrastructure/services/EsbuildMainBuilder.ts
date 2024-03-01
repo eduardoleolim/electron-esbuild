@@ -18,7 +18,7 @@ export class EsbuildMainBuilder {
     this.logger.log('MAIN-BUILDER', 'Building main electron process');
 
     const esbuildOptions = await this.loadMainEsbuildOptions(output, config);
-    esbuild.build(esbuildOptions);
+    await esbuild.build(esbuildOptions);
 
     this.logger.log('MAIN-BUILDER', 'Build finished');
   }

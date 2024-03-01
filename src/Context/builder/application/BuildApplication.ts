@@ -20,8 +20,7 @@ export class BuildApplication {
     const config = this.parser.parse(configPath);
 
     if (clean) {
-      const output = config.mainConfig.output;
-      const outputDir = path.resolve(process.cwd(), output.directory);
+      const outputDir = path.resolve(process.cwd(), config.output);
 
       await this.builder.clean(outputDir);
     }

@@ -18,7 +18,7 @@ export class EsbuildPreloadBuilder {
     this.logger.log('PRELOAD-BUILDER', 'Building preload electron process');
 
     const esbuildOptions = await this.loadPreloadEsbuildOptions(output, config);
-    esbuild.build(esbuildOptions);
+    await esbuild.build(esbuildOptions);
 
     this.logger.log('PRELOAD-BUILDER', 'Build finished');
   }
