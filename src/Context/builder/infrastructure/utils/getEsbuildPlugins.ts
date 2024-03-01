@@ -1,7 +1,6 @@
 import { Plugin } from 'esbuild';
 import fs from 'fs';
 import path from 'path';
-import * as url from 'url';
 
 export async function getEsbuildPlugins(pluginEntry: string): Promise<Plugin[]> {
   const plugins: Plugin[] = [];
@@ -19,11 +18,6 @@ export async function getEsbuildPlugins(pluginEntry: string): Promise<Plugin[]> 
     }
 
     pluginEntry = path.resolve(process.cwd(), pluginEntry);
-
-    if (process.platform === 'win32') {
-      pluginEntry = url.pathToFileURL(pluginEntry).href;
-    }
-
     const importPlugins = await import(pluginEntry);
     defaultPlugins = importPlugins.default;
 
