@@ -1,4 +1,5 @@
 import chikidar from 'chokidar';
+import { debounce } from 'debounce';
 import esbuild, { BuildContext, BuildOptions, Plugin } from 'esbuild';
 import path from 'path';
 
@@ -20,9 +21,8 @@ export class EsbuildMainBuilder {
   public async build(output: string, config: MainConfig): Promise<void> {
     this.logger.log('MAIN-BUILDER', 'Building main electron process');
 
-    const context = await this.generateEsbuilContext(output, config);
-    await context.rebuild();
-    await context.dispose();
+    const BuildOptions = await this.loadMainEsbuildOptions(output, config);
+    await esbuild.build(BuildOptions);
 
     this.logger.log('MAIN-BUILDER', 'Build finished');
   }
@@ -41,17 +41,24 @@ export class EsbuildMainBuilder {
 
         processStarter.start();
       })
-      .on('change', async () => {
-        await context.cancel();
-        await context.rebuild();
-        this.logger.log('MAIN-BUILDER', 'Main process rebuilt');
+      .on(
+        'change',
+        debounce(async () => {
+          try {
+            await context.cancel();
+            await context.rebuild();
+            this.logger.log('MAIN-BUILDER', 'Main process rebuilt');
 
-        watcher.unwatch(dependencies);
-        dependencies = this.resolveDependencies(config);
-        watcher.add(dependencies);
+            watcher.unwatch(dependencies);
+            dependencies = this.resolveDependencies(config);
+            watcher.add(dependencies);
 
-        processStarter.start();
-      });
+            processStarter.start();
+          } catch (error: any) {
+            this.logger.error('MAIN-BUILDER', error.message);
+          }
+        }, 500),
+      );
 
     process.on('SIGINT', async () => {
       await watcher.close();
