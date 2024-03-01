@@ -9,15 +9,23 @@ import { CustomResourceConfig, ResourceConfig, SimpleResourceConfig } from '../.
 import { Logger } from '../../../shared/domain/Logger';
 import { ElectronBuildService } from '../../domain/ElectronBuildService';
 import { EsbuildMainBuilder } from './EsbuildMainBuilder';
+import { EsbuildPreloadBuilder } from './EsbuildPreloadBuilder';
 import { EsbuildRendererBuilder } from './EsbuildRendererBuilder';
 
 export class EsbuildElectronBuildService implements ElectronBuildService {
   private readonly mainBuilder: EsbuildMainBuilder;
+  private readonly preloadBuilder: EsbuildPreloadBuilder;
   private readonly rendererBuilder: EsbuildRendererBuilder;
   private readonly logger: Logger;
 
-  constructor(mainBuilder: EsbuildMainBuilder, rendererBuilder: EsbuildRendererBuilder, logger: Logger) {
+  constructor(
+    mainBuilder: EsbuildMainBuilder,
+    preloadBuilder: EsbuildPreloadBuilder,
+    rendererBuilder: EsbuildRendererBuilder,
+    logger: Logger,
+  ) {
     this.mainBuilder = mainBuilder;
+    this.preloadBuilder = preloadBuilder;
     this.rendererBuilder = rendererBuilder;
     this.logger = logger;
   }
@@ -82,6 +90,7 @@ export class EsbuildElectronBuildService implements ElectronBuildService {
   }
 
   private async buildPreload(output: string, config: PreloadConfig): Promise<void> {
+    await this.preloadBuilder.build(output, config);
     this.logger.info('BUILD', 'Preload built');
   }
 
