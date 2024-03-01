@@ -1,8 +1,11 @@
-import esbuild, { BuildOptions, Plugin } from 'esbuild';
+import chikidar from 'chokidar';
+import { debounce } from 'debounce';
+import esbuild, { BuildContext, BuildOptions, Plugin } from 'esbuild';
 import path from 'path';
 
 import { PreloadConfig } from '../../../config/domain/PreloadConfig';
 import { Logger } from '../../../shared/domain/Logger';
+import { getDependencies } from '../../../shared/infrastructure/getDependencies';
 import { getEsbuildPlugins } from '../utils/getEsbuildPlugins';
 
 export class EsbuildPreloadBuilder {
@@ -21,6 +24,46 @@ export class EsbuildPreloadBuilder {
     await esbuild.build(esbuildOptions);
 
     this.logger.log('PRELOAD-BUILDER', 'Build finished');
+  }
+
+  async develop(output: string, config: PreloadConfig): Promise<void> {
+    let dependencies = getDependencies(config.entryPoint);
+    const context = await this.generateEsbuilContext(output, config);
+    const watcher = chikidar.watch(dependencies);
+
+    watcher
+      .on('ready', async () => {
+        this.logger.log('PRELOAD-BUILDER', 'Building preload electron process');
+        await context.rebuild();
+        this.logger.log('PRELOAD-BUILDER', 'Preload process built');
+      })
+      .on(
+        'change',
+        debounce(async () => {
+          try {
+            await context.cancel();
+            await context.rebuild();
+            this.logger.log('PRELOAD-BUILDER', 'Preload process rebuilt');
+
+            watcher.unwatch(dependencies);
+            dependencies = getDependencies(config.entryPoint);
+            watcher.add(dependencies);
+          } catch (error: any) {
+            this.logger.error('PRELOAD-BUILDER', error.message);
+          }
+        }, 500),
+      );
+
+    process.on('SIGINT', async () => {
+      await watcher.close();
+      await context.cancel();
+      await context.dispose();
+    });
+  }
+
+  private async generateEsbuilContext(output: string, config: PreloadConfig): Promise<BuildContext> {
+    const esbuildOptions = await this.loadPreloadEsbuildOptions(output, config);
+    return await esbuild.context(esbuildOptions);
   }
 
   async loadPreloadEsbuildOptions(output: string, config: PreloadConfig): Promise<BuildOptions> {

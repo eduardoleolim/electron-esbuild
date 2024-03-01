@@ -46,7 +46,7 @@ export class CommandLine {
     const preloadBuilder = new EsbuildPreloadBuilder(loaders, logger);
     const rendererBuilder = new EsbuildRendererBuilder(loaders, logger);
     const buildService = new EsbuildElectronBuildService(mainBuilder, preloadBuilder, rendererBuilder, logger);
-    const developService = new EsbuildElectronDevelopService(mainBuilder, logger);
+    const developService = new EsbuildElectronDevelopService(mainBuilder, preloadBuilder, logger);
 
     this.jsonEsbuildDev = new DevApplication(jsonParser, developService, logger);
     this.jsonEsbuildBuild = new BuildApplication(jsonParser, buildService, logger);

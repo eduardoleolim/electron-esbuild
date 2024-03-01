@@ -9,13 +9,16 @@ import { CustomResourceConfig, ResourceConfig, SimpleResourceConfig } from '../.
 import { Logger } from '../../../shared/domain/Logger';
 import { ElectronDevelopService } from '../../domain/ElectronDevelopService';
 import { EsbuildMainBuilder } from './EsbuildMainBuilder';
+import { EsbuildPreloadBuilder } from './EsbuildPreloadBuilder';
 
 export class EsbuildElectronDevelopService implements ElectronDevelopService {
   private readonly mainBuilder: EsbuildMainBuilder;
+  private readonly preloadBuilder: EsbuildPreloadBuilder;
   private readonly logger: Logger;
 
-  constructor(mainBuilder: EsbuildMainBuilder, logger: Logger) {
+  constructor(mainBuilder: EsbuildMainBuilder, preloadBuilder: EsbuildPreloadBuilder, logger: Logger) {
     this.mainBuilder = mainBuilder;
+    this.preloadBuilder = preloadBuilder;
     this.logger = logger;
   }
 
@@ -50,6 +53,10 @@ export class EsbuildElectronDevelopService implements ElectronDevelopService {
   async develop(config: ElectronConfig): Promise<void> {
     await this.developMain(config.output, config.mainConfig);
 
+    config.mainConfig.preloadConfigs.forEach(async (preloadConfig) => {
+      await this.developPreload(config.output, preloadConfig);
+    });
+
     config.rendererConfigs.forEach(async (rendererConfig) => {
       await this.developRenderer(config.output, rendererConfig);
     });
@@ -64,6 +71,6 @@ export class EsbuildElectronDevelopService implements ElectronDevelopService {
   }
 
   private async developPreload(output: string, config: PreloadConfig): Promise<void> {
-    console.log();
+    this.preloadBuilder.develop(output, config);
   }
 }
