@@ -17,27 +17,31 @@ export abstract class ObjectElectronConfigParser {
 
       const mainConfig: MainConfig = this.parseMainConfig(electronConfig.main);
 
-      if (electronConfig.renderer === undefined) throw new Error('Renderer config is required');
+      if (electronConfig.renderers === undefined) throw new Error('Renderer config is required');
 
-      let rendererConfig: RendererConfig[];
+      let renderersConfig: RendererConfig[];
 
-      if (Array.isArray(electronConfig.renderer)) {
-        rendererConfig = electronConfig.renderer.map(this.parseRendererConfig);
+      if (Array.isArray(electronConfig.renderers)) {
+        renderersConfig = electronConfig.renderers.map((rendererConfig: any) => {
+          this.parseRendererConfig(rendererConfig, mainConfig.output);
+        });
       } else {
-        rendererConfig = [this.parseRendererConfig(electronConfig.renderer, mainConfig.output)];
+        renderersConfig = [this.parseRendererConfig(electronConfig.renderers, mainConfig.output)];
       }
 
       let resourceConfig: ResourceConfig[];
 
-      if (electronConfig.resource === undefined) {
+      if (electronConfig.resources === undefined) {
         resourceConfig = [];
-      } else if (Array.isArray(electronConfig.resource)) {
-        resourceConfig = electronConfig.resource.map(this.parseResourceConfig);
+      } else if (Array.isArray(electronConfig.resources)) {
+        resourceConfig = electronConfig.resources.map((resourceConfig: any) => {
+          return this.parseResourceConfig(resourceConfig);
+        });
       } else {
-        resourceConfig = [this.parseResourceConfig(electronConfig.resource)];
+        resourceConfig = [this.parseResourceConfig(electronConfig.resources)];
       }
 
-      return new ElectronConfig(output, mainConfig, rendererConfig, resourceConfig);
+      return new ElectronConfig(output, mainConfig, renderersConfig, resourceConfig);
     } catch (error: any) {
       throw new Error(`Invalid config file: ${error.message}`);
     }
@@ -60,22 +64,22 @@ export abstract class ObjectElectronConfigParser {
 
     let preloadConfig: PreloadConfig[];
 
-    if (mainConfig.preload === undefined) {
+    if (mainConfig.preloads === undefined) {
       preloadConfig = [];
-    } else if (Array.isArray(mainConfig.preload)) {
-      preloadConfig = mainConfig.preload.map(this.parsePreloadConfig);
+    } else if (Array.isArray(mainConfig.preloads)) {
+      preloadConfig = mainConfig.preloads.map(this.parsePreloadConfig);
     } else {
-      preloadConfig = [this.parsePreloadConfig(mainConfig.preload, outputConfig)];
+      preloadConfig = [this.parsePreloadConfig(mainConfig.preloads, outputConfig)];
     }
 
     let loaderConfig: LoaderConfig[];
 
-    if (mainConfig.loader === undefined) {
+    if (mainConfig.loaders === undefined) {
       loaderConfig = [];
-    } else if (Array.isArray(mainConfig.loader)) {
-      loaderConfig = mainConfig.loader.map(this.parseLoaderConfig);
+    } else if (Array.isArray(mainConfig.loaders)) {
+      loaderConfig = mainConfig.loaders.map(this.parseLoaderConfig);
     } else {
-      loaderConfig = [this.parseLoaderConfig(mainConfig.loader)];
+      loaderConfig = [this.parseLoaderConfig(mainConfig.loaders)];
     }
 
     let exclude: string[];
