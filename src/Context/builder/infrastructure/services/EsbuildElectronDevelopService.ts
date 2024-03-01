@@ -10,15 +10,23 @@ import { Logger } from '../../../shared/domain/Logger';
 import { ElectronDevelopService } from '../../domain/ElectronDevelopService';
 import { EsbuildMainBuilder } from './EsbuildMainBuilder';
 import { EsbuildPreloadBuilder } from './EsbuildPreloadBuilder';
+import { EsbuildRendererBuilder } from './EsbuildRendererBuilder';
 
 export class EsbuildElectronDevelopService implements ElectronDevelopService {
   private readonly mainBuilder: EsbuildMainBuilder;
   private readonly preloadBuilder: EsbuildPreloadBuilder;
+  private readonly rendererBuilder: EsbuildRendererBuilder;
   private readonly logger: Logger;
 
-  constructor(mainBuilder: EsbuildMainBuilder, preloadBuilder: EsbuildPreloadBuilder, logger: Logger) {
+  constructor(
+    mainBuilder: EsbuildMainBuilder,
+    preloadBuilder: EsbuildPreloadBuilder,
+    rendererBuilder: EsbuildRendererBuilder,
+    logger: Logger,
+  ) {
     this.mainBuilder = mainBuilder;
     this.preloadBuilder = preloadBuilder;
+    this.rendererBuilder = rendererBuilder;
     this.logger = logger;
   }
 
@@ -67,7 +75,7 @@ export class EsbuildElectronDevelopService implements ElectronDevelopService {
   }
 
   private async developRenderer(output: string, config: RendererConfig): Promise<void> {
-    console.log();
+    this.rendererBuilder.develop(output, config);
   }
 
   private async developPreload(output: string, config: PreloadConfig): Promise<void> {

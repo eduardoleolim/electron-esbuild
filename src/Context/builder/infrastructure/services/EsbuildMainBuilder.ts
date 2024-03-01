@@ -21,8 +21,8 @@ export class EsbuildMainBuilder {
   public async build(output: string, config: MainConfig): Promise<void> {
     this.logger.log('MAIN-BUILDER', 'Building main electron process');
 
-    const BuildOptions = await this.loadMainEsbuildOptions(output, config);
-    await esbuild.build(BuildOptions);
+    const buildOptions = await this.loadMainEsbuildOptions(output, config);
+    await esbuild.build(buildOptions);
 
     this.logger.log('MAIN-BUILDER', 'Build finished');
   }
