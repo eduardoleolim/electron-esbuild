@@ -1,4 +1,5 @@
 import esbuild, { BuildOptions, Plugin } from 'esbuild';
+import * as fs from 'fs';
 import path from 'path';
 
 import { RendererConfig } from '../../../config/domain/RendererConfig';
@@ -18,7 +19,8 @@ export class EsbuildRendererBuilder {
     this.logger.log('RENDERER-BUILDER', 'Building renderer electron process');
 
     const esbuildOptions = await this.loadRendererEsbuildOptions(output, config);
-    esbuild.build(esbuildOptions);
+    await esbuild.build(esbuildOptions);
+    await this.copyHtml(output, config);
 
     this.logger.log('RENDERER-BUILDER', 'Build finished');
   }
@@ -62,5 +64,45 @@ export class EsbuildRendererBuilder {
       },
       sourcemap: process.env.NODE_ENV !== 'production',
     };
+  }
+
+  private async copyHtml(output: string, config: RendererConfig): Promise<void> {
+    const htmlOutputDirectory = path.resolve(process.cwd(), output, config.output.directory, 'index.html');
+    const htmlInputDirectory = path.resolve(process.cwd(), config.htmlEntryPoint);
+
+    if (!fs.existsSync(htmlInputDirectory)) {
+      this.logger.error('RENDERER-BUILDER', `Html file not found in <${htmlInputDirectory}>`);
+      throw new Error(`Html file not found in <${htmlInputDirectory}>`);
+    }
+
+    // Add preload script to html
+    const scriptRelativePath = path.relative(
+      path.dirname(htmlOutputDirectory),
+      path.resolve(process.cwd(), output, config.output.directory, config.output.filename),
+    );
+    let htmlContent = fs.readFileSync(htmlInputDirectory, 'utf-8');
+    htmlContent = htmlContent.replace(
+      '</body>',
+      `  <script src="${scriptRelativePath}"></script>
+  </body>`,
+    );
+
+    // if exists, add css link to html
+    const cssDirectory = path.resolve(
+      process.cwd(),
+      output,
+      config.output.directory,
+      config.output.filename.replace('.js', '.css'),
+    );
+    const cssRelativePath = path.relative(path.dirname(htmlOutputDirectory), cssDirectory);
+    if (fs.existsSync(cssDirectory)) {
+      htmlContent = htmlContent.replace(
+        '</head>',
+        `  <link rel="stylesheet" href="${cssRelativePath}">
+</head>`,
+      );
+    }
+
+    fs.writeFileSync(htmlOutputDirectory, htmlContent, 'utf-8');
   }
 }
