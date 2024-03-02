@@ -137,10 +137,10 @@ export abstract class ObjectElectronConfigParser {
 
     let loaderConfig: LoaderConfig[];
 
-    if (rendererConfig.loader === undefined) {
+    if (rendererConfig.loaders === undefined) {
       loaderConfig = [];
-    } else if (Array.isArray(rendererConfig.loader)) {
-      loaderConfig = rendererConfig.loader.map(this.parseLoaderConfig);
+    } else if (Array.isArray(rendererConfig.loaders)) {
+      loaderConfig = rendererConfig.loaders.map(this.parseLoaderConfig);
     } else {
       throw new Error('Renderer loaders must be an array');
     }
@@ -161,7 +161,7 @@ export abstract class ObjectElectronConfigParser {
 
     let baseConfigEntryPoint: string | undefined = undefined;
 
-    if (rendererConfig.plugins !== undefined) {
+    if (rendererConfig.esbuild !== undefined) {
       if (typeof rendererConfig.esbuild !== 'string') throw new Error('Plugins entry point must be a string');
 
       baseConfigEntryPoint = rendererConfig.esbuild;
@@ -238,10 +238,10 @@ export abstract class ObjectElectronConfigParser {
 
     let loaderConfig: LoaderConfig[];
 
-    if (preloadConfig.loader === undefined) {
+    if (preloadConfig.loaders === undefined) {
       loaderConfig = [];
-    } else if (Array.isArray(preloadConfig.loader)) {
-      loaderConfig = preloadConfig.loader.map(this.parseLoaderConfig);
+    } else if (Array.isArray(preloadConfig.loaders)) {
+      loaderConfig = preloadConfig.loaders.map(this.parseLoaderConfig);
     } else {
       throw new Error('Preload loaders must be an array');
     }
@@ -258,7 +258,7 @@ export abstract class ObjectElectronConfigParser {
 
     let baseConfigEntryPoint: string | undefined = undefined;
 
-    if (preloadConfig.plugins !== undefined) {
+    if (preloadConfig.esbuild !== undefined) {
       if (typeof preloadConfig.esbuild !== 'string') throw new Error('Preload plugins entry point must be a string');
 
       baseConfigEntryPoint = preloadConfig.esbuild;
