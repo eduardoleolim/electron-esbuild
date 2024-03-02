@@ -9,7 +9,7 @@ import { CustomResourceConfig, ResourceConfig, SimpleResourceConfig } from '../d
 export abstract class ObjectElectronConfigParser {
   parseElectronConfig(electronConfig: any): ElectronConfig {
     try {
-      let output = "./dist"
+      let output = './dist';
 
       if (electronConfig.output !== undefined) {
         if (typeof electronConfig.output !== 'string') throw new Error('Output must be a string');
@@ -121,7 +121,7 @@ export abstract class ObjectElectronConfigParser {
     if (preloadConfig.output === undefined) {
       throw new Error('Preload output is required');
     } else {
-      let preloadDir = rendererConfig.output.directory;
+      const preloadDir = rendererConfig.output.directory;
       const preloadFile = rendererConfig.output.filename;
 
       if (preloadDir && typeof preloadDir !== 'string') throw new Error('Renderer output directory must be a string');
@@ -179,14 +179,11 @@ export abstract class ObjectElectronConfigParser {
   }
 
   parseResourceConfig(resourceConfig: any, defaultOutputDirectory: string): ResourceConfig {
-    if (typeof resourceConfig === 'string') 
-      return new SimpleResourceConfig(resourceConfig, defaultOutputDirectory);
+    if (typeof resourceConfig === 'string') return new SimpleResourceConfig(resourceConfig, defaultOutputDirectory);
 
-    if (typeof resourceConfig.from !== 'string') 
-      throw new Error('Resource from must be a string');
+    if (typeof resourceConfig.from !== 'string') throw new Error('Resource from must be a string');
 
-    if (resourceConfig.to === undefined) 
-      return new SimpleResourceConfig(resourceConfig.from, defaultOutputDirectory);
+    if (resourceConfig.to === undefined) return new SimpleResourceConfig(resourceConfig.from, defaultOutputDirectory);
     if (typeof resourceConfig.to === 'string') {
       return new SimpleResourceConfig(resourceConfig.from, resourceConfig.to);
     } else {
@@ -221,7 +218,7 @@ export abstract class ObjectElectronConfigParser {
     if (preloadConfig.output === undefined) {
       throw new Error('Preload output is required');
     } else {
-      let preloadDir = preloadConfig.output.directory;
+      const preloadDir = preloadConfig.output.directory;
       const preloadFile = preloadConfig.output.filename;
 
       if (preloadDir && typeof preloadDir !== 'string') throw new Error('Preload output directory must be a string');

@@ -14,7 +14,7 @@ export async function getEsbuildBaseConfig(baseConfigEntry: string): Promise<Bui
 
     // is runnining in windows?
     if (process.platform === 'win32') {
-      baseConfigEntry = `file:///${baseConfigEntry}`
+      baseConfigEntry = `file:///${baseConfigEntry}`;
     }
 
     const importEsbuildBaseConfig = await import(baseConfigEntry);

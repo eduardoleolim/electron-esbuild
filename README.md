@@ -71,7 +71,7 @@ npx electron-esbuild dev [--config electron-esbuild.config.json] [--clean]
 
 ## ⚙️ Configuration
 
-You can configure the build with a json or yaml file in the root of your project. The default name is `electron-esbuild.config.json` or `electron-esbuild.config.yaml`.
+You can configure the build with a json or yaml file in the root of your project. It looking for a config file named `electron-esbuild.config.json` or `electron-esbuild.config.yaml`.
 
 Electron-esbuild will look for the config file in the following order:
 
@@ -81,46 +81,58 @@ Electron-esbuild will look for the config file in the following order:
 
 ### Electron Config
 
-The electron config is composed of the following properties:
+The electron config has the following properties:
 
-- `output` - Optional. The output directory of your electron app, default: `dist`
+- `output` - Optional. The output directory of your electron app, default: `dist`. It is relative to the root of your project
 - `main` - The main process config
 - `renderers` - Optional. The renderer process config can be an array of configs or a single config
-- `extraFiles` - Optional. An array of files to copy to the output directory
+- `resources` - Optional. An array of files to copy to the output directory
 
 ```json5
 {
-  "output": "path/to/output/directory",
-  "main": {},
-  "renderers": [], // or {}
-  "extraFiles": []
+  "output": "<rootProjectDir>/<outputDir>",
+  "main": {
+    ...
+  },
+  "renderers": [
+    ...
+  ],
+  "resources": [
+    ...
+  ]
 }
 ```
 
 ### Main Config
 
-The main config is composed of the following properties:
+The main config has the following properties:
 
 - `entry` - The entry file of your main process
 - `output` - The output configuration of bundle
-  - `directory` - The output directory of your main process
+  - `directory` - The output directory of your main process. It is relative to the `output` property of ElectronConfig
   - `filename` - The output filename of your main process
-- `plugins` - Optional. Path to a javascript file exporting an array of esbuild plugins
+- `esbuild` - Optional. Path to a javascript file exporting esbuild options
 - `preloads` - Optional. A preload config can be an array of configs or a single config
 - `exclude` - Optional. An array of libs that you don't want to bundle
 - `loaders` - Optional. An array of esbuild's loaders for specific files
 
 ```json5
 {
-  "entry": "path/to/main/file",
+  "entry": "<rootProjectDir>/main/file/directory",
   "output": {
-    "directory": "path/to/output/directory",
-    "filename": "filename.js"
+    "directory": "<outputDir>/directory",
+    "filename": "filename"
   },
-  "plugins": "path/to/plugins/file",
-  "preloads": [], // or {}
-  "exclude": [],
-  "loaders": []
+  "esbuild": "<rootProjectDir>/esbuild/config/file",
+  "preloads": [ // or {  }
+    ...
+  ],
+  "exclude": [
+    ...
+  ],
+  "loaders": [
+    ...
+  ]
 }
 ```
 
@@ -130,65 +142,77 @@ The preload config is composed of the following properties:
 
 - `entry` - The entry file of your preload process
 - `reload` - Optional. If true, main process will be restarted after preload process is reloaded. Default: `false`
-- `plugins` - Optional. Path to a javascript file exporting an array of esbuild plugins
-- `output` - Optional. The output configuration of bundle. Default: same as main's output
-  - `directory` - The output directory of your preload process
+- `output` - The output configuration of bundle
+  - `directory` - Optional. The output directory of your preload process. Default: same as `output.directory` of MainConfig
   - `filename` - The output filename of your preload process
+- `esbuild` - Optional. Path to a javascript file exporting esbuild options
 - `exclude` - Optional. An array of libs that you don't want to bundle
 - `loaders` - Optional. An array of esbuild's loaders for specific files
 
 ```json5
 {
-  "entry": "path/to/preload/file",
-  "plugins": "path/to/plugins/file",
+  "entry": "<rootProjectDir>/preload/file/directory",
   "output": {
-    "directory": "path/to/output/directory",
-    "filename": "filename.js"
+    "directory": "<outputDir>/directory",
+    "filename": "filename"
   },
-  "exclude": [],
-  "loaders": []
+  "esbuild": "<rootProjectDir>/esbuild/config/file",
+  "exclude": [
+    ...
+  ],
+  "loaders": [
+    ....
+  ]
 }
 ```
 
 ### Renderer Config
 
-The renderer config is composed of the following properties:
+The renderer config has the following properties:
 
 - `entry` - The entry file of your renderer process
 - `html` - The html file of your renderer process
-- `plugins` - Optional. Path to a javascript file exporting an array of esbuild plugins
 - `devPort` - Optional. The port of the dev server. If port is not available, it will try the next one
-- `output` - Optional. The output configuration of bundle
-  - `directory` - The output directory of your renderer process
+- `output` - The output configuration of bundle
+  - `directory` - Optional. The output directory of your renderer process. Default: same as `output.directory` of MainConfig
   - `filename` - The output filename of your renderer process
+- `esbuild` - Optional. Path to a javascript file exporting esbuild options
 - `exclude` - Optional. An array of libs that you don't want to bundle
 - `loaders` - Optional. An array of esbuild's loaders for specific files
 
 ```json5
 {
-  "entry": "path/to/renderer/file",
-  "html": "path/to/html/file",
-  "plugins": "path/to/plugins/file",
+  "entry": "<rootProjectDir>/renderer/file/directory",
+  "html": "<rootProjectDir>/html/file/directory",
   "devPort": 8000,
   "output": {
-    "directory": "path/to/output/directory",
-    "filename": "filename.js"
+    "directory": "<outputDir>/directory",
+    "filename": "filename"
   },
-  "exclude": [],
-  "loaders": []
+  "esbuild": "<rootProjectDir>/esbuild/config/file",
+  "exclude": [
+    ...
+  ],
+  "loaders": [
+    ...
+  ]
 }
 ```
 
-### Extra Files Config
+### Resources Config
 
-The extra files config could be a string or an object.
+The resources config could be a string or an object.
 
 If it is a string, it will be copied to the output directory of ElectronConfig.
 
 If it is an object, it is composed of the following properties:
 
 - `from` - The path of the file to copy
-- `to` - Optional. The path of the file in the output directory. Default: same as `from`
+- `to` - Optional. The path of the file in the output directory. Default: same as `output.directory` of ElectronConfig
+
+The `to` property also can be and object with the following properties:
+- `directory` - The output directory of the file
+- `filename` - The output filename of the file
 
 ```json5
 [
@@ -196,507 +220,14 @@ If it is an object, it is composed of the following properties:
   "path/to/directory",
   {
     "from": "path/to/file",
-    "to": "path/to/output/directory"
+    "to": "<outputDir>/path/to/output/directory"
+  }.
+  {
+    "from": "path/to/file",
+    "to": {
+      "directory": "<outputDir>/path/to/output/directory",
+      "filename": "filename"
+    }
   }
 ]
 ```
-
-## 👀 Examples
-
-### Simple configuration
-
-<details>
-  <summary>Json syntax</summary>
-
-  ```json5
-  // electron-esbuild.config.json
-
-  {
-    "main": {
-      "entry": "src/main/index.ts",
-      "output": {
-        "directory": "dist/main",
-        "filename": "index.js"
-      }
-    },
-    "renderers": {
-      "entry": "src/renderer/index.tsx",
-      "html": "src/renderer/index.html",
-      "output": {
-        "directory": "dist/renderer",
-        "filename": "index.js"
-      }
-    }
-  }
-  ```
-</details>
-
-<details>
-  <summary>Yaml syntax</summary>
-
-
-  ```yaml
-  # electron-esbuild.config.yaml
-
-  output: dist
-  main:
-    entry: src/main/index.ts
-    output:
-      directory: dist/main
-      filename: index.js
-  renderers:
-    entry: src/renderer/index.tsx
-    html: src/renderer/index.html
-    output:
-      directory: dist/renderer
-      filename: index.js
-  ```
-</details>
-
-### Main with preload
-
-<details>
-  <summary>Json syntax</summary>
-
-  ```json5
-  // electron-esbuild.config.json
-
-  {
-    "output": "dist",
-    "main": {
-      "entry": "src/main/index.ts",
-      "output": {
-        "directory": "dist/main",
-        "filename": "index.js"
-      },
-      "preloads": {
-        "entry": "src/preload/index.ts",
-        "output": {
-          "directory": "dist/preload",
-          "filename": "index.js"
-        }
-      }
-    },
-    "renderers": {
-      "entry": "src/renderer/index.tsx",
-      "html": "src/renderer/index.html",
-      "output": {
-        "directory": "dist/renderer",
-        "filename": "index.js"
-      }
-    }
-  }
-  ```
-</details>
-
-<details>
-  <summary>Yaml syntax</summary>
-
-  ```yaml
-  # electron-esbuild.config.yaml
-
-  output: dist
-  main:
-    entry: src/main/index.ts
-    output:
-      directory: dist/main
-      filename: index.js
-    preloads:
-      entry: src/preload/index.ts
-      output:
-        directory: dist/preload
-        filename: index.js
-  renderers:
-    entry: src/renderer/index.tsx
-    html: src/renderer/index.html
-    output:
-      directory: dist/renderer
-      filename: index.js
-  ```
-</details>
-
-### Multiple preloads
-
-<details>
-  <summary>Json syntax</summary>
-
-  ```json5
-  // electron-esbuild.config.json
-
-  {
-    "main": {
-      "entry": "src/main/index.ts",
-      "output": {
-        "directory": "dist/main",
-        "filename": "index.js"
-      },
-      "preloads": [
-        {
-          "entry": "src/preload/index.ts",
-          "output": {
-            "directory": "dist/preload",
-            "filename": "index.js"
-          }
-        },
-        {
-          "entry": "src/preload/index2.ts",
-          "output": {
-            "directory": "dist/preload",
-            "filename": "index2.js"
-          }
-        }
-      ]
-    },
-    "renderers": {
-      "entry": "src/renderer/index.tsx",
-      "html": "src/renderer/index.html",
-      "output": {
-        "directory": "dist/renderer",
-        "filename": "index.js"
-      }
-    }
-  }
-  ```
-</details>
-
-<details>
-  <summary>Yaml syntax</summary>
-
-  ```yaml
-  # electron-esbuild.config.yaml
-
-  main:
-    entry: src/main/index.ts
-    output:
-      directory: dist/main
-      filename: index.js
-    preloads:
-    - entry: src/preload/index.ts
-      output:
-        directory: dist/preload
-        filename: index.js
-    - entry: src/preload/index2.ts
-      output:
-        directory: dist/preload
-        filename: index2.js
-  renderers:
-    entry: src/renderer/index.tsx
-    html: src/renderer/index.html
-    output:
-      directory: dist/renderer
-      filename: index.js
-  ```
-</details>
-
-### Extra files
-
-<details>
-  <summary>Json syntax</summary>
-
-  ```json5
-  // electron-esbuild.config.json
-
-  {
-    "main": {
-      "entry": "src/main/index.ts",
-      "output": {
-        "directory": "dist/main",
-        "filename": "index.js"
-      }
-    },
-    "renderers": {
-      "entry": "src/renderer/index.tsx",
-      "html": "src/renderer/index.html",
-      "output": {
-        "directory": "dist/renderer",
-        "filename": "index.js"
-      }
-    },
-    "extraFiles": [
-      "path/to/file",
-      {
-        "from": "path/to/file",
-        "to": "path/to/output/directory"
-      }
-    ]
-  }
-  ```
-</details>
-
-<details>
-  <summary>Yaml syntax</summary>
-
-  ```yaml
-  # electron-esbuild.config.yaml
-
-  main:
-    entry: src/main/index.ts
-    output:
-      directory: dist/main
-      filename: index.js
-  renderers:
-    entry: src/renderer/index.tsx
-    html: src/renderer/index.html
-    output:
-      directory: dist/renderer
-      filename: index.js
-  extraFiles:
-  - path/to/file
-  - from: path/to/file
-    to: path/to/output/directory
-  ```
-</details>
-
-### Exclude libs in main and renderer
-
-<details>
-  <summary>Json syntax</summary>
-
-  ```json5
-  // electron-esbuild.config.json
-
-  {
-    "main": {
-      "entry": "src/main/index.ts",
-      "output": {
-        "directory": "dist/main",
-        "filename": "index.js"
-      },
-      "exclude": [
-        "lib1",
-        "lib2"
-      ]
-    },
-    "renderers": {
-      "entry": "src/renderer/index.tsx",
-      "html": "src/renderer/index.html",
-      "output": {
-        "directory": "dist/renderer",
-        "filename": "index.js"
-      },
-      "exclude": [
-        "lib1",
-        "lib2"
-      ]
-    }
-  }
-  ```
-</details>
-
-<details>
-  <summary>Yaml syntax</summary>
-
-  ```yaml
-  # electron-esbuild.config.yaml
-
-  main:
-    entry: src/main/index.ts
-    output:
-      directory: dist/main
-      filename: index.js
-    exclude:
-    - lib1
-    - lib2
-  renderers:
-    entry: src/renderer/index.tsx
-    html: src/renderer/index.html
-    output:
-      directory: dist/renderer
-      filename: index.js
-    exclude:
-    - lib1
-    - lib2
-  ```
-</details>
-
-### Multiple main and renderer configurations
-
-<details>
-  <summary>Json syntax</summary>
-
-  ```json5
-  // electron-esbuild.config.json
-
-  [
-    {
-      "output": "dist",
-      "main": {
-        "entry": "src/main/index.ts",
-        "output": {
-          "directory": "dist/main",
-          "filename": "index.js"
-        }
-      },
-      "renderers": [
-        {
-          "entry": "src/renderer/index.tsx",
-          "html": "src/renderer/index.html",
-          "output": {
-            "directory": "dist/renderer",
-            "filename": "index.js"
-          }
-        },
-        {
-          "entry": "src/renderer/index2.tsx",
-          "html": "src/renderer/index2.html",
-          "output": {
-            "directory": "dist/renderer",
-            "filename": "index2.js"
-          }
-        }
-      ]
-    },
-    {
-      "output": "dist2",
-      "main": {
-        "entry": "src/main/index2.ts",
-        "output": {
-          "directory": "dist/main",
-          "filename": "index2.js"
-        }
-      },
-      "renderers": [
-        {
-          "entry": "src/renderer/index3.tsx",
-          "html": "src/renderer/index3.html",
-          "output": {
-            "directory": "dist/renderer",
-            "filename": "index3.js"
-          }
-        },
-        {
-          "entry": "src/renderer/index4.tsx",
-          "html": "src/renderer/index4.html",
-          "output": {
-            "directory": "dist/renderer",
-            "filename": "index4.js"
-          }
-        }
-      ]
-    }
-  ]
-  ```
-</details>
-
-<details>
-  <summary>Yaml syntax</summary>
-
-  ```yaml
-  # electron-esbuild.config.yaml
-
-  - output: dist
-    main:
-      entry: src/main/index.ts
-      output:
-        directory: dist/main
-        filename: index.js
-    renderers:
-    - entry: src/renderer/index.tsx
-      html: src/renderer/index.html
-      output:
-        directory: dist/renderer
-        filename: index.js
-    - entry: src/renderer/index2.tsx
-      html: src/renderer/index2.html
-      output:
-        directory: dist/renderer
-        filename: index2.js
-  - output: dist2
-    main:
-      entry: src/main/index2.ts
-      output:
-        directory: dist/main
-        filename: index2.js
-    renderers:
-    - entry: src/renderer/index3.tsx
-      html: src/renderer/index3.html
-      output:
-        directory: dist/renderer
-        filename: index3.js
-    - entry: src/renderer/index4.tsx
-      html: src/renderer/index4.html
-      output:
-        directory: dist/renderer
-        filename: index4.js
-  ```
-</details>
-
-### Add esbuild plugins
-
-<details>
-  <summary>Json syntax</summary>
-
-  ```json5
-  // electron-esbuild.config.json
-
-  {
-    "main": {
-      "entry": "src/main/index.ts",
-      "output": {
-        "directory": "dist/main",
-        "filename": "index.js"
-      },
-      "plugins": "config/plugins.js"
-    },
-    "renderers": {
-      "entry": "src/renderer/index.tsx",
-      "html": "src/renderer/index.html",
-      "output": {
-        "directory": "dist/renderer",
-        "filename": "index.js"
-      },
-      "plugins": "config/plugins.mjs"
-    }
-  }
-  ```
-
-</details>
-
-<details>
-  <summary>Yaml syntax</summary>
-
-  ```yaml
-  # electron-esbuild.config.yaml
-
-  main:
-    entry: src/main/index.ts
-    output:
-      directory: dist/main
-      filename: index.js
-    plugins: config/plugins.js
-  renderers:
-    entry: src/renderer/index.tsx
-    html: src/renderer/index.html
-    output:
-      directory: dist/renderer
-      filename: index.js
-    plugins: config/plugins.mjs
-  ```
-</details>
-
-<details>
-  <summary>Plugins scripts</summary>
-
-  ```js
-  // config/plugins.js
-
-  const { esbuildPlugin } = require('esbuild-plugin');
-
-  module.exports = [
-    esbuildPlugin()
-  ];
-  ```
-
-  ```js
-  // config/plugins.mjs
-
-  import { esbuildPlugin } from 'esbuild-plugin';
-
-  export default [
-    esbuildPlugin()
-  ];
-  ```
-</details>
-
-
-

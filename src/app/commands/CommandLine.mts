@@ -1,6 +1,7 @@
 import { Command } from 'commander';
 import * as fs from 'fs';
 import path, { dirname } from 'path';
+import { fileURLToPath } from 'url';
 
 import { BuildApplication } from '../../Context/builder/application/BuildApplication.mjs';
 import { DevApplication } from '../../Context/builder/application/DevApplication.mjs';
@@ -13,7 +14,6 @@ import { JsonElectronConfigParser } from '../../Context/config/infrastructure/Js
 import { YamlElectronConfigParser } from '../../Context/config/infrastructure/YamlElectronConfigParser.mjs';
 import { Logger } from '../../Context/shared/domain/Logger.mjs';
 import { loaders } from '../../Context/shared/infrastructure/esbuidLoaders.mjs';
-import { fileURLToPath } from 'url';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
