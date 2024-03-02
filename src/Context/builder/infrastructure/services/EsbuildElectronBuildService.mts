@@ -1,16 +1,16 @@
 import fs from 'fs';
 import path from 'path';
 
-import { ElectronConfig } from '../../../config/domain/ElectronConfig';
-import { MainConfig } from '../../../config/domain/MainConfig';
-import { PreloadConfig } from '../../../config/domain/PreloadConfig';
-import { RendererConfig } from '../../../config/domain/RendererConfig';
-import { CustomResourceConfig, ResourceConfig, SimpleResourceConfig } from '../../../config/domain/ResourceConfig';
-import { Logger } from '../../../shared/domain/Logger';
-import { ElectronBuildService } from '../../domain/ElectronBuildService';
-import { EsbuildMainBuilder } from './EsbuildMainBuilder';
-import { EsbuildPreloadBuilder } from './EsbuildPreloadBuilder';
-import { EsbuildRendererBuilder } from './EsbuildRendererBuilder';
+import { ElectronConfig } from '../../../config/domain/ElectronConfig.mjs';
+import { MainConfig } from '../../../config/domain/MainConfig.mjs';
+import { PreloadConfig } from '../../../config/domain/PreloadConfig.mjs';
+import { RendererConfig } from '../../../config/domain/RendererConfig.mjs';
+import { CustomResourceConfig, ResourceConfig, SimpleResourceConfig } from '../../../config/domain/ResourceConfig.mjs';
+import { Logger } from '../../../shared/domain/Logger.mjs';
+import { ElectronBuildService } from '../../domain/ElectronBuildService.mjs';
+import { EsbuildMainBuilder } from './EsbuildMainBuilder.mjs';
+import { EsbuildPreloadBuilder } from './EsbuildPreloadBuilder.mjs';
+import { EsbuildRendererBuilder } from './EsbuildRendererBuilder.mjs';
 
 export class EsbuildElectronBuildService implements ElectronBuildService {
   private readonly mainBuilder: EsbuildMainBuilder;

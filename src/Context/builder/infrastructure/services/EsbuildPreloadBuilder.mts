@@ -1,12 +1,12 @@
 import chikidar from 'chokidar';
-import { debounce } from 'debounce';
+import debounce from 'debounce';
 import esbuild, { BuildContext, BuildOptions, Plugin } from 'esbuild';
 import path from 'path';
 
-import { PreloadConfig } from '../../../config/domain/PreloadConfig';
-import { Logger } from '../../../shared/domain/Logger';
-import { getDependencies } from '../../../shared/infrastructure/getDependencies';
-import { getEsbuildBaseConfig } from '../utils/getEsbuildBaseConfig';
+import { PreloadConfig } from '../../../config/domain/PreloadConfig.mjs';
+import { Logger } from '../../../shared/domain/Logger.mjs';
+import { getDependencies } from '../../../shared/infrastructure/getDependencies.mjs';
+import { getEsbuildBaseConfig } from '../utils/getEsbuildBaseConfig.mjs';
 
 export class EsbuildPreloadBuilder {
   private readonly loaders: ReadonlyArray<string>;

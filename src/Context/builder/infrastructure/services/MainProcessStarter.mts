@@ -1,8 +1,8 @@
 import { ChildProcess, spawn } from 'child_process';
 import path from 'path';
 
-import { MainConfig } from '../../../config/domain/MainConfig';
-import { Logger } from '../../../shared/domain/Logger';
+import { MainConfig } from '../../../config/domain/MainConfig.mjs';
+import { Logger } from '../../../shared/domain/Logger.mjs';
 
 export class MainProcessStarter {
   private readonly output: string;

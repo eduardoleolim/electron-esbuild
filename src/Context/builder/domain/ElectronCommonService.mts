@@ -1,4 +1,4 @@
-import { ResourceConfig } from '../../config/domain/ResourceConfig';
+import { ResourceConfig } from '../../config/domain/ResourceConfig.mjs';
 
 export interface ElectronCommonService {
   clean(directory: string): Promise<void>;

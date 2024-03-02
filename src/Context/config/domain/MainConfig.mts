@@ -1,7 +1,7 @@
-import { BaseConfig } from './BaseConfig';
-import { LoaderConfig } from './LoaderConfig';
-import { OutputConfig } from './OutputConfig';
-import { PreloadConfig } from './PreloadConfig';
+import { BaseConfig } from './BaseConfig.mjs';
+import { LoaderConfig } from './LoaderConfig.mjs';
+import { OutputConfig } from './OutputConfig.mjs';
+import { PreloadConfig } from './PreloadConfig.mjs';
 
 export class MainConfig extends BaseConfig {
   readonly preloadConfigs: ReadonlyArray<PreloadConfig>;

@@ -1,5 +1,5 @@
-import { ElectronConfig } from '../../config/domain/ElectronConfig';
-import { ResourceConfig } from '../../config/domain/ResourceConfig';
+import { ElectronConfig } from '../../config/domain/ElectronConfig.mjs';
+import { ResourceConfig } from '../../config/domain/ResourceConfig.mjs';
 
 export interface ElectronBuilderService {
   build(config: ElectronConfig, clean: boolean): Promise<void>;

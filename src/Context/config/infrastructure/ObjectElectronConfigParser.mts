@@ -1,10 +1,10 @@
-import { ElectronConfig } from '../domain/ElectronConfig';
-import { LoaderConfig } from '../domain/LoaderConfig';
-import { MainConfig } from '../domain/MainConfig';
-import { OutputConfig } from '../domain/OutputConfig';
-import { PreloadConfig } from '../domain/PreloadConfig';
-import { RendererConfig } from '../domain/RendererConfig';
-import { CustomResourceConfig, ResourceConfig, SimpleResourceConfig } from '../domain/ResourceConfig';
+import { ElectronConfig } from '../domain/ElectronConfig.mjs';
+import { LoaderConfig } from '../domain/LoaderConfig.mjs';
+import { MainConfig } from '../domain/MainConfig.mjs';
+import { OutputConfig } from '../domain/OutputConfig.mjs';
+import { PreloadConfig } from '../domain/PreloadConfig.mjs';
+import { RendererConfig } from '../domain/RendererConfig.mjs';
+import { CustomResourceConfig, ResourceConfig, SimpleResourceConfig } from '../domain/ResourceConfig.mjs';
 
 export abstract class ObjectElectronConfigParser {
   parseElectronConfig(electronConfig: any): ElectronConfig {

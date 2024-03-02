@@ -1,11 +1,11 @@
 {
   "compilerOptions": {
-    "module": "CommonJS",
+    "module": "Node16",
     "esModuleInterop": true,
     "target": "esnext",
     "noImplicitAny": true,
     "strictNullChecks": true,
-    "moduleResolution": "node",
+    "moduleResolution": "Node16",
     "resolveJsonModule": true,
     "sourceMap": true,
     "rootDir": "src",

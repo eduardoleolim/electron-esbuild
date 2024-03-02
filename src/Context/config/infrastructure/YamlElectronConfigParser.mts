@@ -1,9 +1,9 @@
 import * as fs from 'fs';
 import * as yaml from 'js-yaml';
 
-import { ElectronConfig } from '../domain/ElectronConfig';
-import { ElectronConfigParser } from '../domain/ElectronConfigParser';
-import { ObjectElectronConfigParser } from './ObjectElectronConfigParser';
+import { ElectronConfig } from '../domain/ElectronConfig.mjs';
+import { ElectronConfigParser } from '../domain/ElectronConfigParser.mjs';
+import { ObjectElectronConfigParser } from './ObjectElectronConfigParser.mjs';
 
 export class YamlElectronConfigParser extends ObjectElectronConfigParser implements ElectronConfigParser {
   parse(sourcePath: string): ElectronConfig {

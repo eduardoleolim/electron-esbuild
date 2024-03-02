@@ -2,8 +2,8 @@
   "name": "@eduardoleolim/electron-esbuild",
   "version": "2.4.0",
   "description": "Use esbuild with electron",
-  "main": "dist/app/index.js",
-  "type": "commonjs",
+  "main": "dist/app/index.cjs",
+  "type": "module",
   "scripts": {
     "lint": "eslint src --quiet --fix",
     "prepare": "husky install",
@@ -15,7 +15,7 @@
     "node": ">=18.15.0"
   },
   "bin": {
-    "electron-esbuild": "dist/app/index.js"
+    "electron-esbuild": "dist/app/index.cjs"
   },
   "files": [
     "dist"

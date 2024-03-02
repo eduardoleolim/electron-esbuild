@@ -1,4 +1,4 @@
-import { OutputConfig } from './OutputConfig';
+import { OutputConfig } from './OutputConfig.mjs';
 
 export abstract class ResourceConfig {
   readonly from: string;

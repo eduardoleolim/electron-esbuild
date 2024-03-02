@@ -1,4 +1,4 @@
-import { ElectronConfig } from './ElectronConfig';
+import { ElectronConfig } from './ElectronConfig.mjs';
 
 export interface ElectronConfigParser {
   /**

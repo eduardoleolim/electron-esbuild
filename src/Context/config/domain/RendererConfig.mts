@@ -1,6 +1,6 @@
-import { BaseConfig } from './BaseConfig';
-import { LoaderConfig } from './LoaderConfig';
-import { OutputConfig } from './OutputConfig';
+import { BaseConfig } from './BaseConfig.mjs';
+import { LoaderConfig } from './LoaderConfig.mjs';
+import { OutputConfig } from './OutputConfig.mjs';
 
 export class RendererConfig extends BaseConfig {
   readonly htmlEntryPoint: string;

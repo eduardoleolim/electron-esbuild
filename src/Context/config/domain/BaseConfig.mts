@@ -1,5 +1,5 @@
-import { LoaderConfig } from './LoaderConfig';
-import { OutputConfig } from './OutputConfig';
+import { LoaderConfig } from './LoaderConfig.mjs';
+import { OutputConfig } from './OutputConfig.mjs';
 
 export abstract class BaseConfig {
   readonly entryPoint: string;

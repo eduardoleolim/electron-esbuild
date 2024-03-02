@@ -1,8 +1,8 @@
 import path from 'path';
 
-import { ElectronConfigParser } from '../../config/domain/ElectronConfigParser';
-import { Logger } from '../../shared/domain/Logger';
-import { ElectronBuildService } from '../domain/ElectronBuildService';
+import { ElectronConfigParser } from '../../config/domain/ElectronConfigParser.mjs';
+import { Logger } from '../../shared/domain/Logger.mjs';
+import { ElectronBuildService } from '../domain/ElectronBuildService.mjs';
 
 export class BuildApplication {
   private readonly parser: ElectronConfigParser;

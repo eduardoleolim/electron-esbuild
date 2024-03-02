@@ -1,13 +1,13 @@
 import chikidar from 'chokidar';
-import { debounce } from 'debounce';
-import esbuild, { BuildContext, BuildOptions, Plugin } from 'esbuild';
+import debounce from 'debounce';
+import esbuild, { BuildContext, BuildOptions } from 'esbuild';
 import path from 'path';
 
-import { MainConfig } from '../../../config/domain/MainConfig';
-import { Logger } from '../../../shared/domain/Logger';
-import { getDependencies } from '../../../shared/infrastructure/getDependencies';
-import { getEsbuildBaseConfig } from '../utils/getEsbuildBaseConfig';
-import { MainProcessStarter } from './MainProcessStarter';
+import { MainConfig } from '../../../config/domain/MainConfig.mjs';
+import { Logger } from '../../../shared/domain/Logger.mjs';
+import { getDependencies } from '../../../shared/infrastructure/getDependencies.mjs';
+import { getEsbuildBaseConfig } from '../utils/getEsbuildBaseConfig.mjs';
+import { MainProcessStarter } from './MainProcessStarter.mjs';
 
 export class EsbuildMainBuilder {
   private readonly loaders: ReadonlyArray<string>;

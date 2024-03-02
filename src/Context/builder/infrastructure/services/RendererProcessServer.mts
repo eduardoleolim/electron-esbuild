@@ -5,8 +5,8 @@ import http, { Server } from 'http';
 import httpProxy from 'http-proxy';
 import livereload, { LiveReloadServer } from 'livereload';
 
-import { Logger } from '../../../shared/domain/Logger.js';
-import { findFreePort } from '../../../shared/infrastructure/findFreePort.js';
+import { Logger } from '../../../shared/domain/Logger.mjs';
+import { findFreePort } from '../../../shared/infrastructure/findFreePort.mjs';
 
 export class RendererProcessServer {
   private readonly outputRenderer: string;

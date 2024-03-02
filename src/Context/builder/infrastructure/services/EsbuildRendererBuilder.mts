@@ -1,15 +1,15 @@
 import chikidar from 'chokidar';
-import { debounce } from 'debounce';
+import debounce from 'debounce';
 import esbuild, { BuildContext, BuildOptions, Plugin } from 'esbuild';
 import * as fs from 'fs';
 import path from 'path';
 
-import { RendererConfig } from '../../../config/domain/RendererConfig';
-import { Logger } from '../../../shared/domain/Logger';
-import { findFreePort } from '../../../shared/infrastructure/findFreePort';
-import { getDependencies } from '../../../shared/infrastructure/getDependencies';
-import { getEsbuildBaseConfig } from '../utils/getEsbuildBaseConfig';
-import { RendererProcessServer } from './RendererProcessServer';
+import { RendererConfig } from '../../../config/domain/RendererConfig.mjs';
+import { Logger } from '../../../shared/domain/Logger.mjs';
+import { findFreePort } from '../../../shared/infrastructure/findFreePort.mjs';
+import { getDependencies } from '../../../shared/infrastructure/getDependencies.mjs';
+import { getEsbuildBaseConfig } from '../utils/getEsbuildBaseConfig.mjs';
+import { RendererProcessServer } from './RendererProcessServer.mjs';
 
 export class EsbuildRendererBuilder {
   private readonly loaders: ReadonlyArray<string>;

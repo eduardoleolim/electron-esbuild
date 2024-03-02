@@ -1,18 +1,22 @@
 import { Command } from 'commander';
 import * as fs from 'fs';
-import path from 'path';
+import path, { dirname } from 'path';
 
-import { BuildApplication } from '../../Context/builder/application/BuildApplication';
-import { DevApplication } from '../../Context/builder/application/DevApplication';
-import { EsbuildElectronBuildService } from '../../Context/builder/infrastructure/services/EsbuildElectronBuildService';
-import { EsbuildElectronDevelopService } from '../../Context/builder/infrastructure/services/EsbuildElectronDevelopService';
-import { EsbuildMainBuilder } from '../../Context/builder/infrastructure/services/EsbuildMainBuilder';
-import { EsbuildPreloadBuilder } from '../../Context/builder/infrastructure/services/EsbuildPreloadBuilder';
-import { EsbuildRendererBuilder } from '../../Context/builder/infrastructure/services/EsbuildRendererBuilder';
-import { JsonElectronConfigParser } from '../../Context/config/infrastructure/JsonElectronConfigParser';
-import { YamlElectronConfigParser } from '../../Context/config/infrastructure/YamlElectronConfigParser';
-import { Logger } from '../../Context/shared/domain/Logger';
-import { loaders } from '../../Context/shared/infrastructure/esbuidLoaders';
+import { BuildApplication } from '../../Context/builder/application/BuildApplication.mjs';
+import { DevApplication } from '../../Context/builder/application/DevApplication.mjs';
+import { EsbuildElectronBuildService } from '../../Context/builder/infrastructure/services/EsbuildElectronBuildService.mjs';
+import { EsbuildElectronDevelopService } from '../../Context/builder/infrastructure/services/EsbuildElectronDevelopService.mjs';
+import { EsbuildMainBuilder } from '../../Context/builder/infrastructure/services/EsbuildMainBuilder.mjs';
+import { EsbuildPreloadBuilder } from '../../Context/builder/infrastructure/services/EsbuildPreloadBuilder.mjs';
+import { EsbuildRendererBuilder } from '../../Context/builder/infrastructure/services/EsbuildRendererBuilder.mjs';
+import { JsonElectronConfigParser } from '../../Context/config/infrastructure/JsonElectronConfigParser.mjs';
+import { YamlElectronConfigParser } from '../../Context/config/infrastructure/YamlElectronConfigParser.mjs';
+import { Logger } from '../../Context/shared/domain/Logger.mjs';
+import { loaders } from '../../Context/shared/infrastructure/esbuidLoaders.mjs';
+import { fileURLToPath } from 'url';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
 
 type Options = {
   config?: string;

@@ -1,6 +1,6 @@
-import { MainConfig } from './MainConfig';
-import { RendererConfig } from './RendererConfig';
-import { ResourceConfig } from './ResourceConfig';
+import { MainConfig } from './MainConfig.mjs';
+import { RendererConfig } from './RendererConfig.mjs';
+import { ResourceConfig } from './ResourceConfig.mjs';
 
 export class ElectronConfig {
   readonly output: string;
