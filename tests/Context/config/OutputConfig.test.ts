@@ -1,10 +1,5 @@
-import { JsonElectronConfigParser } from '../../../src/Context/config/infrastructure/JsonElectronConfigParser';
-import {
-  invalidAbsolutePathConfigData,
-  invalidDirectoryConfigData,
-  invalidFilenameConfigData,
-  validConfigData,
-} from './ConfigData';
+import { JsonElectronConfigParser } from '../../../src/Context/config/infrastructure/JsonElectronConfigParser.mjs';
+import { invalidDirectoryConfigData, invalidFilenameConfigData, validConfigData } from './ConfigData';
 
 describe('OutputConfig module', () => {
   const jsonParser = new JsonElectronConfigParser();
