@@ -1,5 +1,12 @@
+## 2.6.0 (2024-03-02)
+
+* feat(builder): copy resources ([b0e3d31](https://github.com/eduardoleolim/electron-esbuild/commit/b0e3d31))
+
+
+
 ## <small>2.5.2 (2024-03-02)</small>
 
+* release: v2.5.2 ([b33eaf9](https://github.com/eduardoleolim/electron-esbuild/commit/b33eaf9))
 * feat(builder): handle errors in builders ([d67fc33](https://github.com/eduardoleolim/electron-esbuild/commit/d67fc33))
 * fix(config): load esbuild entry from config file ([5955490](https://github.com/eduardoleolim/electron-esbuild/commit/5955490))
 
