@@ -12,9 +12,9 @@ export class MainConfig extends BaseConfig {
     preloadConfigs: PreloadConfig[],
     loaders: LoaderConfig[],
     exclude: string[],
-    pluginsEntry?: string,
+    baseConfigEntryPoint?: string,
   ) {
-    super(entryPoint, output, loaders, exclude, pluginsEntry);
+    super(entryPoint, output, loaders, exclude, baseConfigEntryPoint);
     this.preloadConfigs = preloadConfigs;
   }
 }

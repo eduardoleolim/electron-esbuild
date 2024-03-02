@@ -11,9 +11,9 @@ export class PreloadConfig extends BaseConfig {
     reloadMainProcess: boolean,
     loaderConfigs: LoaderConfig[],
     excludedLibraries: string[],
-    pluginsEntry?: string,
+    baseConfigEntryPoint?: string,
   ) {
-    super(entryPoint, output, loaderConfigs, excludedLibraries, pluginsEntry);
+    super(entryPoint, output, loaderConfigs, excludedLibraries, baseConfigEntryPoint);
     this.reloadMainProcess = reloadMainProcess;
   }
 }

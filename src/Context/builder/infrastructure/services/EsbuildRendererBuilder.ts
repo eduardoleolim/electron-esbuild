@@ -8,7 +8,7 @@ import { RendererConfig } from '../../../config/domain/RendererConfig';
 import { Logger } from '../../../shared/domain/Logger';
 import { findFreePort } from '../../../shared/infrastructure/findFreePort';
 import { getDependencies } from '../../../shared/infrastructure/getDependencies';
-import { getEsbuildPlugins } from '../utils/getEsbuildPlugins';
+import { getEsbuildBaseConfig } from '../utils/getEsbuildBaseConfig';
 import { RendererProcessServer } from './RendererProcessServer';
 
 export class EsbuildRendererBuilder {
@@ -98,31 +98,32 @@ export class EsbuildRendererBuilder {
       }
     }
 
-    if (config.pluginsEntryPoint !== undefined) {
+    let baseEsbuildConfig: BuildOptions = {};
+    if (config.baseConfigEntryPoint !== undefined) {
       try {
-        const pluginsEntry = path.resolve(config.pluginsEntryPoint);
-        const externalPlugins = await getEsbuildPlugins(pluginsEntry);
-        plugins.push(...externalPlugins);
-        this.logger.info('RENDERER-BUILDER', `Loaded plugins from <${config.pluginsEntryPoint}>`);
+        baseEsbuildConfig = await getEsbuildBaseConfig(config.baseConfigEntryPoint);
+        this.logger.info('MAIN-BUILDER', `Plugins loaded from <${config.baseConfigEntryPoint}>`);
       } catch (error: any) {
-        this.logger.warn('RENDERER-BUILDER', error.message);
+        this.logger.warn('MAIN-BUILDER', error.message);
       }
     }
 
-    return {
-      platform: 'browser',
-      entryPoints: [config.entryPoint],
-      outfile: outputFileDirectory,
-      bundle: true,
-      minify: process.env.NODE_ENV === 'production',
-      external: external,
-      loader: loaders,
-      plugins: plugins,
-      define: {
-        'process.env.NODE_ENV': `"${process.env.NODE_ENV}"`,
-      },
-      sourcemap: process.env.NODE_ENV !== 'production',
-    };
+    baseEsbuildConfig.platform = 'node';
+    baseEsbuildConfig.entryPoints = [config.entryPoint];
+    baseEsbuildConfig.outfile = outputFileDirectory;
+    baseEsbuildConfig.bundle = true;
+    baseEsbuildConfig.minify = process.env.NODE_ENV !== 'development';
+    baseEsbuildConfig.external =
+      baseEsbuildConfig.external === undefined ? external : [...baseEsbuildConfig.external, ...external];
+    baseEsbuildConfig.loader =
+      baseEsbuildConfig.loader === undefined ? loaders : { ...baseEsbuildConfig.loader, ...loaders };
+    baseEsbuildConfig.define =
+      baseEsbuildConfig.define === undefined
+        ? { 'process.env.NODE_ENV': `"${process.env.NODE_ENV}"` }
+        : { ...baseEsbuildConfig.define, 'process.env.NODE_ENV': `"${process.env.NODE_ENV}"` };
+    baseEsbuildConfig.sourcemap = process.env.NODE_ENV === 'development' ? 'linked' : false;
+
+    return baseEsbuildConfig;
   }
 
   private async copyHtml(output: string, config: RendererConfig): Promise<void> {

@@ -6,7 +6,7 @@ import path from 'path';
 import { MainConfig } from '../../../config/domain/MainConfig';
 import { Logger } from '../../../shared/domain/Logger';
 import { getDependencies } from '../../../shared/infrastructure/getDependencies';
-import { getEsbuildPlugins } from '../utils/getEsbuildPlugins';
+import { getEsbuildBaseConfig } from '../utils/getEsbuildBaseConfig';
 import { MainProcessStarter } from './MainProcessStarter';
 
 export class EsbuildMainBuilder {
@@ -87,7 +87,6 @@ export class EsbuildMainBuilder {
   }
 
   public async loadMainEsbuildOptions(output: string, config: MainConfig): Promise<BuildOptions> {
-    const plugins: Plugin[] = [];
     const outputFileDirectory = path.resolve(process.cwd(), output, config.output.directory, config.output.filename);
     const external = ['electron', ...config.excludedLibraries];
     const loaders: any = {};
@@ -100,30 +99,31 @@ export class EsbuildMainBuilder {
       }
     }
 
-    if (config.pluginsEntryPoint !== undefined) {
+    let baseEsbuildConfig: BuildOptions = {};
+    if (config.baseConfigEntryPoint !== undefined) {
       try {
-        const pluginsEntry = path.resolve(config.pluginsEntryPoint);
-        const externalPlugins = await getEsbuildPlugins(pluginsEntry);
-        plugins.push(...externalPlugins);
-        this.logger.info('MAIN-BUILDER', `Plugins loaded from <${config.pluginsEntryPoint}>`);
+        baseEsbuildConfig = await getEsbuildBaseConfig(config.baseConfigEntryPoint);
+        this.logger.info('MAIN-BUILDER', `Plugins loaded from <${config.baseConfigEntryPoint}>`);
       } catch (error: any) {
         this.logger.warn('MAIN-BUILDER', error.message);
       }
     }
 
-    return {
-      platform: 'node',
-      entryPoints: [config.entryPoint],
-      outfile: outputFileDirectory,
-      bundle: true,
-      minify: process.env.NODE_ENV !== 'development',
-      external: external,
-      loader: loaders,
-      plugins: plugins,
-      define: {
-        'process.env.NODE_ENV': `"${process.env.NODE_ENV}"`,
-      },
-      sourcemap: process.env.NODE_ENV === 'development' ? 'linked' : false,
-    };
+    baseEsbuildConfig.platform = 'node';
+    baseEsbuildConfig.entryPoints = [config.entryPoint];
+    baseEsbuildConfig.outfile = outputFileDirectory;
+    baseEsbuildConfig.bundle = true;
+    baseEsbuildConfig.minify = process.env.NODE_ENV !== 'development';
+    baseEsbuildConfig.external =
+      baseEsbuildConfig.external === undefined ? external : [...baseEsbuildConfig.external, ...external];
+    baseEsbuildConfig.loader =
+      baseEsbuildConfig.loader === undefined ? loaders : { ...baseEsbuildConfig.loader, ...loaders };
+    baseEsbuildConfig.define =
+      baseEsbuildConfig.define === undefined
+        ? { 'process.env.NODE_ENV': `"${process.env.NODE_ENV}"` }
+        : { ...baseEsbuildConfig.define, 'process.env.NODE_ENV': `"${process.env.NODE_ENV}"` };
+    baseEsbuildConfig.sourcemap = process.env.NODE_ENV === 'development' ? 'linked' : false;
+
+    return baseEsbuildConfig;
   }
 }

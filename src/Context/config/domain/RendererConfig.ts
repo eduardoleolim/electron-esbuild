@@ -13,9 +13,9 @@ export class RendererConfig extends BaseConfig {
     loaderConfigs: LoaderConfig[],
     excludedLibraries: string[],
     devPort: number,
-    pluginsEntry?: string,
+    baseConfigEntryPoint?: string,
   ) {
-    super(entryPoint, output, loaderConfigs, excludedLibraries, pluginsEntry);
+    super(entryPoint, output, loaderConfigs, excludedLibraries, baseConfigEntryPoint);
     this.htmlEntryPoint = htmlEntryPoint;
     this.devPort = devPort;
   }

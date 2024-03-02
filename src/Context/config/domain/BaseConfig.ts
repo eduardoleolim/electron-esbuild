@@ -4,7 +4,7 @@ import { OutputConfig } from './OutputConfig';
 export abstract class BaseConfig {
   readonly entryPoint: string;
   readonly output: OutputConfig;
-  readonly pluginsEntryPoint?: string;
+  readonly baseConfigEntryPoint?: string;
   readonly loaderConfigs: ReadonlyArray<LoaderConfig>;
   readonly excludedLibraries: ReadonlyArray<string>;
 
@@ -13,11 +13,11 @@ export abstract class BaseConfig {
     output: OutputConfig,
     loaderConfigs: LoaderConfig[],
     excludedLibraries: string[],
-    pluginsEntryPoint?: string,
+    baseConfigEntryPoint?: string,
   ) {
     this.entryPoint = entryPoint;
     this.output = output;
-    this.pluginsEntryPoint = pluginsEntryPoint;
+    this.baseConfigEntryPoint = baseConfigEntryPoint;
     this.excludedLibraries = excludedLibraries;
     this.loaderConfigs = loaderConfigs;
   }

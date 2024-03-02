@@ -92,14 +92,15 @@ export abstract class ObjectElectronConfigParser {
       throw new Error('Main exclude must be an array');
     }
 
-    let pluginsEntryPoint: string | undefined = undefined;
+    let baseConfigEntryPoint: string | undefined = undefined;
 
-    if (mainConfig.plugins !== undefined) {
-      if (typeof mainConfig.plugins !== 'string') throw new Error('Plugins entry point must be a string');
-      pluginsEntryPoint = mainConfig.plugins;
+    if (mainConfig.esbuild !== undefined) {
+      if (typeof mainConfig.esbuild !== 'string') throw new Error('Base config entry point must be a string');
+
+      baseConfigEntryPoint = mainConfig.esbuild;
     }
 
-    return new MainConfig(entryPoint, outputConfig, preloadConfig, loaderConfig, exclude, pluginsEntryPoint);
+    return new MainConfig(entryPoint, outputConfig, preloadConfig, loaderConfig, exclude, baseConfigEntryPoint);
   }
 
   parseRendererConfig(rendererConfig: any, defaultOutputConfig: OutputConfig): RendererConfig {
@@ -143,11 +144,12 @@ export abstract class ObjectElectronConfigParser {
 
     const devPort: number = rendererConfig.devPort;
 
-    let pluginsEntryPoint: string | undefined = undefined;
+    let baseConfigEntryPoint: string | undefined = undefined;
 
     if (rendererConfig.plugins !== undefined) {
-      if (typeof rendererConfig.plugins !== 'string') throw new Error('Plugins entry point must be a string');
-      pluginsEntryPoint = rendererConfig.plugins;
+      if (typeof rendererConfig.esbuild !== 'string') throw new Error('Plugins entry point must be a string');
+
+      baseConfigEntryPoint = rendererConfig.esbuild;
     }
 
     return new RendererConfig(
@@ -157,7 +159,7 @@ export abstract class ObjectElectronConfigParser {
       loaderConfig,
       exclude,
       devPort,
-      pluginsEntryPoint,
+      baseConfigEntryPoint,
     );
   }
 
@@ -227,13 +229,14 @@ export abstract class ObjectElectronConfigParser {
       throw new Error('Preload exclude must be an array');
     }
 
-    let pluginsEntryPoint: string | undefined = undefined;
+    let baseConfigEntryPoint: string | undefined = undefined;
 
     if (preloadConfig.plugins !== undefined) {
-      if (typeof preloadConfig.plugins !== 'string') throw new Error('Preload plugins entry point must be a string');
-      pluginsEntryPoint = preloadConfig.plugins;
+      if (typeof preloadConfig.esbuild !== 'string') throw new Error('Preload plugins entry point must be a string');
+
+      baseConfigEntryPoint = preloadConfig.esbuild;
     }
 
-    return new PreloadConfig(entryPoint, outputConfig, reloadMainProcess, loaderConfig, exclude, pluginsEntryPoint);
+    return new PreloadConfig(entryPoint, outputConfig, reloadMainProcess, loaderConfig, exclude, baseConfigEntryPoint);
   }
 }
