@@ -21,56 +21,64 @@ export class EsbuildRendererBuilder {
   }
 
   public async build(output: string, config: RendererConfig): Promise<void> {
-    this.logger.log('RENDERER-BUILDER', 'Building renderer electron process');
+    try {
+      this.logger.log('RENDERER-BUILDER', 'Building renderer electron process');
 
-    const esbuildOptions = await this.loadRendererEsbuildOptions(output, config);
-    await esbuild.build(esbuildOptions);
-    await this.copyHtml(output, config);
+      const esbuildOptions = await this.loadRendererEsbuildOptions(output, config);
+      await esbuild.build(esbuildOptions);
+      await this.copyHtml(output, config);
 
-    this.logger.log('RENDERER-BUILDER', 'Build finished');
+      this.logger.log('RENDERER-BUILDER', 'Build finished');
+    } catch (error: any) {
+      this.logger.error('RENDERER-BUILDER', error.message);
+    }
   }
 
   public async develop(output: string, config: RendererConfig): Promise<void> {
-    const context = await this.generateEsbuilContext(output, config);
-    const host = '127.0.0.1';
-    const portContext = await findFreePort(10000, true);
-    const outputDirectory = path.resolve(output, config.output.directory);
-    let dependencies = this.resolveDependencies(config);
+    try {
+      const context = await this.generateEsbuilContext(output, config);
+      const host = '127.0.0.1';
+      const portContext = await findFreePort(10000, true);
+      const outputDirectory = path.resolve(output, config.output.directory);
+      let dependencies = this.resolveDependencies(config);
 
-    await context.rebuild();
-    const serveResult = await context.serve({ port: portContext, host: host, servedir: outputDirectory });
-    const reloadServer = new RendererProcessServer(outputDirectory, serveResult, this.logger);
+      await context.rebuild();
+      const serveResult = await context.serve({ port: portContext, host: host, servedir: outputDirectory });
+      const reloadServer = new RendererProcessServer(outputDirectory, serveResult, this.logger);
 
-    const watcher = chikidar.watch(dependencies);
-    watcher
-      .on('ready', async () => {
-        await this.copyHtmlInDevelop(output, config);
-        reloadServer.listen(config.devPort, host);
-
-        this.logger.info('RENDERER-BUILDER', `Renderer process served`);
-      })
-      .on(
-        'change',
-        debounce(async () => {
+      const watcher = chikidar.watch(dependencies);
+      watcher
+        .on('ready', async () => {
           await this.copyHtmlInDevelop(output, config);
-          reloadServer.refresh(outputDirectory);
+          reloadServer.listen(config.devPort, host);
 
-          watcher.unwatch(dependencies);
-          dependencies = this.resolveDependencies(config);
-          watcher.add(dependencies);
+          this.logger.info('RENDERER-BUILDER', `Renderer process served`);
+        })
+        .on(
+          'change',
+          debounce(async () => {
+            await this.copyHtmlInDevelop(output, config);
+            reloadServer.refresh(outputDirectory);
 
-          this.logger.info(
-            'RENDERER-BUILDER',
-            `Renderer process rebuilt at <http://${serveResult.host}:${config.devPort}>`,
-          );
-        }, 1000),
-      );
+            watcher.unwatch(dependencies);
+            dependencies = this.resolveDependencies(config);
+            watcher.add(dependencies);
 
-    process.on('SIGINT', async () => {
-      await context.cancel();
-      await context.dispose();
-      reloadServer.stop();
-    });
+            this.logger.info(
+              'RENDERER-BUILDER',
+              `Renderer process rebuilt at <http://${serveResult.host}:${config.devPort}>`,
+            );
+          }, 1000),
+        );
+
+      process.on('SIGINT', async () => {
+        await context.cancel();
+        await context.dispose();
+        reloadServer.stop();
+      });
+    } catch (error: any) {
+      this.logger.error('RENDERER-BUILDER', error.message);
+    }
   }
 
   private resolveDependencies(config: RendererConfig): string[] {
@@ -85,7 +93,6 @@ export class EsbuildRendererBuilder {
   }
 
   public async loadRendererEsbuildOptions(output: string, config: RendererConfig): Promise<BuildOptions> {
-    const plugins: Plugin[] = [];
     const outputFileDirectory = path.resolve(process.cwd(), output, config.output.directory, config.output.filename);
     const external = ['electron', ...config.excludedLibraries];
     const loaders: any = {};

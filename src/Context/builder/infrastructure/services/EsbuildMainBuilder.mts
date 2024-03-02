@@ -19,12 +19,16 @@ export class EsbuildMainBuilder {
   }
 
   public async build(output: string, config: MainConfig): Promise<void> {
-    this.logger.log('MAIN-BUILDER', 'Building main electron process');
+    try {
+      this.logger.log('MAIN-BUILDER', 'Building main electron process');
 
-    const buildOptions = await this.loadMainEsbuildOptions(output, config);
-    await esbuild.build(buildOptions);
+      const buildOptions = await this.loadMainEsbuildOptions(output, config);
+      await esbuild.build(buildOptions);
 
-    this.logger.log('MAIN-BUILDER', 'Build finished');
+      this.logger.log('MAIN-BUILDER', 'Build finished');
+    } catch (error: any) {
+      this.logger.error('MAIN-BUILDER', error.message);
+    }
   }
 
   public async develop(output: string, config: MainConfig): Promise<void> {
@@ -35,11 +39,17 @@ export class EsbuildMainBuilder {
 
     watcher
       .on('ready', async () => {
-        this.logger.log('MAIN-BUILDER', 'Building main electron process');
-        await context.rebuild();
-        this.logger.log('MAIN-BUILDER', 'Main process built');
+        try {
+          this.logger.log('MAIN-BUILDER', 'Building main electron process');
+          await context.rebuild();
+          this.logger.log('MAIN-BUILDER', 'Main process built');
 
-        processStarter.start();
+          processStarter.start();
+        } catch (error: any) {
+          watcher.close();
+          this.logger.error('MAIN-BUILDER', error.message);
+          this.logger.log('MAIN-BUILDER', 'The main process will not be started');
+        }
       })
       .on(
         'change',

@@ -18,12 +18,16 @@ export class EsbuildPreloadBuilder {
   }
 
   async build(output: string, config: PreloadConfig): Promise<void> {
-    this.logger.log('PRELOAD-BUILDER', 'Building preload electron process');
+    try {
+      this.logger.log('PRELOAD-BUILDER', 'Building preload electron process');
 
-    const esbuildOptions = await this.loadPreloadEsbuildOptions(output, config);
-    await esbuild.build(esbuildOptions);
+      const esbuildOptions = await this.loadPreloadEsbuildOptions(output, config);
+      await esbuild.build(esbuildOptions);
 
-    this.logger.log('PRELOAD-BUILDER', 'Build finished');
+      this.logger.log('PRELOAD-BUILDER', 'Build finished');
+    } catch (error: any) {
+      this.logger.error('PRELOAD-BUILDER', error.message);
+    }
   }
 
   async develop(output: string, config: PreloadConfig): Promise<void> {
@@ -33,9 +37,14 @@ export class EsbuildPreloadBuilder {
 
     watcher
       .on('ready', async () => {
-        this.logger.log('PRELOAD-BUILDER', 'Building preload electron process');
-        await context.rebuild();
-        this.logger.log('PRELOAD-BUILDER', 'Preload process built');
+        try {
+          this.logger.log('PRELOAD-BUILDER', 'Building preload electron process');
+          await context.rebuild();
+          this.logger.log('PRELOAD-BUILDER', 'Preload process built');
+        } catch (error: any) {
+          watcher.close();
+          this.logger.error('PRELOAD-BUILDER', error.message);
+        }
       })
       .on(
         'change',
@@ -67,7 +76,6 @@ export class EsbuildPreloadBuilder {
   }
 
   async loadPreloadEsbuildOptions(output: string, config: PreloadConfig): Promise<BuildOptions> {
-    const plugins: Plugin[] = [];
     const outputFileDirectory = path.resolve(process.cwd(), output, config.output.directory, config.output.filename);
     const external = ['electron', ...config.excludedLibraries];
     const loaders: any = {};
