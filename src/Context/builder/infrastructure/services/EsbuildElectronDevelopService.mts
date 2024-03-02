@@ -39,20 +39,21 @@ export class EsbuildElectronDevelopService implements ElectronDevelopService {
 
   async copyResources(configs: ResourceConfig[], output: string): Promise<void> {
     configs.forEach((config) => {
-      const destination = path.resolve(process.cwd(), output);
-      let source = '';
+      const origin = path.resolve(process.cwd(), config.from);
+      let destination = ""
 
       if (config instanceof SimpleResourceConfig) {
         const simpleConfig = config as SimpleResourceConfig;
-        source = path.resolve(process.cwd(), simpleConfig.to);
+        destination = path.resolve(process.cwd(), output, simpleConfig.to);
       } else if (config instanceof CustomResourceConfig) {
         const customConfig = config as CustomResourceConfig;
-        source = path.resolve(process.cwd(), customConfig.output.directory, customConfig.output.filename);
+        destination = path.resolve(process.cwd(), output, customConfig.output.directory, customConfig.output.filename);
       } else {
-        throw new Error('Invalid resource config');
+        this.logger.warn('DEVELOP', `Invalid resource config of <${config.from}>`);
       }
 
-      fs.copyFileSync(source, destination);
+      fs.mkdirSync(path.dirname(destination), { recursive: true });
+      fs.copyFileSync(origin, destination);
     });
 
     this.logger.info('DEVELOP', `Resources copied to ${output}`);
@@ -60,6 +61,8 @@ export class EsbuildElectronDevelopService implements ElectronDevelopService {
 
   async develop(config: ElectronConfig): Promise<void> {
     await this.developMain(config.output, config.mainConfig);
+
+    await this.copyResources(config.resourceConfigs, config.output);
 
     config.mainConfig.preloadConfigs.forEach(async (preloadConfig) => {
       await this.developPreload(config.output, preloadConfig);
