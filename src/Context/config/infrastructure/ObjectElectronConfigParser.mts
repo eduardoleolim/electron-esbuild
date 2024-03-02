@@ -118,7 +118,7 @@ export abstract class ObjectElectronConfigParser {
 
     let outputConfig: OutputConfig;
 
-    if (preloadConfig.output === undefined) {
+    if (rendererConfig.output === undefined) {
       throw new Error('Preload output is required');
     } else {
       const preloadDir = rendererConfig.output.directory;
