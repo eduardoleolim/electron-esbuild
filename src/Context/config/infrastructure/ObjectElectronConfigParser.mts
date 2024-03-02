@@ -9,9 +9,13 @@ import { CustomResourceConfig, ResourceConfig, SimpleResourceConfig } from '../d
 export abstract class ObjectElectronConfigParser {
   parseElectronConfig(electronConfig: any): ElectronConfig {
     try {
-      if (typeof electronConfig.output !== 'string') throw new Error('Output must be a string');
+      let output = "./dist"
 
-      const output: string = electronConfig.output;
+      if (electronConfig.output !== undefined) {
+        if (typeof electronConfig.output !== 'string') throw new Error('Output must be a string');
+
+        output = electronConfig.output;
+      }
 
       if (electronConfig.main === undefined) throw new Error('Main config is required');
 
@@ -35,10 +39,10 @@ export abstract class ObjectElectronConfigParser {
         resourceConfig = [];
       } else if (Array.isArray(electronConfig.resources)) {
         resourceConfig = electronConfig.resources.map((resourceConfig: any) => {
-          return this.parseResourceConfig(resourceConfig);
+          return this.parseResourceConfig(resourceConfig, output);
         });
       } else {
-        resourceConfig = [this.parseResourceConfig(electronConfig.resources)];
+        resourceConfig = [this.parseResourceConfig(electronConfig.resources, output)];
       }
 
       return new ElectronConfig(output, mainConfig, renderersConfig, resourceConfig);
@@ -79,7 +83,7 @@ export abstract class ObjectElectronConfigParser {
     } else if (Array.isArray(mainConfig.loaders)) {
       loaderConfig = mainConfig.loaders.map(this.parseLoaderConfig);
     } else {
-      loaderConfig = [this.parseLoaderConfig(mainConfig.loaders)];
+      throw new Error('Main loaders must be an array');
     }
 
     let exclude: string[];
@@ -114,10 +118,21 @@ export abstract class ObjectElectronConfigParser {
 
     let outputConfig: OutputConfig;
 
-    if (rendererConfig.output === undefined) {
-      outputConfig = defaultOutputConfig;
+    if (preloadConfig.output === undefined) {
+      throw new Error('Preload output is required');
     } else {
-      outputConfig = this.parseOutputConfig(rendererConfig.output);
+      let preloadDir = rendererConfig.output.directory;
+      const preloadFile = rendererConfig.output.filename;
+
+      if (preloadDir && typeof preloadDir !== 'string') throw new Error('Renderer output directory must be a string');
+
+      if (typeof preloadFile !== 'string') throw new Error('Preload file name must be a string');
+
+      if (!preloadDir) {
+        outputConfig = new OutputConfig(defaultOutputConfig.directory, preloadFile);
+      } else {
+        outputConfig = new OutputConfig(preloadDir, preloadFile);
+      }
     }
 
     let loaderConfig: LoaderConfig[];
@@ -127,7 +142,7 @@ export abstract class ObjectElectronConfigParser {
     } else if (Array.isArray(rendererConfig.loader)) {
       loaderConfig = rendererConfig.loader.map(this.parseLoaderConfig);
     } else {
-      loaderConfig = [this.parseLoaderConfig(rendererConfig.loader)];
+      throw new Error('Renderer loaders must be an array');
     }
 
     let exclude: string[];
@@ -163,11 +178,15 @@ export abstract class ObjectElectronConfigParser {
     );
   }
 
-  parseResourceConfig(resourceConfig: any): ResourceConfig {
-    if (typeof resourceConfig.from !== 'string') throw new Error('Resource from must be a string');
+  parseResourceConfig(resourceConfig: any, defaultOutputDirectory: string): ResourceConfig {
+    if (typeof resourceConfig === 'string') 
+      return new SimpleResourceConfig(resourceConfig, defaultOutputDirectory);
 
-    if (resourceConfig.to === undefined) throw new Error('Resource to is required');
+    if (typeof resourceConfig.from !== 'string') 
+      throw new Error('Resource from must be a string');
 
+    if (resourceConfig.to === undefined) 
+      return new SimpleResourceConfig(resourceConfig.from, defaultOutputDirectory);
     if (typeof resourceConfig.to === 'string') {
       return new SimpleResourceConfig(resourceConfig.from, resourceConfig.to);
     } else {
@@ -200,9 +219,20 @@ export abstract class ObjectElectronConfigParser {
     let outputConfig: OutputConfig;
 
     if (preloadConfig.output === undefined) {
-      outputConfig = defaultOutputConfig;
+      throw new Error('Preload output is required');
     } else {
-      outputConfig = this.parseOutputConfig(preloadConfig.output);
+      let preloadDir = preloadConfig.output.directory;
+      const preloadFile = preloadConfig.output.filename;
+
+      if (preloadDir && typeof preloadDir !== 'string') throw new Error('Preload output directory must be a string');
+
+      if (typeof preloadFile !== 'string') throw new Error('Preload file name must be a string');
+
+      if (!preloadDir) {
+        outputConfig = new OutputConfig(defaultOutputConfig.directory, preloadFile);
+      } else {
+        outputConfig = new OutputConfig(preloadDir, preloadFile);
+      }
     }
 
     if (typeof preloadConfig.reload !== 'boolean') throw new Error('Preload reload must be a boolean');
@@ -216,7 +246,7 @@ export abstract class ObjectElectronConfigParser {
     } else if (Array.isArray(preloadConfig.loader)) {
       loaderConfig = preloadConfig.loader.map(this.parseLoaderConfig);
     } else {
-      loaderConfig = [this.parseLoaderConfig(preloadConfig.loader)];
+      throw new Error('Preload loaders must be an array');
     }
 
     let exclude: string[];
