@@ -15,7 +15,7 @@
     "node": ">=18.15.0"
   },
   "bin": {
-    "electron-esbuild": "dist/app/index.cjs"
+    "electron-esbuild": "dist/app/index.mjs"
   },
   "files": [
     "dist"
