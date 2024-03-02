@@ -1,5 +1,12 @@
+## <small>2.5.1 (2024-03-02)</small>
+
+* fix: bin path fixed ([b337961](https://github.com/eduardoleolim/electron-esbuild/commit/b337961))
+
+
+
 ## 2.5.0 (2024-03-02)
 
+* release: v2.5.0 ([9261c3d](https://github.com/eduardoleolim/electron-esbuild/commit/9261c3d))
 * fix: add links to script and css files in html ([5abb2de](https://github.com/eduardoleolim/electron-esbuild/commit/5abb2de))
 * fix: change variable name ([5f53698](https://github.com/eduardoleolim/electron-esbuild/commit/5f53698))
 * fix: load preloads, renderers and loaders configs ([70cd65e](https://github.com/eduardoleolim/electron-esbuild/commit/70cd65e))
