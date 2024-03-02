@@ -10,15 +10,13 @@ export async function getEsbuildBaseConfig(baseConfigEntry: string): Promise<Bui
       return Promise.reject(new Error(`Esbuild base config entry <${baseConfigEntry}> does not exist`));
     }
 
-    const extension = path.extname(baseConfigEntry);
+    baseConfigEntry = path.resolve(process.cwd(), baseConfigEntry);
 
-    if (!(extension === '.js' || extension === '.mjs' || extension === '.ts' || extension === '.mts')) {
-      return Promise.reject(
-        new Error(`Esbuild base config entry <${baseConfigEntry}> must be a .js, .mjs, .ts, .mts file`),
-      );
+    // is runnining in windows?
+    if (process.platform === 'win32') {
+      baseConfigEntry = `file:///${baseConfigEntry}`
     }
 
-    baseConfigEntry = path.resolve(process.cwd(), baseConfigEntry);
     const importEsbuildBaseConfig = await import(baseConfigEntry);
     defaultEsbuildConfig = importEsbuildBaseConfig.default;
 
