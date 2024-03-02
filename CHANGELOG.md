@@ -1,5 +1,13 @@
+## <small>2.5.2 (2024-03-02)</small>
+
+* feat(builder): handle errors in builders ([d67fc33](https://github.com/eduardoleolim/electron-esbuild/commit/d67fc33))
+* fix(config): load esbuild entry from config file ([5955490](https://github.com/eduardoleolim/electron-esbuild/commit/5955490))
+
+
+
 ## <small>2.5.1 (2024-03-02)</small>
 
+* release: v2.5.1 ([06b1c18](https://github.com/eduardoleolim/electron-esbuild/commit/06b1c18))
 * fix: bin path fixed ([b337961](https://github.com/eduardoleolim/electron-esbuild/commit/b337961))
 
 
