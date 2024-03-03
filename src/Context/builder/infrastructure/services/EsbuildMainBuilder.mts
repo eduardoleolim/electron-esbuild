@@ -46,9 +46,10 @@ export class EsbuildMainBuilder {
 
           processStarter.start();
         } catch (error: any) {
-          watcher.close();
           this.logger.error('MAIN-BUILDER', error.message);
           this.logger.log('MAIN-BUILDER', 'The main process will not be started');
+        } finally {
+          this.logger.log('MAIN-BUILDER', 'Watching for changes');
         }
       })
       .on(
@@ -67,7 +68,7 @@ export class EsbuildMainBuilder {
           } catch (error: any) {
             this.logger.error('MAIN-BUILDER', error.message);
           }
-        }, 500),
+        }, 1000),
       );
 
     process.on('SIGINT', async () => {

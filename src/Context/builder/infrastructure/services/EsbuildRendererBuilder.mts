@@ -1,6 +1,6 @@
 import chikidar from 'chokidar';
 import debounce from 'debounce';
-import esbuild, { BuildContext, BuildOptions, Plugin } from 'esbuild';
+import esbuild, { BuildContext, BuildOptions } from 'esbuild';
 import * as fs from 'fs';
 import path from 'path';
 
@@ -35,50 +35,54 @@ export class EsbuildRendererBuilder {
   }
 
   public async develop(output: string, config: RendererConfig): Promise<void> {
+    const context = await this.generateEsbuilContext(output, config);
+    const host = '127.0.0.1';
+    const portContext = await findFreePort(10000, true);
+    const outputDirectory = path.resolve(output, config.output.directory);
+    let dependencies = this.resolveDependencies(config);
+
     try {
-      const context = await this.generateEsbuilContext(output, config);
-      const host = '127.0.0.1';
-      const portContext = await findFreePort(10000, true);
-      const outputDirectory = path.resolve(output, config.output.directory);
-      let dependencies = this.resolveDependencies(config);
-
       await context.rebuild();
-      const serveResult = await context.serve({ port: portContext, host: host, servedir: outputDirectory });
-      const reloadServer = new RendererProcessServer(outputDirectory, serveResult, this.logger);
-
-      const watcher = chikidar.watch(dependencies);
-      watcher
-        .on('ready', async () => {
-          await this.copyHtmlInDevelop(output, config);
-          reloadServer.listen(config.devPort, host);
-
-          this.logger.info('RENDERER-BUILDER', `Renderer process served`);
-        })
-        .on(
-          'change',
-          debounce(async () => {
-            await this.copyHtmlInDevelop(output, config);
-            reloadServer.refresh(outputDirectory);
-
-            watcher.unwatch(dependencies);
-            dependencies = this.resolveDependencies(config);
-            watcher.add(dependencies);
-
-            this.logger.info(
-              'RENDERER-BUILDER',
-              `Renderer process rebuilt at <http://${serveResult.host}:${config.devPort}>`,
-            );
-          }, 1000),
-        );
-
-      process.on('SIGINT', async () => {
-        await context.cancel();
-        await context.dispose();
-        reloadServer.stop();
-      });
+      this.logger.info('RENDERER-BUILDER', 'Renderer process built');
     } catch (error: any) {
       this.logger.error('RENDERER-BUILDER', error.message);
+    } finally {
+      this.logger.log('RENDERER-BUILDER', 'Watching for changes');
     }
+
+    const serveResult = await context.serve({ port: portContext, host: host, servedir: outputDirectory });
+    const reloadServer = new RendererProcessServer(outputDirectory, serveResult, this.logger);
+
+    const watcher = chikidar.watch(dependencies);
+    watcher
+      .on('ready', async () => {
+        await this.copyHtmlInDevelop(output, config);
+        reloadServer.listen(config.devPort, host);
+
+        this.logger.info('RENDERER-BUILDER', `Renderer process served`);
+      })
+      .on(
+        'change',
+        debounce(async () => {
+          await this.copyHtmlInDevelop(output, config);
+          reloadServer.refresh(outputDirectory);
+
+          watcher.unwatch(dependencies);
+          dependencies = this.resolveDependencies(config);
+          watcher.add(dependencies);
+
+          this.logger.info(
+            'RENDERER-BUILDER',
+            `Renderer process rebuilt at <http://${serveResult.host}:${config.devPort}>`,
+          );
+        }, 1000),
+      );
+
+    process.on('SIGINT', async () => {
+      await context.cancel();
+      await context.dispose();
+      reloadServer.stop();
+    });
   }
 
   private resolveDependencies(config: RendererConfig): string[] {
@@ -181,7 +185,7 @@ export class EsbuildRendererBuilder {
     const htmlContent = fs.readFileSync(htmlOutputDirectory, 'utf-8').replace(
       '</body>',
       `  <script src="/livereload.js?snipver=1"></script>
-      </body>`,
+</body>`,
     );
 
     fs.writeFileSync(htmlOutputDirectory, htmlContent, 'utf-8');

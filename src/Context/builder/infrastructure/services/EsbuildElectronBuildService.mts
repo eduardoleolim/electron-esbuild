@@ -40,7 +40,7 @@ export class EsbuildElectronBuildService implements ElectronBuildService {
   async copyResources(configs: Array<ResourceConfig>, output: string): Promise<void> {
     configs.forEach((config) => {
       const origin = path.resolve(process.cwd(), config.from);
-      let destination = ""
+      let destination = '';
 
       if (config instanceof SimpleResourceConfig) {
         const simpleConfig = config as SimpleResourceConfig;
