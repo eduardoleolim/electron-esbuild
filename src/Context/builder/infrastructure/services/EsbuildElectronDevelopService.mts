@@ -40,7 +40,7 @@ export class EsbuildElectronDevelopService implements ElectronDevelopService {
   async copyResources(configs: ResourceConfig[], output: string): Promise<void> {
     configs.forEach((config) => {
       const origin = path.resolve(process.cwd(), config.from);
-      let destination = ""
+      let destination = '';
 
       if (config instanceof SimpleResourceConfig) {
         const simpleConfig = config as SimpleResourceConfig;
@@ -60,17 +60,17 @@ export class EsbuildElectronDevelopService implements ElectronDevelopService {
   }
 
   async develop(config: ElectronConfig): Promise<void> {
-    await this.developMain(config.output, config.mainConfig);
-
     await this.copyResources(config.resourceConfigs, config.output);
 
-    config.mainConfig.preloadConfigs.forEach(async (preloadConfig) => {
-      await this.developPreload(config.output, preloadConfig);
-    });
-
-    config.rendererConfigs.forEach(async (rendererConfig) => {
+    for (const rendererConfig of config.rendererConfigs) {
       await this.developRenderer(config.output, rendererConfig);
-    });
+    }
+
+    for (const preloadConfig of config.mainConfig.preloadConfigs) {
+      await this.developPreload(config.output, preloadConfig);
+    }
+
+    await this.developMain(config.output, config.mainConfig);
   }
 
   private async developMain(output: string, config: MainConfig): Promise<void> {
