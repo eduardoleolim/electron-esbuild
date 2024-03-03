@@ -1,5 +1,14 @@
+## 2.7.0 (2024-03-03)
+
+* chore: update esbuil version ([f206e72](https://github.com/eduardoleolim/electron-esbuild/commit/f206e72))
+* feat(develop): sort builder in develop task ([0f420fe](https://github.com/eduardoleolim/electron-esbuild/commit/0f420fe))
+* feat(renderer): handle exceptions in first build in development task ([e2fb33c](https://github.com/eduardoleolim/electron-esbuild/commit/e2fb33c))
+
+
+
 ## 2.6.0 (2024-03-02)
 
+* release: v2.6.0 ([951202a](https://github.com/eduardoleolim/electron-esbuild/commit/951202a))
 * feat(builder): copy resources ([b0e3d31](https://github.com/eduardoleolim/electron-esbuild/commit/b0e3d31))
 
 
