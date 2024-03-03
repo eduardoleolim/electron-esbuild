@@ -1,4 +1,4 @@
-import chikidar from 'chokidar';
+import chokidar from 'chokidar';
 import debounce from 'debounce';
 import esbuild, { BuildContext, BuildOptions } from 'esbuild';
 import path from 'path';
@@ -7,14 +7,16 @@ import { MainConfig } from '../../../config/domain/MainConfig.mjs';
 import { Logger } from '../../../shared/domain/Logger.mjs';
 import { getDependencies } from '../../../shared/infrastructure/getDependencies.mjs';
 import { getEsbuildBaseConfig } from '../utils/getEsbuildBaseConfig.mjs';
-import { MainProcessStarter } from './MainProcessStarter.mjs';
+import { MainProcess, MainProcessDispatcher } from './MainProcessDispatcher.js';
 
 export class EsbuildMainBuilder {
   private readonly loaders: ReadonlyArray<string>;
+  private readonly dispatcher: MainProcessDispatcher;
   private readonly logger: Logger;
 
   constructor(loaders: ReadonlyArray<string>, logger: Logger) {
     this.loaders = loaders;
+    this.dispatcher = new MainProcessDispatcher(logger);
     this.logger = logger;
   }
 
@@ -34,8 +36,8 @@ export class EsbuildMainBuilder {
   public async develop(output: string, config: MainConfig): Promise<void> {
     const context = await this.generateEsbuilContext(output, config);
     let dependencies = this.resolveDependencies(config);
-    const watcher = chikidar.watch(dependencies);
-    const processStarter = new MainProcessStarter(output, config, this.logger);
+    const watcher = chokidar.watch(dependencies);
+    let currentProcess : MainProcess | undefined = undefined;
 
     watcher
       .on('ready', async () => {
@@ -44,7 +46,7 @@ export class EsbuildMainBuilder {
           await context.rebuild();
           this.logger.log('MAIN-BUILDER', 'Main process built');
 
-          processStarter.start();
+          currentProcess = this.dispatcher.dispatchProcess(output, config);
         } catch (error: any) {
           this.logger.error('MAIN-BUILDER', error.message);
           this.logger.log('MAIN-BUILDER', 'The main process will not be started');
@@ -64,7 +66,10 @@ export class EsbuildMainBuilder {
             dependencies = this.resolveDependencies(config);
             watcher.add(dependencies);
 
-            processStarter.start();
+            if (currentProcess !== undefined) {
+              await currentProcess.kill();
+            }
+            currentProcess = this.dispatcher.dispatchProcess(output, config);
           } catch (error: any) {
             this.logger.error('MAIN-BUILDER', error.message);
           }
