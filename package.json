@@ -76,7 +76,7 @@
     "typescript": "^5.1.6"
   },
   "peerDependencies": {
-    "esbuild": "0.19.x"
+    "esbuild": "0.20.x"
   },
   "lint-staged": {
     "*.{js,ts}": [
