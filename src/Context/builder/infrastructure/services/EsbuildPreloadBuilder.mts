@@ -1,4 +1,4 @@
-import chikidar from 'chokidar';
+import chokidar from 'chokidar';
 import debounce from 'debounce';
 import esbuild, { BuildContext, BuildOptions, Plugin } from 'esbuild';
 import path from 'path';
@@ -33,17 +33,18 @@ export class EsbuildPreloadBuilder {
   async develop(output: string, config: PreloadConfig): Promise<void> {
     let dependencies = getDependencies(config.entryPoint);
     const context = await this.generateEsbuilContext(output, config);
-    const watcher = chikidar.watch(dependencies);
+    const watcher = chokidar.watch(dependencies);
 
     watcher
       .on('ready', async () => {
         try {
           this.logger.log('PRELOAD-BUILDER', 'Building preload electron process');
           await context.rebuild();
-          this.logger.log('PRELOAD-BUILDER', 'Preload process built');
+          this.logger.info('PRELOAD-BUILDER', 'Preload process built');
         } catch (error: any) {
-          watcher.close();
           this.logger.error('PRELOAD-BUILDER', error.message);
+        } finally {
+          this.logger.info("PRELOAD-BUILDER","Watching for changes")
         }
       })
       .on(
@@ -52,7 +53,7 @@ export class EsbuildPreloadBuilder {
           try {
             await context.cancel();
             await context.rebuild();
-            this.logger.log('PRELOAD-BUILDER', 'Preload process rebuilt');
+            this.logger.info('PRELOAD-BUILDER', 'Preload process rebuilt');
 
             watcher.unwatch(dependencies);
             dependencies = getDependencies(config.entryPoint);
@@ -60,7 +61,7 @@ export class EsbuildPreloadBuilder {
           } catch (error: any) {
             this.logger.error('PRELOAD-BUILDER', error.message);
           }
-        }, 500),
+        }, 1000),
       );
 
     process.on('SIGINT', async () => {
@@ -88,31 +89,29 @@ export class EsbuildPreloadBuilder {
       }
     }
 
-    let baseEsbuildConfig: BuildOptions = {};
+    let ebuildOptions: BuildOptions = {};
     if (config.baseConfigEntryPoint !== undefined) {
       try {
-        baseEsbuildConfig = await getEsbuildBaseConfig(config.baseConfigEntryPoint);
+        ebuildOptions = await getEsbuildBaseConfig(config.baseConfigEntryPoint);
         this.logger.info('MAIN-BUILDER', `Plugins loaded from <${config.baseConfigEntryPoint}>`);
       } catch (error: any) {
         this.logger.warn('MAIN-BUILDER', error.message);
       }
     }
 
-    baseEsbuildConfig.platform = 'node';
-    baseEsbuildConfig.entryPoints = [config.entryPoint];
-    baseEsbuildConfig.outfile = outputFileDirectory;
-    baseEsbuildConfig.bundle = true;
-    baseEsbuildConfig.minify = process.env.NODE_ENV !== 'development';
-    baseEsbuildConfig.external =
-      baseEsbuildConfig.external === undefined ? external : [...baseEsbuildConfig.external, ...external];
-    baseEsbuildConfig.loader =
-      baseEsbuildConfig.loader === undefined ? loaders : { ...baseEsbuildConfig.loader, ...loaders };
-    baseEsbuildConfig.define =
-      baseEsbuildConfig.define === undefined
+    ebuildOptions.platform = 'node';
+    ebuildOptions.entryPoints = [config.entryPoint];
+    ebuildOptions.outfile = outputFileDirectory;
+    ebuildOptions.bundle = true;
+    ebuildOptions.minify = process.env.NODE_ENV === 'production';
+    ebuildOptions.external = ebuildOptions.external === undefined ? external : [...ebuildOptions.external, ...external];
+    ebuildOptions.loader = ebuildOptions.loader === undefined ? loaders : { ...ebuildOptions.loader, ...loaders };
+    ebuildOptions.sourcemap = process.env.NODE_ENV === 'development' ? 'linked' : false;
+    ebuildOptions.define =
+      ebuildOptions.define === undefined
         ? { 'process.env.NODE_ENV': `"${process.env.NODE_ENV}"` }
-        : { ...baseEsbuildConfig.define, 'process.env.NODE_ENV': `"${process.env.NODE_ENV}"` };
-    baseEsbuildConfig.sourcemap = process.env.NODE_ENV === 'development' ? 'linked' : false;
+        : { ...ebuildOptions.define, 'process.env.NODE_ENV': `"${process.env.NODE_ENV}"` };
 
-    return baseEsbuildConfig;
+    return ebuildOptions;
   }
 }

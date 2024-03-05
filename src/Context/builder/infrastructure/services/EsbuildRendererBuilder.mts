@@ -1,4 +1,4 @@
-import chikidar from 'chokidar';
+import chokidar from 'chokidar';
 import debounce from 'debounce';
 import esbuild, { BuildContext, BuildOptions } from 'esbuild';
 import * as fs from 'fs';
@@ -53,7 +53,7 @@ export class EsbuildRendererBuilder {
     const serveResult = await context.serve({ port: portContext, host: host, servedir: outputDirectory });
     const reloadServer = new RendererProcessServer(outputDirectory, serveResult, this.logger);
 
-    const watcher = chikidar.watch(dependencies);
+    const watcher = chokidar.watch(dependencies);
     watcher
       .on('ready', async () => {
         await this.copyHtmlInDevelop(output, config);
@@ -109,32 +109,30 @@ export class EsbuildRendererBuilder {
       }
     }
 
-    let baseEsbuildConfig: BuildOptions = {};
+    let ebuildOptions: BuildOptions = {};
     if (config.baseConfigEntryPoint !== undefined) {
       try {
-        baseEsbuildConfig = await getEsbuildBaseConfig(config.baseConfigEntryPoint);
+        ebuildOptions = await getEsbuildBaseConfig(config.baseConfigEntryPoint);
         this.logger.info('MAIN-BUILDER', `Plugins loaded from <${config.baseConfigEntryPoint}>`);
       } catch (error: any) {
         this.logger.warn('MAIN-BUILDER', error.message);
       }
     }
 
-    baseEsbuildConfig.platform = 'node';
-    baseEsbuildConfig.entryPoints = [config.entryPoint];
-    baseEsbuildConfig.outfile = outputFileDirectory;
-    baseEsbuildConfig.bundle = true;
-    baseEsbuildConfig.minify = process.env.NODE_ENV !== 'development';
-    baseEsbuildConfig.external =
-      baseEsbuildConfig.external === undefined ? external : [...baseEsbuildConfig.external, ...external];
-    baseEsbuildConfig.loader =
-      baseEsbuildConfig.loader === undefined ? loaders : { ...baseEsbuildConfig.loader, ...loaders };
-    baseEsbuildConfig.define =
-      baseEsbuildConfig.define === undefined
+    ebuildOptions.platform = 'node';
+    ebuildOptions.entryPoints = [config.entryPoint];
+    ebuildOptions.outfile = outputFileDirectory;
+    ebuildOptions.bundle = true;
+    ebuildOptions.minify = process.env.NODE_ENV !== 'development';
+    ebuildOptions.external = ebuildOptions.external === undefined ? external : [...ebuildOptions.external, ...external];
+    ebuildOptions.loader = ebuildOptions.loader === undefined ? loaders : { ...ebuildOptions.loader, ...loaders };
+    ebuildOptions.sourcemap = process.env.NODE_ENV === 'development' ? 'linked' : false;
+    ebuildOptions.define =
+      ebuildOptions.define === undefined
         ? { 'process.env.NODE_ENV': `"${process.env.NODE_ENV}"` }
-        : { ...baseEsbuildConfig.define, 'process.env.NODE_ENV': `"${process.env.NODE_ENV}"` };
-    baseEsbuildConfig.sourcemap = process.env.NODE_ENV === 'development' ? 'linked' : false;
+        : { ...ebuildOptions.define, 'process.env.NODE_ENV': `"${process.env.NODE_ENV}"` };
 
-    return baseEsbuildConfig;
+    return ebuildOptions;
   }
 
   private async copyHtml(output: string, config: RendererConfig): Promise<void> {

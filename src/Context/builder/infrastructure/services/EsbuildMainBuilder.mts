@@ -1,7 +1,7 @@
 import chokidar from 'chokidar';
 import debounce from 'debounce';
 import esbuild, { BuildContext, BuildOptions } from 'esbuild';
-import path from 'path';
+import path, { resolve } from 'path';
 
 import { MainConfig } from '../../../config/domain/MainConfig.mjs';
 import { Logger } from '../../../shared/domain/Logger.mjs';
@@ -34,10 +34,10 @@ export class EsbuildMainBuilder {
   }
 
   public async develop(output: string, config: MainConfig): Promise<void> {
+    let currentProcess: MainProcess | undefined = undefined;
     const context = await this.generateEsbuilContext(output, config);
     let dependencies = this.resolveDependencies(config);
     const watcher = chokidar.watch(dependencies);
-    let currentProcess : MainProcess | undefined = undefined;
 
     watcher
       .on('ready', async () => {
@@ -45,7 +45,6 @@ export class EsbuildMainBuilder {
           this.logger.log('MAIN-BUILDER', 'Building main electron process');
           await context.rebuild();
           this.logger.log('MAIN-BUILDER', 'Main process built');
-
           currentProcess = this.dispatcher.dispatchProcess(output, config);
         } catch (error: any) {
           this.logger.error('MAIN-BUILDER', error.message);
@@ -115,31 +114,29 @@ export class EsbuildMainBuilder {
       }
     }
 
-    let baseEsbuildConfig: BuildOptions = {};
+    let esbuildOptions: BuildOptions = {};
     if (config.baseConfigEntryPoint !== undefined) {
       try {
-        baseEsbuildConfig = await getEsbuildBaseConfig(config.baseConfigEntryPoint);
+        esbuildOptions = await getEsbuildBaseConfig(config.baseConfigEntryPoint);
         this.logger.info('MAIN-BUILDER', `Plugins loaded from <${config.baseConfigEntryPoint}>`);
       } catch (error: any) {
         this.logger.warn('MAIN-BUILDER', error.message);
       }
     }
 
-    baseEsbuildConfig.platform = 'node';
-    baseEsbuildConfig.entryPoints = [config.entryPoint];
-    baseEsbuildConfig.outfile = outputFileDirectory;
-    baseEsbuildConfig.bundle = true;
-    baseEsbuildConfig.minify = process.env.NODE_ENV !== 'development';
-    baseEsbuildConfig.external =
-      baseEsbuildConfig.external === undefined ? external : [...baseEsbuildConfig.external, ...external];
-    baseEsbuildConfig.loader =
-      baseEsbuildConfig.loader === undefined ? loaders : { ...baseEsbuildConfig.loader, ...loaders };
-    baseEsbuildConfig.define =
-      baseEsbuildConfig.define === undefined
+    esbuildOptions.platform = 'node';
+    esbuildOptions.entryPoints = [config.entryPoint];
+    esbuildOptions.outfile = outputFileDirectory;
+    esbuildOptions.bundle = true;
+    esbuildOptions.minify = process.env.NODE_ENV === 'production';
+    esbuildOptions.external = esbuildOptions.external === undefined ? external : [...esbuildOptions.external, ...external];
+    esbuildOptions.loader = esbuildOptions.loader === undefined ? loaders : { ...esbuildOptions.loader, ...loaders };
+    esbuildOptions.sourcemap = process.env.NODE_ENV === 'development' ? 'linked' : false;
+    esbuildOptions.define =
+      esbuildOptions.define === undefined
         ? { 'process.env.NODE_ENV': `"${process.env.NODE_ENV}"` }
-        : { ...baseEsbuildConfig.define, 'process.env.NODE_ENV': `"${process.env.NODE_ENV}"` };
-    baseEsbuildConfig.sourcemap = process.env.NODE_ENV === 'development' ? 'linked' : false;
+        : { ...esbuildOptions.define, 'process.env.NODE_ENV': `"${process.env.NODE_ENV}"` };
 
-    return baseEsbuildConfig;
+    return esbuildOptions;
   }
 }
