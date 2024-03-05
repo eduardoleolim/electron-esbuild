@@ -1,5 +1,14 @@
+## <small>2.7.1 (2024-03-05)</small>
+
+* fix(builder): set browser platform for renderer process ([82921ab](https://github.com/eduardoleolim/electron-esbuild/commit/82921ab))
+* chore: rename esbuild-options variable ([488aabb](https://github.com/eduardoleolim/electron-esbuild/commit/488aabb))
+* feat(develop): implement new electron process starter ([d95aa42](https://github.com/eduardoleolim/electron-esbuild/commit/d95aa42))
+
+
+
 ## 2.7.0 (2024-03-03)
 
+* release: v2.7.0 ([7abe996](https://github.com/eduardoleolim/electron-esbuild/commit/7abe996))
 * chore: update esbuil version ([f206e72](https://github.com/eduardoleolim/electron-esbuild/commit/f206e72))
 * feat(develop): sort builder in develop task ([0f420fe](https://github.com/eduardoleolim/electron-esbuild/commit/0f420fe))
 * feat(renderer): handle exceptions in first build in development task ([e2fb33c](https://github.com/eduardoleolim/electron-esbuild/commit/e2fb33c))

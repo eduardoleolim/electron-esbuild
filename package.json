@@ -1,6 +1,6 @@
 {
   "name": "@eduardoleolim/electron-esbuild",
-  "version": "2.7.0",
+  "version": "2.7.1",
   "description": "Use esbuild with electron",
   "main": "dist/app/index.cjs",
   "type": "module",
