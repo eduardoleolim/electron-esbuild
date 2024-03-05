@@ -119,7 +119,7 @@ export class EsbuildRendererBuilder {
       }
     }
 
-    ebuildOptions.platform = 'node';
+    ebuildOptions.platform = 'browser';
     ebuildOptions.entryPoints = [config.entryPoint];
     ebuildOptions.outfile = outputFileDirectory;
     ebuildOptions.bundle = true;
