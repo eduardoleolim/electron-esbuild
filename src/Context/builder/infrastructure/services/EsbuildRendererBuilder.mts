@@ -37,20 +37,20 @@ export class EsbuildRendererBuilder {
     const host = '127.0.0.1';
     const portContext = await findFreePort(10000, true);
     const hotReloadPort = await findFreePort(35729, true);
-    let dependencies = this.resolveDependencies(config)
+    let dependencies = this.resolveDependencies(config);
     const outputDirectory = path.resolve(output, config.output.directory);
     const serveOptions: ServeOptions = {
       port: portContext,
       host: host,
       servedir: outputDirectory,
     };
-    const hotReloadServerOptions : RendererHotReloadServerOptions = {
+    const hotReloadServerOptions: RendererHotReloadServerOptions = {
       dependencies: dependencies,
       esbuildHost: host,
       esbuildPort: portContext,
       hotReloadHost: host,
       hotReloadPort: hotReloadPort,
-    }
+    };
 
     try {
       await context.rebuild();
@@ -62,7 +62,7 @@ export class EsbuildRendererBuilder {
     await context.serve(serveOptions);
     const hotReloadServer = new RendererHotReloadServer(hotReloadServerOptions, this.logger);
 
-    const watcher = hotReloadServer.watcher
+    const watcher = hotReloadServer.watcher;
     watcher.on('ready', async () => {
       await this.copyHtmlInDevelop(output, config);
 

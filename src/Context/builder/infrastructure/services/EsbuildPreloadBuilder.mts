@@ -44,7 +44,7 @@ export class EsbuildPreloadBuilder {
         } catch (error: any) {
           this.logger.error('PRELOAD-BUILDER', error.message);
         } finally {
-          this.logger.info("PRELOAD-BUILDER","Watching for changes")
+          this.logger.info('PRELOAD-BUILDER', 'Watching for changes');
         }
       })
       .on(

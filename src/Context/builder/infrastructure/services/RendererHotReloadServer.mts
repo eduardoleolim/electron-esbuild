@@ -4,6 +4,7 @@ import connect from 'connect';
 import { Server, createServer } from 'http';
 import httpProxy from 'http-proxy';
 import livereload, { CreateServerConfig, LiveReloadServer } from 'livereload';
+
 import { Logger } from '../../../shared/domain/Logger.mjs';
 
 export interface RendererHotReloadServerOptions {
@@ -25,10 +26,7 @@ export class RendererHotReloadServer {
   private readonly server: Server;
   private readonly logger: Logger;
 
-  constructor(
-    options: RendererHotReloadServerOptions,
-    logger: Logger,
-  ) {
+  constructor(options: RendererHotReloadServerOptions, logger: Logger) {
     const { dependencies, esbuildHost, esbuildPort, hotReloadHost, hotReloadPort } = options;
 
     this.dependencies = dependencies;
@@ -38,10 +36,10 @@ export class RendererHotReloadServer {
     this.hotReloadPort = hotReloadPort;
     this.hotReloadServer = this.loadHotReloadServer();
     this.hotReloadServer.watch(this.dependencies);
-    this.watcher = this.hotReloadServer.watcher as chokidar.FSWatcher
-    this.watcher.removeAllListeners("unlink")
-    this.watcher.removeAllListeners("change")
-    this.watcher.removeAllListeners("add")
+    this.watcher = this.hotReloadServer.watcher as chokidar.FSWatcher;
+    this.watcher.removeAllListeners('unlink');
+    this.watcher.removeAllListeners('change');
+    this.watcher.removeAllListeners('add');
     this.server = this.loadServer();
     this.logger = logger;
   }
@@ -49,7 +47,7 @@ export class RendererHotReloadServer {
   private loadHotReloadServer(): LiveReloadServer {
     const config: CreateServerConfig = {
       port: this.hotReloadPort,
-      noListen: true
+      noListen: true,
     };
     return livereload.createServer(config);
   }
@@ -86,11 +84,11 @@ export class RendererHotReloadServer {
         this.logger.info('RENDERER-SERVER', `Renderer process server listening on http://${host}:${port}`);
         callback?.();
       });
-    })
+    });
   }
 
   refresh() {
-    this.hotReloadServer.refresh(".");
+    this.hotReloadServer.refresh('.');
   }
 
   public close() {

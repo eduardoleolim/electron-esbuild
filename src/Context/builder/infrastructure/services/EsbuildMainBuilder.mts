@@ -129,7 +129,8 @@ export class EsbuildMainBuilder {
     esbuildOptions.outfile = outputFileDirectory;
     esbuildOptions.bundle = true;
     esbuildOptions.minify = process.env.NODE_ENV === 'production';
-    esbuildOptions.external = esbuildOptions.external === undefined ? external : [...esbuildOptions.external, ...external];
+    esbuildOptions.external =
+      esbuildOptions.external === undefined ? external : [...esbuildOptions.external, ...external];
     esbuildOptions.loader = esbuildOptions.loader === undefined ? loaders : { ...esbuildOptions.loader, ...loaders };
     esbuildOptions.sourcemap = process.env.NODE_ENV === 'development' ? 'linked' : false;
     esbuildOptions.define =
