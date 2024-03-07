@@ -1,6 +1,4 @@
-import chokidar from 'chokidar';
-import debounce from 'debounce';
-import esbuild, { BuildContext, BuildOptions } from 'esbuild';
+import esbuild, { BuildContext, BuildOptions, ServeOptions } from 'esbuild';
 import * as fs from 'fs';
 import path from 'path';
 
@@ -9,7 +7,7 @@ import { Logger } from '../../../shared/domain/Logger.mjs';
 import { findFreePort } from '../../../shared/infrastructure/findFreePort.mjs';
 import { getDependencies } from '../../../shared/infrastructure/getDependencies.mjs';
 import { getEsbuildBaseConfig } from '../utils/getEsbuildBaseConfig.mjs';
-import { RendererProcessServer } from './RendererProcessServer.mjs';
+import { RendererHotReloadServer, RendererHotReloadServerOptions } from './RendererHotReloadServer.mjs';
 
 export class EsbuildRendererBuilder {
   private readonly loaders: ReadonlyArray<string>;
@@ -38,50 +36,55 @@ export class EsbuildRendererBuilder {
     const context = await this.generateEsbuilContext(output, config);
     const host = '127.0.0.1';
     const portContext = await findFreePort(10000, true);
+    const hotReloadPort = await findFreePort(35729, true);
+    let dependencies = this.resolveDependencies(config)
     const outputDirectory = path.resolve(output, config.output.directory);
-    let dependencies = this.resolveDependencies(config);
+    const serveOptions: ServeOptions = {
+      port: portContext,
+      host: host,
+      servedir: outputDirectory,
+    };
+    const hotReloadServerOptions : RendererHotReloadServerOptions = {
+      dependencies: dependencies,
+      esbuildHost: host,
+      esbuildPort: portContext,
+      hotReloadHost: host,
+      hotReloadPort: hotReloadPort,
+    }
 
     try {
       await context.rebuild();
       this.logger.info('RENDERER-BUILDER', 'Renderer process built');
     } catch (error: any) {
       this.logger.error('RENDERER-BUILDER', error.message);
-    } finally {
-      this.logger.log('RENDERER-BUILDER', 'Watching for changes');
     }
 
-    const serveResult = await context.serve({ port: portContext, host: host, servedir: outputDirectory });
-    const reloadServer = new RendererProcessServer(outputDirectory, serveResult, this.logger);
+    await context.serve(serveOptions);
+    const hotReloadServer = new RendererHotReloadServer(hotReloadServerOptions, this.logger);
 
-    const watcher = chokidar.watch(dependencies);
-    watcher
-      .on('ready', async () => {
+    const watcher = hotReloadServer.watcher
+    watcher.on('ready', async () => {
+      await this.copyHtmlInDevelop(output, config);
+
+      watcher.on('change', async () => {
         await this.copyHtmlInDevelop(output, config);
-        reloadServer.listen(config.devPort, host);
+        watcher.unwatch(dependencies);
+        dependencies = this.resolveDependencies(config);
+        watcher.add(dependencies);
 
-        this.logger.info('RENDERER-BUILDER', `Renderer process served`);
-      })
-      .on(
-        'change',
-        debounce(async () => {
-          await this.copyHtmlInDevelop(output, config);
-          reloadServer.refresh(outputDirectory);
+        hotReloadServer.refresh();
+        this.logger.info('RENDERER-BUILDER', 'Change in renderer source detected');
+      });
+    });
 
-          watcher.unwatch(dependencies);
-          dependencies = this.resolveDependencies(config);
-          watcher.add(dependencies);
+    await this.copyHtmlInDevelop(output, config);
 
-          this.logger.info(
-            'RENDERER-BUILDER',
-            `Renderer process rebuilt at <http://${serveResult.host}:${config.devPort}>`,
-          );
-        }, 1000),
-      );
+    hotReloadServer.listen(config.devPort, host);
 
     process.on('SIGINT', async () => {
       await context.cancel();
       await context.dispose();
-      reloadServer.stop();
+      hotReloadServer.close();
     });
   }
 
