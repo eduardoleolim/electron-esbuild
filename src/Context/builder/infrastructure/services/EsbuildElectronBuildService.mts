@@ -65,10 +65,19 @@ export class EsbuildElectronBuildService implements ElectronBuildService {
   build(output: string, config: PreloadConfig): Promise<void>;
   async build(output: unknown, config?: unknown): Promise<void> {
     if (output instanceof ElectronConfig) {
-      await this.buildMain(output.output, output.mainConfig);
+      const outputDir = output.output;
+      const mainConfig = output.mainConfig;
+      const preloadConfigs = output.mainConfig.preloadConfigs;
+      const rendererConfigs = output.rendererConfigs;
 
-      for (const rendererConfig of output.rendererConfigs) {
-        await this.buildRenderer(output.output, rendererConfig);
+      await this.mainBuilder.build(outputDir, mainConfig);
+
+      for (const preloadConfig of preloadConfigs) {
+        await this.preloadBuilder.build(outputDir, preloadConfig);
+      }
+
+      for (const rendererConfig of rendererConfigs) {
+        await this.rendererBuilder.build(outputDir, rendererConfig);
       }
     } else if (typeof output === 'string' && config instanceof MainConfig) {
       await this.buildMain(output, config);
@@ -84,10 +93,6 @@ export class EsbuildElectronBuildService implements ElectronBuildService {
   private async buildMain(output: string, config: MainConfig): Promise<void> {
     await this.mainBuilder.build(output, config);
     this.logger.info('BUILD', 'Main process built');
-
-    for (const preloadConfig of config.preloadConfigs) {
-      await this.buildPreload(output, preloadConfig);
-    }
   }
 
   private async buildPreload(output: string, config: PreloadConfig): Promise<void> {
