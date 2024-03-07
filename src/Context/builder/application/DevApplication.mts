@@ -17,16 +17,18 @@ export class DevApplication {
 
   async dev(configPath: string, clean: boolean): Promise<void> {
     this.logger.log('DEV', 'Starting dev mode');
-    const config = this.parser.parse(configPath);
+    const configs = this.parser.parse(configPath);
 
-    if (clean) {
-      const outputDir = path.resolve(process.cwd(), config.output);
+    for (const config of configs) {
+      if (clean) {
+        const outputDir = path.resolve(process.cwd(), config.output);
 
-      await this.builder.clean(outputDir);
+        await this.builder.clean(outputDir);
+      }
+
+      await this.builder.copyResources(config.resourceConfigs, config.output);
+
+      this.builder.develop(config);
     }
-
-    await this.builder.copyResources(config.resourceConfigs, config.output);
-
-    this.builder.develop(config);
   }
 }

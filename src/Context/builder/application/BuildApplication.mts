@@ -17,18 +17,20 @@ export class BuildApplication {
 
   public async build(configPath: string, clean: boolean) {
     this.logger.info('BUILD', 'Starting build process');
-    const config = this.parser.parse(configPath);
+    const configs = this.parser.parse(configPath);
 
-    if (clean) {
-      const outputDir = path.resolve(process.cwd(), config.output);
+    for (const config of configs) {
+      if (clean) {
+        const outputDir = path.resolve(process.cwd(), config.output);
 
-      await this.builder.clean(outputDir);
-    }
+        await this.builder.clean(outputDir);
+      }
 
-    await this.builder.build(config);
+      await this.builder.build(config);
 
-    if (config.resourceConfigs.length > 0) {
-      await this.builder.copyResources(config.resourceConfigs, config.output);
+      if (config.resourceConfigs.length > 0) {
+        await this.builder.copyResources(config.resourceConfigs, config.output);
+      }
     }
 
     this.logger.info('BUILD', 'Build finished');

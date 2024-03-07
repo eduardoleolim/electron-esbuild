@@ -7,5 +7,5 @@ export interface ElectronConfigParser {
    * @throws {Error} - If the source is not valid
    * @returns {ElectronConfig} - The parsed object
    */
-  parse(sourcePath: string): ElectronConfig;
+  parse(sourcePath: string): ElectronConfig[];
 }
