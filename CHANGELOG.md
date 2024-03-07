@@ -1,5 +1,18 @@
+## <small>2.7.2 (2024-03-07)</small>
+
+* feat: support multiple electron configs again ([7a6ccbb](https://github.com/eduardoleolim/electron-esbuild/commit/7a6ccbb))
+* feat(develop): implement new Renderer server ([429f3c0](https://github.com/eduardoleolim/electron-esbuild/commit/429f3c0))
+* chore: lint code ([c8f2edd](https://github.com/eduardoleolim/electron-esbuild/commit/c8f2edd))
+* chore: update dev dependencies ([a25b239](https://github.com/eduardoleolim/electron-esbuild/commit/a25b239))
+* fix(develop): build electron process synchronously ([82192e5](https://github.com/eduardoleolim/electron-esbuild/commit/82192e5))
+* refactor(builder): build preloads in build method ([cbf30ae](https://github.com/eduardoleolim/electron-esbuild/commit/cbf30ae))
+* refactor(develop): copy resources before call develop service ([a2a143d](https://github.com/eduardoleolim/electron-esbuild/commit/a2a143d))
+
+
+
 ## <small>2.7.1 (2024-03-05)</small>
 
+* release: v2.7.1 ([3f299a9](https://github.com/eduardoleolim/electron-esbuild/commit/3f299a9))
 * fix(builder): set browser platform for renderer process ([82921ab](https://github.com/eduardoleolim/electron-esbuild/commit/82921ab))
 * chore: rename esbuild-options variable ([488aabb](https://github.com/eduardoleolim/electron-esbuild/commit/488aabb))
 * feat(develop): implement new electron process starter ([d95aa42](https://github.com/eduardoleolim/electron-esbuild/commit/d95aa42))
