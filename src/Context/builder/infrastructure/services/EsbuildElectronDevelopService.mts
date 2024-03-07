@@ -60,8 +60,6 @@ export class EsbuildElectronDevelopService implements ElectronDevelopService {
   }
 
   async develop(config: ElectronConfig): Promise<void> {
-    await this.copyResources(config.resourceConfigs, config.output);
-
     for (const rendererConfig of config.rendererConfigs) {
       await this.developRenderer(config.output, rendererConfig);
     }
@@ -74,14 +72,14 @@ export class EsbuildElectronDevelopService implements ElectronDevelopService {
   }
 
   private async developMain(output: string, config: MainConfig): Promise<void> {
-    this.mainBuilder.develop(output, config);
+    await this.mainBuilder.develop(output, config);
   }
 
   private async developRenderer(output: string, config: RendererConfig): Promise<void> {
-    this.rendererBuilder.develop(output, config);
+    await this.rendererBuilder.develop(output, config);
   }
 
   private async developPreload(output: string, config: PreloadConfig): Promise<void> {
-    this.preloadBuilder.develop(output, config);
+    await this.preloadBuilder.develop(output, config);
   }
 }
