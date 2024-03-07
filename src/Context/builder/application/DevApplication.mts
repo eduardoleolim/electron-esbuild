@@ -25,6 +25,8 @@ export class DevApplication {
       await this.builder.clean(outputDir);
     }
 
+    await this.builder.copyResources(config.resourceConfigs, config.output);
+
     this.builder.develop(config);
   }
 }
