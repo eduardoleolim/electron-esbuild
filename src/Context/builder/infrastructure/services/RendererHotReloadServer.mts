@@ -55,9 +55,43 @@ export class RendererHotReloadServer {
   private loadServer(): Server {
     const esbuildProxy = httpProxy.createProxyServer({
       target: `http://${this.esbuildHost}:${this.esbuildPort}`,
+      selfHandleResponse: true,
     });
     const hotReloadProxy = httpProxy.createProxyServer({
       target: `http://${this.hotReloadHost}:${this.hotReloadPort}`,
+    });
+
+    esbuildProxy.on('proxyRes', (proxyRes, req, res) => {
+      const bodyChuck: any[] = [];
+      proxyRes.on('data', function (chunk) {
+        bodyChuck.push(chunk);
+      });
+      proxyRes.on('end', function () {
+        if (proxyRes.statusCode == 503) {
+          const body = Buffer.concat(bodyChuck).toString();
+
+          const response = `
+<html>
+  <head>
+    <title>Error 503 - Esbuild Service Unavailable</title>
+  </head>
+  <body>
+    <pre>
+${body}
+    </pre>
+    <script src="/livereload.js?snipver=1"></script>
+  </body>
+</html>`.trim();
+
+          res.writeHead(200, {
+            'Content-Type': 'text/html',
+          });
+          res.end(response);
+        } else {
+          res.writeHead(proxyRes.statusCode!, proxyRes.headers);
+          res.end(Buffer.concat(bodyChuck));
+        }
+      });
     });
 
     const handlers = connect();
