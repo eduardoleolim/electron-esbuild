@@ -1,5 +1,13 @@
+## <small>2.7.3 (2024-03-08)</small>
+
+* fix(develop): maintain fast reload functionality for the renderer server ([166495e](https://github.com/eduardoleolim/electron-esbuild/commit/166495e))
+* feat(develop): implement queue for proper termination of the main process ([ed529af](https://github.com/eduardoleolim/electron-esbuild/commit/ed529af))
+
+
+
 ## <small>2.7.2 (2024-03-07)</small>
 
+* release: v2.7.2 ([7d912c4](https://github.com/eduardoleolim/electron-esbuild/commit/7d912c4))
 * feat: support multiple electron configs again ([7a6ccbb](https://github.com/eduardoleolim/electron-esbuild/commit/7a6ccbb))
 * feat(develop): implement new Renderer server ([429f3c0](https://github.com/eduardoleolim/electron-esbuild/commit/429f3c0))
 * chore: lint code ([c8f2edd](https://github.com/eduardoleolim/electron-esbuild/commit/c8f2edd))
