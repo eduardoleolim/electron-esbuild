@@ -43,11 +43,11 @@ export class MainProcessDispatcher {
 
         return new Promise((resolve, reject) => {
           if (this.isWindows) {
-            this.logger.info('MAIN-PROCESS', 'kill electron process on windows');
             const killProcess = spawn('taskkill', ['/pid', `${electronProcess.pid}`, '/f', '/t']);
 
             killProcess.on('close', () => {
               resolve();
+              this.logger.info('MAIN-PROCESS', `Main Process with pid ${electronProcess.pid} killed in windows`);
             });
 
             killProcess.on('error', (error) => {
@@ -58,6 +58,7 @@ export class MainProcessDispatcher {
 
             electronProcess.on('close', () => {
               resolve();
+              this.logger.info('MAIN-PROCESS', `Main Process with pid ${electronProcess.pid} killed in macOS/linux`);
             });
 
             electronProcess.on('error', (error) => {
