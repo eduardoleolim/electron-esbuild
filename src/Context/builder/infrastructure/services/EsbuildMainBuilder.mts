@@ -13,8 +13,6 @@ export class EsbuildMainBuilder {
   private readonly loaders: ReadonlyArray<string>;
   private readonly dispatcher: MainProcessDispatcher;
   private readonly logger: Logger;
-  private readonly mainProcessQueue: MainProcess[] = [];
-  private requestForFinish = false;
 
   constructor(loaders: ReadonlyArray<string>, logger: Logger) {
     this.loaders = loaders;
@@ -36,7 +34,6 @@ export class EsbuildMainBuilder {
   }
 
   public async develop(output: string, config: MainConfig): Promise<void> {
-    this.mainProcessTerminated();
     let currentProcess: MainProcess | undefined = undefined;
     const context = await this.generateEsbuilContext(output, config);
     let dependencies = this.resolveDependencies(config);
@@ -69,7 +66,7 @@ export class EsbuildMainBuilder {
             watcher.add(dependencies);
 
             if (currentProcess !== undefined) {
-              this.mainProcessQueue.push(currentProcess);
+              this.dispatcher.killProcess(currentProcess);
             }
             currentProcess = this.dispatcher.dispatchProcess(output, config);
           } catch (error: any) {
@@ -79,7 +76,6 @@ export class EsbuildMainBuilder {
       );
 
     process.on('SIGINT', async () => {
-      this.requestForFinish = true;
       await watcher.close();
       await context.cancel();
       await context.dispose();
@@ -143,16 +139,5 @@ export class EsbuildMainBuilder {
         : { ...esbuildOptions.define, 'process.env.NODE_ENV': `"${process.env.NODE_ENV}"` };
 
     return esbuildOptions;
-  }
-
-  private async mainProcessTerminated(): Promise<void> {
-    setInterval(() => {
-      if (this.mainProcessQueue.length > 0 || this.requestForFinish === false) {
-        const process = this.mainProcessQueue.pop();
-        if (process !== undefined) {
-          process.kill();
-        }
-      }
-    }, 1000);
   }
 }

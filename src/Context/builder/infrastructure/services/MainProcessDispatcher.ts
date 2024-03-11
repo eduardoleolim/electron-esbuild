@@ -13,11 +13,19 @@ export class MainProcessDispatcher {
   private readonly logger: Logger;
   private readonly isWindows: boolean;
   private readonly electronBin: string;
+  private readonly mainProcessQueue: MainProcess[];
+  private requestForFinish;
 
   constructor(logger: Logger) {
     this.logger = logger;
     this.isWindows = process.platform === 'win32';
     this.electronBin = this.isWindows ? 'electron.cmd' : 'electron';
+    this.mainProcessQueue = [];
+    this.requestForFinish = false;
+    this.initProcessKiller();
+    process.on('SIGINT', async () => {
+      this.requestForFinish = true;
+    });
   }
 
   dispatchProcess(output: string, config: MainConfig): MainProcess {
@@ -39,36 +47,54 @@ export class MainProcessDispatcher {
     return {
       process: electronProcess,
       kill: () => {
-        electronProcess.removeAllListeners('close');
-
         return new Promise((resolve, reject) => {
+          const onKillComplete = () => {
+            resolve();
+            this.logger.info('MAIN-PROCESS', `Main Process with pid ${electronProcess.pid} killed`);
+          };
+
+          electronProcess.removeAllListeners('close');
+
           if (this.isWindows) {
-            const killProcess = spawn('taskkill', ['/pid', `${electronProcess.pid}`, '/f', '/t']);
-
-            killProcess.on('close', () => {
-              resolve();
-              this.logger.info('MAIN-PROCESS', `Main Process with pid ${electronProcess.pid} killed in windows`);
-            });
-
-            killProcess.on('error', (error) => {
-              reject(error);
-            });
+            this.killProcessWindows(electronProcess, onKillComplete, reject);
           } else {
-            this.logger.info('MAIN-PROCESS', 'kill electron process on macOS/linux');
-
-            electronProcess.on('close', () => {
-              resolve();
-              this.logger.info('MAIN-PROCESS', `Main Process with pid ${electronProcess.pid} killed in macOS/linux`);
-            });
-
-            electronProcess.on('error', (error) => {
-              reject(error);
-            });
-
-            electronProcess.kill();
+            this.killProcessMacOSLinux(electronProcess, onKillComplete, reject);
           }
         });
       },
     };
+  }
+
+  private async initProcessKiller(): Promise<void> {
+    setInterval(() => {
+      if (this.mainProcessQueue.length > 0 || this.requestForFinish === false) {
+        const process = this.mainProcessQueue.pop();
+        if (process !== undefined) {
+          process.kill();
+        }
+      }
+    }, 1000);
+  }
+
+  killProcess(process: MainProcess): void {
+    this.mainProcessQueue.push(process);
+  }
+
+  private killProcessWindows(process: ChildProcess, onKillComplete: () => void, onError: (error: Error) => void): void {
+    const killProcess = spawn('taskkill', ['/pid', `${process.pid}`, '/f', '/t']);
+
+    killProcess.on('close', onKillComplete);
+    killProcess.on('error', onError);
+  }
+
+  private killProcessMacOSLinux(
+    process: ChildProcess,
+    onKillComplete: () => void,
+    onError: (error: Error) => void,
+  ): void {
+    process.on('close', onKillComplete);
+    process.on('error', onError);
+
+    process.kill();
   }
 }
