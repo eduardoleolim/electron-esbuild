@@ -1,0 +1,25 @@
+{
+  "name": "basic-example-js",
+  "version": "1.0.0",
+  "description": "Basic example of using electron-esbuild",
+  "main": "./dist/main/main.js",
+  "scripts": {
+    "start": "electron .",
+    "build": "electron-esbuild build",
+    "dev": "electron-esbuild dev --clean"
+  },
+  "keywords": [
+    "electron",
+    "esbuild",
+    "electron-esbuild",
+    "javascript",
+    "example"
+  ],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "@eduardoleolim/electron-esbuild": "^2.7.3",
+    "electron": "^29.1.1",
+    "esbuild": "^0.20.1"
+  }
+}

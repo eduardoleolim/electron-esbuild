@@ -1,0 +1,13 @@
+output: dist
+main:
+  entry: src/main/main.js
+  output:
+    directory: main
+    filename: main.js
+renderers:
+  devPort: 8080
+  entry: src/renderer/index.js
+  html: src/renderer/index.html
+  output:
+    directory: renderer
+    filename: renderer.js

@@ -231,3 +231,10 @@ The `to` property also can be and object with the following properties:
   }
 ]
 ```
+
+## 📄 Examples
+
+There are some examples in the [examples](https://github.com/eduardoleolim/electron-esbuild/tree/master/examples) directory.
+
+- *[basic-js](https://github.com/eduardoleolim/electron-esbuild/tree/master/examples/basic-js)* - A basic example with javascript using the basic configuration of electron-esbuild.
+- *[basic-ts](https://github.com/eduardoleolim/electron-esbuild/tree/master/examples/basic-ts)* - A basic example with typescript using the basic configuration of electron-esbuild.
