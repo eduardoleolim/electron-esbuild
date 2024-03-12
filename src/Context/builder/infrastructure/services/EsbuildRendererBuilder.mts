@@ -57,6 +57,8 @@ export class EsbuildRendererBuilder {
       this.logger.info('RENDERER-BUILDER', 'Renderer process built');
     } catch (error: any) {
       this.logger.error('RENDERER-BUILDER', error.message);
+    } finally {
+      this.logger.info('RENDERER-BUILDER', 'Watching for changes');
     }
 
     await context.serve(serveOptions);
@@ -90,7 +92,7 @@ export class EsbuildRendererBuilder {
 
   private resolveDependencies(config: RendererConfig): string[] {
     const dependencies = getDependencies(config.entryPoint);
-    dependencies.push(config.htmlEntryPoint);
+    dependencies.push(path.resolve(process.cwd(), config.htmlEntryPoint));
     return dependencies;
   }
 
@@ -176,6 +178,7 @@ export class EsbuildRendererBuilder {
       );
     }
 
+    fs.mkdirSync(path.dirname(htmlOutputDirectory), { recursive: true });
     fs.writeFileSync(htmlOutputDirectory, htmlContent, 'utf-8');
   }
 

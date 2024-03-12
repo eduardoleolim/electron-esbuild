@@ -67,7 +67,8 @@ export class RendererHotReloadServer {
         bodyChuck.push(chunk);
       });
       proxyRes.on('end', function () {
-        if (proxyRes.statusCode == 503) {
+        const statusCode = proxyRes.statusCode;
+        if (statusCode && statusCode > 399 && statusCode < 600) {
           const body = Buffer.concat(bodyChuck).toString();
 
           const response = `
