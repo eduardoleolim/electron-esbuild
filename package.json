@@ -8,7 +8,12 @@
     "lint": "eslint src --quiet --fix",
     "prepare": "husky install",
     "build": "rimraf dist && tsc",
-    "dev": "ts-node src/app/index.ts",
+    "dev:basic-js": "cd examples/basic-js && npm run dev",
+    "build:basic-js": "cd examples/basic-js && npm run build",
+    "dev:basic-ts": "cd examples/basic-ts && npm run dev",
+    "build:basic-ts": "cd examples/basic-ts && npm run build",
+    "dev:svelte-ts": "cd examples/svelte-ts && npm run dev",
+    "build:svelte-ts": "cd examples/svelte-ts && npm run build",
     "test": "jest",
     "changelog": "conventional-changelog -i CHANGELOG.md -s -r 0"
   },

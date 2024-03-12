@@ -1,6 +1,6 @@
-# Basic example with TypeScript
+# Svelte with TypeScript Example
 
-This is a basic example of how to use electron-esbuild with TypeScript.
+This is a basic example of how to use electron-esbuild with TypeScript and Svelte.
 
 ## 🚀 Getting Started
 
@@ -40,6 +40,7 @@ renderers:
   output:
     directory: renderer
     filename: renderer.js
+  esbuild: electron-esbuild.renderer.mjs
 ```
 
 Each section of the configuration file is explained below.
@@ -60,3 +61,55 @@ Each section of the configuration file is explained below.
   - `output`: The output configuration of bundle
     - `directory`: The output directory of the renderer process. It is relative to the `output` property of ElectronConfig
     - `filename`: The output filename of the renderer process
+  - `esbuild`: The esbuild config file for the renderer process. It is relative to the root of the project
+
+  ### 📦 esbuild config
+
+  The file `electron-esbuild.renderer.mjs` is the esbuild config file for the renderer process. For allowing svelte to be used with esbuild, the `esbuild-svelte` package is used.
+
+  Install the `esbuild-svelte` package
+
+  ```bash
+  npm install esbuild-svelte --save-dev
+  ```
+
+  ```javascript
+  import esbuild from 'esbuild';
+  import sveltePlugin from "esbuild-svelte";
+
+  /**
+  * @type {esbuild.BuildOptions}
+  */
+  const config = {
+      plugins: [sveltePlugin()]
+  }
+
+  export default config;
+  ```
+
+  If typescript is used with svelte, it is necessary to add the `svelte-preprocess` plugin to the esbuild config file.
+
+  Install the `svelte-preprocess` package
+
+  ```bash
+  npm install svelte-preprocess --save-dev
+  ```
+
+  Update the esbuild config file
+
+  ```javascript
+  import esbuild from 'esbuild';
+  import sveltePlugin from "esbuild-svelte";
+  import sveltePreprocess from 'svelte-preprocess';
+
+  /**
+   * @type {esbuild.BuildOptions}
+   */
+  const config = {
+      plugins: [sveltePlugin({
+          preprocess: sveltePreprocess()
+      })]
+  }
+
+  export default config;
+  ```

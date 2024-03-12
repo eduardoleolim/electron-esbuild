@@ -1,0 +1,19 @@
+{
+  "compilerOptions": {
+    "module": "Node16",
+    "esModuleInterop": true,
+    "target": "esnext",
+    "noImplicitAny": true,
+    "strictNullChecks": true,
+    "moduleResolution": "Node16",
+    "resolveJsonModule": true,
+    "sourceMap": true,
+    "rootDir": "src",
+    "outDir": "dist",
+    "strict": true,
+    "noEmit": false,
+    "forceConsistentCasingInFileNames": true,
+    "skipLibCheck": true
+  },
+  "include": ["src/**/*"],
+}

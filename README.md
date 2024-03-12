@@ -22,13 +22,11 @@ A package to build your electron app with esbuild.
 ## ✨ Features
 
 - Build your electron app with esbuild
-- Start a dev server for your renderer process
-- Hot reload for dev server
-- Copy extra files to the output directory
-- Support for preload files
-- Support for esbuild loaders
-- Support for exclude libs
-- Support for multiple main, preload and renderer configurations
+- Start a hot reload dev server for your renderer process
+- Copy static files to the output directory
+- Support for preload scripts
+- Support for esbuild loaders and exclude options in each configuration
+- Support for multiple main, preload and renderer configurations.
 
 ## 📥 Installation
 
@@ -238,3 +236,4 @@ There are some examples in the [examples](https://github.com/eduardoleolim/elect
 
 - *[basic-js](https://github.com/eduardoleolim/electron-esbuild/tree/master/examples/basic-js)* - A basic example with javascript using the basic configuration of electron-esbuild.
 - *[basic-ts](https://github.com/eduardoleolim/electron-esbuild/tree/master/examples/basic-ts)* - A basic example with typescript using the basic configuration of electron-esbuild.
+- *[svelte-ts](https://github.com/eduardoleolim/electron-esbuild/tree/master/examples/svelte-ts)* - An example with svelte and typescript using the basic configuration of electron-esbuild. Also, it shows how to use an esbuild config file for the renderer process.
