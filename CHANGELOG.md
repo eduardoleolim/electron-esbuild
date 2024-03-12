@@ -1,5 +1,16 @@
+## <small>2.7.4 (2024-03-12)</small>
+
+* docs: add basic examples ([e12b00f](https://github.com/eduardoleolim/electron-esbuild/commit/e12b00f))
+* docs: add svelte example ([42c383c](https://github.com/eduardoleolim/electron-esbuild/commit/42c383c))
+* fix(renderer): ensure that the html´s dir exists before copying it ([39d2c03](https://github.com/eduardoleolim/electron-esbuild/commit/39d2c03))
+* refactor(builder): move main process killer to main process dispatcher ([b96b0d2](https://github.com/eduardoleolim/electron-esbuild/commit/b96b0d2))
+* refactor(builder): simplify esbuild-options object ([eddf683](https://github.com/eduardoleolim/electron-esbuild/commit/eddf683))
+
+
+
 ## <small>2.7.3 (2024-03-08)</small>
 
+* release: v2.7.3 ([fee0881](https://github.com/eduardoleolim/electron-esbuild/commit/fee0881))
 * fix(develop): maintain fast reload functionality for the renderer server ([166495e](https://github.com/eduardoleolim/electron-esbuild/commit/166495e))
 * feat(develop): implement queue for proper termination of the main process ([ed529af](https://github.com/eduardoleolim/electron-esbuild/commit/ed529af))
 
