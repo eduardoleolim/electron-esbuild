@@ -112,30 +112,31 @@ export class EsbuildRendererBuilder {
       }
     }
 
-    let ebuildOptions: BuildOptions = {};
+    let esbuildOptions: BuildOptions = {};
     if (config.baseConfigEntryPoint !== undefined) {
       try {
-        ebuildOptions = await getEsbuildBaseConfig(config.baseConfigEntryPoint);
-        this.logger.info('MAIN-BUILDER', `Plugins loaded from <${config.baseConfigEntryPoint}>`);
+        esbuildOptions = await getEsbuildBaseConfig(config.baseConfigEntryPoint);
+        this.logger.info('MAIN-RENDERER', `Plugins loaded from <${config.baseConfigEntryPoint}>`);
       } catch (error: any) {
         this.logger.warn('MAIN-BUILDER', error.message);
       }
     }
 
-    ebuildOptions.platform = 'browser';
-    ebuildOptions.entryPoints = [config.entryPoint];
-    ebuildOptions.outfile = outputFileDirectory;
-    ebuildOptions.bundle = true;
-    ebuildOptions.minify = process.env.NODE_ENV !== 'development';
-    ebuildOptions.external = ebuildOptions.external === undefined ? external : [...ebuildOptions.external, ...external];
-    ebuildOptions.loader = ebuildOptions.loader === undefined ? loaders : { ...ebuildOptions.loader, ...loaders };
-    ebuildOptions.sourcemap = process.env.NODE_ENV === 'development' ? 'linked' : false;
-    ebuildOptions.define =
-      ebuildOptions.define === undefined
-        ? { 'process.env.NODE_ENV': `"${process.env.NODE_ENV}"` }
-        : { ...ebuildOptions.define, 'process.env.NODE_ENV': `"${process.env.NODE_ENV}"` };
-
-    return ebuildOptions;
+    return {
+      ...esbuildOptions,
+      platform: 'browser',
+      entryPoints: [config.entryPoint],
+      outfile: outputFileDirectory,
+      bundle: true,
+      minify: process.env.NODE_ENV === 'production',
+      external: esbuildOptions.external === undefined ? external : [...esbuildOptions.external, ...external],
+      loader: esbuildOptions.loader === undefined ? loaders : { ...esbuildOptions.loader, ...loaders },
+      sourcemap: process.env.NODE_ENV === 'production' ? false : 'linked',
+      define:
+        esbuildOptions.define === undefined
+          ? { 'process.env.NODE_ENV': `"${process.env.NODE_ENV}"` }
+          : { ...esbuildOptions.define, 'process.env.NODE_ENV': `"${process.env.NODE_ENV}"` },
+    };
   }
 
   private async copyHtml(output: string, config: RendererConfig): Promise<void> {

@@ -1,6 +1,6 @@
 import chokidar from 'chokidar';
 import debounce from 'debounce';
-import esbuild, { BuildContext, BuildOptions, Plugin } from 'esbuild';
+import esbuild, { BuildContext, BuildOptions } from 'esbuild';
 import path from 'path';
 
 import { PreloadConfig } from '../../../config/domain/PreloadConfig.mjs';
@@ -89,29 +89,30 @@ export class EsbuildPreloadBuilder {
       }
     }
 
-    let ebuildOptions: BuildOptions = {};
+    let esbuildOptions: BuildOptions = {};
     if (config.baseConfigEntryPoint !== undefined) {
       try {
-        ebuildOptions = await getEsbuildBaseConfig(config.baseConfigEntryPoint);
-        this.logger.info('MAIN-BUILDER', `Plugins loaded from <${config.baseConfigEntryPoint}>`);
+        esbuildOptions = await getEsbuildBaseConfig(config.baseConfigEntryPoint);
+        this.logger.info('PRELOAD-BUILDER', `Plugins loaded from <${config.baseConfigEntryPoint}>`);
       } catch (error: any) {
         this.logger.warn('MAIN-BUILDER', error.message);
       }
     }
 
-    ebuildOptions.platform = 'node';
-    ebuildOptions.entryPoints = [config.entryPoint];
-    ebuildOptions.outfile = outputFileDirectory;
-    ebuildOptions.bundle = true;
-    ebuildOptions.minify = process.env.NODE_ENV === 'production';
-    ebuildOptions.external = ebuildOptions.external === undefined ? external : [...ebuildOptions.external, ...external];
-    ebuildOptions.loader = ebuildOptions.loader === undefined ? loaders : { ...ebuildOptions.loader, ...loaders };
-    ebuildOptions.sourcemap = process.env.NODE_ENV === 'development' ? 'linked' : false;
-    ebuildOptions.define =
-      ebuildOptions.define === undefined
-        ? { 'process.env.NODE_ENV': `"${process.env.NODE_ENV}"` }
-        : { ...ebuildOptions.define, 'process.env.NODE_ENV': `"${process.env.NODE_ENV}"` };
-
-    return ebuildOptions;
+    return {
+      ...esbuildOptions,
+      platform: 'node',
+      entryPoints: [config.entryPoint],
+      outfile: outputFileDirectory,
+      bundle: true,
+      minify: process.env.NODE_ENV === 'production',
+      external: esbuildOptions.external === undefined ? external : [...esbuildOptions.external, ...external],
+      loader: esbuildOptions.loader === undefined ? loaders : { ...esbuildOptions.loader, ...loaders },
+      sourcemap: process.env.NODE_ENV === 'production' ? false : 'inline',
+      define:
+        esbuildOptions.define === undefined
+          ? { 'process.env.NODE_ENV': `"${process.env.NODE_ENV}"` }
+          : { ...esbuildOptions.define, 'process.env.NODE_ENV': `"${process.env.NODE_ENV}"` },
+    };
   }
 }

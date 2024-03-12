@@ -124,20 +124,20 @@ export class EsbuildMainBuilder {
       }
     }
 
-    esbuildOptions.platform = 'node';
-    esbuildOptions.entryPoints = [config.entryPoint];
-    esbuildOptions.outfile = outputFileDirectory;
-    esbuildOptions.bundle = true;
-    esbuildOptions.minify = process.env.NODE_ENV === 'production';
-    esbuildOptions.external =
-      esbuildOptions.external === undefined ? external : [...esbuildOptions.external, ...external];
-    esbuildOptions.loader = esbuildOptions.loader === undefined ? loaders : { ...esbuildOptions.loader, ...loaders };
-    esbuildOptions.sourcemap = process.env.NODE_ENV === 'development' ? 'linked' : false;
-    esbuildOptions.define =
-      esbuildOptions.define === undefined
-        ? { 'process.env.NODE_ENV': `"${process.env.NODE_ENV}"` }
-        : { ...esbuildOptions.define, 'process.env.NODE_ENV': `"${process.env.NODE_ENV}"` };
-
-    return esbuildOptions;
+    return {
+      ...esbuildOptions,
+      platform: 'node',
+      entryPoints: [config.entryPoint],
+      outfile: outputFileDirectory,
+      bundle: true,
+      minify: process.env.NODE_ENV === 'production',
+      external: esbuildOptions.external === undefined ? external : [...esbuildOptions.external, ...external],
+      loader: esbuildOptions.loader === undefined ? loaders : { ...esbuildOptions.loader, ...loaders },
+      sourcemap: process.env.NODE_ENV === 'production' ? false : 'linked',
+      define:
+        esbuildOptions.define === undefined
+          ? { 'process.env.NODE_ENV': `"${process.env.NODE_ENV}"` }
+          : { ...esbuildOptions.define, 'process.env.NODE_ENV': `"${process.env.NODE_ENV}"` },
+    };
   }
 }
