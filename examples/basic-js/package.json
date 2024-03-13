@@ -18,7 +18,7 @@
   "author": "",
   "license": "ISC",
   "devDependencies": {
-    "@eduardoleolim/electron-esbuild": "^2.7.3",
+    "@eduardoleolim/electron-esbuild": "^2.7.4",
     "electron": "^29.1.1",
     "esbuild": "^0.20.1"
   }
