@@ -7,7 +7,7 @@ import { MainConfig } from '../../../config/domain/MainConfig.mjs';
 import { Logger } from '../../../shared/domain/Logger.mjs';
 import { getDependencies } from '../../../shared/infrastructure/getDependencies.mjs';
 import { getEsbuildBaseConfig } from '../utils/getEsbuildBaseConfig.mjs';
-import { MainProcess, MainProcessDispatcher } from './MainProcessDispatcher.js';
+import { MainProcess, MainProcessDispatcher } from './MainProcessDispatcher.mjs';
 
 export class EsbuildMainBuilder {
   private readonly loaders: ReadonlyArray<string>;
