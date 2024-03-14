@@ -1,5 +1,14 @@
+## <small>2.7.5 (2024-03-14)</small>
+
+* fix: finish the building task correctly ([f1b955e](https://github.com/eduardoleolim/electron-esbuild/commit/f1b955e))
+* chore: rename main process dispatcher ([8659a81](https://github.com/eduardoleolim/electron-esbuild/commit/8659a81))
+* docs: update electron-esbuild in examples ([638d248](https://github.com/eduardoleolim/electron-esbuild/commit/638d248))
+
+
+
 ## <small>2.7.4 (2024-03-12)</small>
 
+* release: v2.7.4 ([fd1873d](https://github.com/eduardoleolim/electron-esbuild/commit/fd1873d))
 * docs: add basic examples ([e12b00f](https://github.com/eduardoleolim/electron-esbuild/commit/e12b00f))
 * docs: add svelte example ([42c383c](https://github.com/eduardoleolim/electron-esbuild/commit/42c383c))
 * fix(renderer): ensure that the html´s dir exists before copying it ([39d2c03](https://github.com/eduardoleolim/electron-esbuild/commit/39d2c03))

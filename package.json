@@ -1,7 +1,8 @@
 {
   "name": "@eduardoleolim/electron-esbuild",
-  "version": "2.7.4",
+  "version": "2.7.5",
   "description": "Use esbuild with electron",
+  "type": "module",
   "main": "dist/app/index.cjs",
   "scripts": {
     "lint": "eslint src --quiet --fix",
