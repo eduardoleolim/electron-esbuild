@@ -11,12 +11,10 @@ import { MainProcess, MainProcessDispatcher } from './MainProcessDispatcher.mjs'
 
 export class EsbuildMainBuilder {
   private readonly loaders: ReadonlyArray<string>;
-  private readonly dispatcher: MainProcessDispatcher;
   private readonly logger: Logger;
 
   constructor(loaders: ReadonlyArray<string>, logger: Logger) {
     this.loaders = loaders;
-    this.dispatcher = new MainProcessDispatcher(logger);
     this.logger = logger;
   }
 
@@ -38,6 +36,7 @@ export class EsbuildMainBuilder {
     const context = await this.generateEsbuilContext(output, config);
     let dependencies = this.resolveDependencies(config);
     const watcher = chokidar.watch(dependencies);
+    const dispatcher = new MainProcessDispatcher(this.logger);
 
     watcher
       .on('ready', async () => {
@@ -45,7 +44,7 @@ export class EsbuildMainBuilder {
           this.logger.log('MAIN-BUILDER', 'Building main electron process');
           await context.rebuild();
           this.logger.log('MAIN-BUILDER', 'Main process built');
-          currentProcess = this.dispatcher.dispatchProcess(output, config);
+          currentProcess = dispatcher.dispatchProcess(output, config);
         } catch (error: any) {
           this.logger.error('MAIN-BUILDER', error.message);
           this.logger.log('MAIN-BUILDER', 'The main process will not be started');
@@ -66,9 +65,9 @@ export class EsbuildMainBuilder {
             watcher.add(dependencies);
 
             if (currentProcess !== undefined) {
-              this.dispatcher.killProcess(currentProcess);
+              dispatcher.killProcess(currentProcess);
             }
-            currentProcess = this.dispatcher.dispatchProcess(output, config);
+            currentProcess = dispatcher.dispatchProcess(output, config);
           } catch (error: any) {
             this.logger.error('MAIN-BUILDER', error.message);
           }
