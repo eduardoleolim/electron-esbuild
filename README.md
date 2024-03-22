@@ -83,6 +83,7 @@ The electron config has the following properties:
 
 - `output` - Optional. The output directory of your electron app, default: `dist`. It is relative to the root of your project
 - `main` - The main process config
+- `preloads` - Optional. A preload config can be an array of configs or a single config
 - `renderers` - Optional. The renderer process config can be an array of configs or a single config
 - `resources` - Optional. An array of files to copy to the output directory
 
@@ -92,6 +93,9 @@ The electron config has the following properties:
   "main": {
     ...
   },
+  "preloads": [
+    ...
+  ],
   "renderers": [
     ...
   ],
@@ -110,7 +114,6 @@ The main config has the following properties:
   - `directory` - The output directory of your main process. It is relative to the `output` property of ElectronConfig
   - `filename` - The output filename of your main process
 - `esbuild` - Optional. Path to a javascript file exporting esbuild options
-- `preloads` - Optional. A preload config can be an array of configs or a single config
 - `exclude` - Optional. An array of libs that you don't want to bundle
 - `loaders` - Optional. An array of esbuild's loaders for specific files
 
@@ -122,9 +125,6 @@ The main config has the following properties:
     "filename": "filename"
   },
   "esbuild": "<rootProjectDir>/esbuild/config/file",
-  "preloads": [ // or {  }
-    ...
-  ],
   "exclude": [
     ...
   ],
@@ -139,7 +139,7 @@ The main config has the following properties:
 The preload config is composed of the following properties:
 
 - `entry` - The entry file of your preload process
-- `reload` - Optional. If true, main process will be restarted after preload process is reloaded. Default: `false`
+- `renderers` - Optional. An array of indexes of renderer configs that will be used to reload the renderer process when the preload process is updated
 - `output` - The output configuration of bundle
   - `directory` - Optional. The output directory of your preload process. Default: same as `output.directory` of MainConfig
   - `filename` - The output filename of your preload process
@@ -150,6 +150,7 @@ The preload config is composed of the following properties:
 ```json5
 {
   "entry": "<rootProjectDir>/preload/file/directory",
+  "renderers": [0, 1],
   "output": {
     "directory": "<outputDir>/directory",
     "filename": "filename"
