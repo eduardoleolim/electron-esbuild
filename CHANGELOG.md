@@ -1,11 +1,16 @@
 ## 2.8.0 (2024-03-22)
 
+* release: v2.8.0 ([9ca13e4](https://github.com/eduardoleolim/electron-esbuild/commit/9ca13e4))
 * refactor: update config classes according new class diagram ([1d9658a](https://github.com/eduardoleolim/electron-esbuild/commit/1d9658a))
 * refactor(config): change to public methods of parser ([37cbfe5](https://github.com/eduardoleolim/electron-esbuild/commit/37cbfe5))
 * chore: update README ([40f7d4b](https://github.com/eduardoleolim/electron-esbuild/commit/40f7d4b))
 * refactor (constructor): reload the renderer process when the preload source changes. ([58c6a70](https://github.com/eduardoleolim/electron-esbuild/commit/58c6a70))
 * docs: add direct dependency of PreloadConfig on ElectronConfig ([8640024](https://github.com/eduardoleolim/electron-esbuild/commit/8640024))
 
+
+### BREAKING CHANGE
+
+* Reload renderer proncess when reload source change in development mode
 
 
 ## <small>2.7.5 (2024-03-14)</small>
