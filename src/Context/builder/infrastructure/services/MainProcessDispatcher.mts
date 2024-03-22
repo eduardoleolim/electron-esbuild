@@ -22,13 +22,12 @@ export class MainProcessDispatcher {
     this.electronBin = this.isWindows ? 'electron.cmd' : 'electron';
     this.mainProcessQueue = [];
     this.requestForFinish = false;
-    this.initProcessKiller();
     process.on('SIGINT', async () => {
       this.requestForFinish = true;
     });
   }
 
-  dispatchProcess(output: string, config: MainConfig): MainProcess {
+  startMainProcess(output: string, config: MainConfig): MainProcess {
     const entryPath = path.resolve(output, config.output.directory, config.output.filename);
     const electronPath = path.resolve(`node_modules/.bin/${this.electronBin}`);
 
@@ -65,7 +64,7 @@ export class MainProcessDispatcher {
     };
   }
 
-  private async initProcessKiller(): Promise<void> {
+  public async initProcessCollector(): Promise<void> {
     setInterval(() => {
       if (this.mainProcessQueue.length > 0 || this.requestForFinish === false) {
         const process = this.mainProcessQueue.pop();
@@ -76,7 +75,7 @@ export class MainProcessDispatcher {
     }, 1000);
   }
 
-  killProcess(process: MainProcess): void {
+  killMainProcess(process: MainProcess): void {
     this.mainProcessQueue.push(process);
   }
 

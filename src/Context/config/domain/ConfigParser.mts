@@ -22,54 +22,54 @@ export abstract class ConfigParser {
    * @returns {ElectronConfig} - The parsed electron config object
    */
   protected parseElectronConfig(config: any): ElectronConfig {
-    let output: string = './dist'
-    const preloadConfigs: PreloadConfig[] = []
-    const rendererConfigs: RendererConfig[] = []
-    const resourceConfigs: ResourceConfig[] = []
+    let output = './dist';
+    const preloadConfigs: PreloadConfig[] = [];
+    const rendererConfigs: RendererConfig[] = [];
+    const resourceConfigs: ResourceConfig[] = [];
 
     if (typeof config.output === 'string') {
-      output = config.output
+      output = config.output;
     }
 
     if (config.main == undefined) {
-      throw new Error('Main config is required')
+      throw new Error('Main config is required');
     }
 
     if (config.renderers == undefined) {
       throw new Error('Renderer config is required');
     }
 
-    const mainConfig: MainConfig = this.parseMainConfig(config.main)
+    const mainConfig: MainConfig = this.parseMainConfig(config.main);
 
     if (config.preloads !== undefined) {
       if (Array.isArray(config.preloads)) {
         config.preloads.map((config: any) => {
-          preloadConfigs.push(this.parsePreloadConfig(config, mainConfig.output))
-        })
+          preloadConfigs.push(this.parsePreloadConfig(config, mainConfig.output));
+        });
       } else {
-        preloadConfigs.push(this.parsePreloadConfig(config.preloads, mainConfig.output))
+        preloadConfigs.push(this.parsePreloadConfig(config.preloads, mainConfig.output));
       }
     }
-    
+
     if (Array.isArray(config.renderers)) {
       config.renderers.map((config: any) => {
-        rendererConfigs.push(this.parseRendererConfig(config, mainConfig.output))
-      })
+        rendererConfigs.push(this.parseRendererConfig(config, mainConfig.output));
+      });
     } else {
-      rendererConfigs.push(this.parseRendererConfig(config.renderers, mainConfig.output))
+      rendererConfigs.push(this.parseRendererConfig(config.renderers, mainConfig.output));
     }
 
     if (config.resources !== undefined) {
       if (Array.isArray(config.resources)) {
         config.resources.map((config: any) => {
-          resourceConfigs.push(this.parseResourceConfig(config, mainConfig.output.directory))
-        })
+          resourceConfigs.push(this.parseResourceConfig(config, mainConfig.output.directory));
+        });
       } else {
-        resourceConfigs.push(this.parseResourceConfig(config.resources, mainConfig.output.directory))
+        resourceConfigs.push(this.parseResourceConfig(config.resources, mainConfig.output.directory));
       }
     }
-    
-    return new ElectronConfig(output, mainConfig, preloadConfigs, rendererConfigs, resourceConfigs)
+
+    return new ElectronConfig(output, mainConfig, preloadConfigs, rendererConfigs, resourceConfigs);
   }
 
   /**
@@ -79,10 +79,10 @@ export abstract class ConfigParser {
    * @returns {MainConfig} - Main config object
    */
   protected parseMainConfig(config: any): MainConfig {
-    const entryPoint = config.entry
+    const entryPoint = config.entry;
     let baseConfigEntryPoint: string | undefined = undefined;
-    const loaderConfigs: LoaderConfig[] = []
-    const excludeConfigs: string[] = []
+    const loaderConfigs: LoaderConfig[] = [];
+    const excludeConfigs: string[] = [];
 
     if (typeof config.entry !== 'string') {
       throw new Error('Main entry point must be a string');
@@ -97,7 +97,7 @@ export abstract class ConfigParser {
     if (Array.isArray(config.loaders)) {
       config.loaders.map((config: any) => {
         loaderConfigs.push(this.parseLoaderConfig(config));
-      })
+      });
     } else if (config.loaders != undefined) {
       throw new Error('Main loaders must be an array');
     }
@@ -109,7 +109,7 @@ export abstract class ConfigParser {
         }
 
         excludeConfigs.push(exclude);
-      })
+      });
     } else if (config.exclude != undefined) {
       throw new Error('Main exclude must be an array');
     }
@@ -122,7 +122,7 @@ export abstract class ConfigParser {
       baseConfigEntryPoint = config.esbuild;
     }
 
-    return new MainConfig(entryPoint, outputConfig, loaderConfigs, excludeConfigs, baseConfigEntryPoint)
+    return new MainConfig(entryPoint, outputConfig, loaderConfigs, excludeConfigs, baseConfigEntryPoint);
   }
 
   /**
@@ -132,14 +132,14 @@ export abstract class ConfigParser {
    * @throws {Error} - If the config is not valid
    */
   protected parseRendererConfig(config: any, defaultOutputConfig: OutputConfig): RendererConfig {
-    const htmlEntryPoint = config.html
-    const entryPoint = config.entry
-    const output = config.output
-    const devPort = config.devPort
+    const htmlEntryPoint = config.html;
+    const entryPoint = config.entry;
+    const output = config.output;
+    const devPort = config.devPort;
     let baseConfigEntryPoint: string | undefined = undefined;
-    let outputConfig: OutputConfig
-    const loaderConfigs: LoaderConfig[] = []
-    const excludeConfigs: string[] = []
+    let outputConfig: OutputConfig;
+    const loaderConfigs: LoaderConfig[] = [];
+    const excludeConfigs: string[] = [];
 
     if (typeof htmlEntryPoint !== 'string') {
       throw new Error('Renderer HTML point is required');
@@ -157,16 +157,16 @@ export abstract class ConfigParser {
       throw new Error('Renderer output is required');
     } else {
       if (output.directory === undefined) {
-        output.directory = defaultOutputConfig.directory
+        output.directory = defaultOutputConfig.directory;
       }
-      
+
       outputConfig = this.parseOutputConfig(output);
     }
 
     if (Array.isArray(config.loaders)) {
       config.loaders.map((config: any) => {
         loaderConfigs.push(this.parseLoaderConfig(config));
-      })
+      });
     } else if (config.loaders != undefined) {
       throw new Error('Main loaders must be an array');
     }
@@ -178,7 +178,7 @@ export abstract class ConfigParser {
         }
 
         excludeConfigs.push(exclude);
-      })
+      });
     } else if (config.exclude != undefined) {
       throw new Error('Main exclude must be an array');
     }
@@ -191,17 +191,25 @@ export abstract class ConfigParser {
       baseConfigEntryPoint = config.esbuild;
     }
 
-    return new RendererConfig(htmlEntryPoint, entryPoint, outputConfig, loaderConfigs,excludeConfigs,devPort, baseConfigEntryPoint);
+    return new RendererConfig(
+      htmlEntryPoint,
+      entryPoint,
+      outputConfig,
+      loaderConfigs,
+      excludeConfigs,
+      devPort,
+      baseConfigEntryPoint,
+    );
   }
 
   protected parsePreloadConfig(config: any, defaultOutputConfig: OutputConfig): PreloadConfig {
-    const entryPoint = config.entry
-    const output = config.output
+    const entryPoint = config.entry;
+    const output = config.output;
     let baseConfigEntryPoint: string | undefined = undefined;
-    let outputConfig: OutputConfig
-    const rendererProcesses: number[] = []
-    const loaderConfigs: LoaderConfig[] = []
-    const excludeConfigs: string[] = []
+    let outputConfig: OutputConfig;
+    const rendererProcesses: number[] = [];
+    const loaderConfigs: LoaderConfig[] = [];
+    const excludeConfigs: string[] = [];
 
     if (typeof entryPoint !== 'string') {
       throw new Error('Preload entry must be a string');
@@ -211,28 +219,28 @@ export abstract class ConfigParser {
       throw new Error('Preload output is required');
     } else {
       if (output.directory === undefined) {
-        output.directory = defaultOutputConfig.directory
+        output.directory = defaultOutputConfig.directory;
       }
-      
+
       outputConfig = this.parseOutputConfig(output);
     }
 
-    if (Array.isArray(config.rendererProcesses)) {
-      config.rendererProcesses.map((process: any) => {
-        if (typeof process !== 'number') {
+    if (Array.isArray(config.renderers)) {
+      config.renderers.map((renderer: any) => {
+        if (typeof renderer !== 'number') {
           throw new Error('Renderer process must be a number');
         }
 
-        rendererProcesses.push(process);
-      })
-    } else if (config.rendererProcesses != undefined) {
+        rendererProcesses.push(renderer);
+      });
+    } else if (config.renderers != undefined) {
       throw new Error('Renderer processes must be an array');
     }
 
     if (Array.isArray(config.loaders)) {
       config.loaders.map((config: any) => {
         loaderConfigs.push(this.parseLoaderConfig(config));
-      })
+      });
     } else if (config.loaders != undefined) {
       throw new Error('Main loaders must be an array');
     }
@@ -244,7 +252,7 @@ export abstract class ConfigParser {
         }
 
         excludeConfigs.push(exclude);
-      })
+      });
     } else if (config.exclude != undefined) {
       throw new Error('Main exclude must be an array');
     }
@@ -257,7 +265,14 @@ export abstract class ConfigParser {
       baseConfigEntryPoint = config.esbuild;
     }
 
-    return new PreloadConfig(entryPoint, outputConfig, rendererProcesses, loaderConfigs, excludeConfigs, baseConfigEntryPoint)
+    return new PreloadConfig(
+      entryPoint,
+      outputConfig,
+      rendererProcesses,
+      loaderConfigs,
+      excludeConfigs,
+      baseConfigEntryPoint,
+    );
   }
 
   protected parseResourceConfig(config: any, defaultOutputDirectory: string): ResourceConfig {
@@ -265,7 +280,7 @@ export abstract class ConfigParser {
       return new SimpleResourceConfig(config, defaultOutputDirectory);
     }
 
-    if (typeof config.from !== 'string'){
+    if (typeof config.from !== 'string') {
       throw new Error('Resource from must be a string');
     }
 
@@ -276,8 +291,8 @@ export abstract class ConfigParser {
       return new SimpleResourceConfig(config.from, config.to);
     }
 
-      const outputConfig: OutputConfig = this.parseOutputConfig(config.to);
-      return new CustomResourceConfig(config.from, outputConfig);
+    const outputConfig: OutputConfig = this.parseOutputConfig(config.to);
+    return new CustomResourceConfig(config.from, outputConfig);
   }
 
   parseLoaderConfig(loaderConfig: any): LoaderConfig {
@@ -297,7 +312,7 @@ export abstract class ConfigParser {
       throw new Error('Output directory must be a string');
     }
 
-    if (typeof outputConfig.filename !== 'string'){
+    if (typeof outputConfig.filename !== 'string') {
       throw new Error('Output file name must be a string');
     }
 

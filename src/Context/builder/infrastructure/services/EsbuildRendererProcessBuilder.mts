@@ -2,14 +2,16 @@ import esbuild, { BuildContext, BuildOptions, ServeOptions } from 'esbuild';
 import * as fs from 'fs';
 import path from 'path';
 
+import debounce from 'debounce';
 import { RendererConfig } from '../../../config/domain/RendererConfig.mjs';
 import { Logger } from '../../../shared/domain/Logger.mjs';
 import { findFreePort } from '../../../shared/infrastructure/findFreePort.mjs';
 import { getDependencies } from '../../../shared/infrastructure/getDependencies.mjs';
+import { RendererProcessBuilderService } from '../../domain/RendererProcessBuilderService.mjs';
 import { getEsbuildBaseConfig } from '../utils/getEsbuildBaseConfig.mjs';
 import { RendererHotReloadServer, RendererHotReloadServerOptions } from './RendererHotReloadServer.mjs';
 
-export class EsbuildRendererBuilder {
+export class EsbuildRendererProcessBuilder implements RendererProcessBuilderService {
   private readonly loaders: ReadonlyArray<string>;
   private readonly logger: Logger;
 
@@ -32,12 +34,12 @@ export class EsbuildRendererBuilder {
     }
   }
 
-  public async develop(output: string, config: RendererConfig): Promise<void> {
+  public async develop(output: string, config: RendererConfig, preloadEntryPoints: string[]): Promise<void> {
     const context = await this.generateEsbuilContext(output, config);
     const host = '127.0.0.1';
     const portContext = await findFreePort(10000, true);
     const hotReloadPort = await findFreePort(35729, true);
-    let dependencies = this.resolveDependencies(config);
+    let dependencies = this.resolveDependencies(config, preloadEntryPoints);
     const outputDirectory = path.resolve(output, config.output.directory);
     const serveOptions: ServeOptions = {
       port: portContext,
@@ -68,15 +70,15 @@ export class EsbuildRendererBuilder {
     watcher.on('ready', async () => {
       await this.copyHtmlInDevelop(output, config);
 
-      watcher.on('change', async () => {
+      watcher.on('change', debounce(async () => {
         await this.copyHtmlInDevelop(output, config);
         watcher.unwatch(dependencies);
-        dependencies = this.resolveDependencies(config);
+        dependencies = this.resolveDependencies(config, preloadEntryPoints);
         watcher.add(dependencies);
 
         hotReloadServer.refresh();
         this.logger.info('RENDERER-BUILDER', 'Change in renderer source detected');
-      });
+      },1000));
     });
 
     await this.copyHtmlInDevelop(output, config);
@@ -90,9 +92,14 @@ export class EsbuildRendererBuilder {
     });
   }
 
-  private resolveDependencies(config: RendererConfig): string[] {
+  private resolveDependencies(config: RendererConfig, preloadEntryPoints: string[]): string[] {
     const dependencies = getDependencies(config.entryPoint);
     dependencies.push(path.resolve(process.cwd(), config.htmlEntryPoint));
+
+    for (const preloadEntryPoint of preloadEntryPoints) {
+      dependencies.push(...getDependencies(preloadEntryPoint));
+    }
+
     return dependencies;
   }
 

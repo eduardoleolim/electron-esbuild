@@ -5,11 +5,9 @@ import { fileURLToPath } from 'url';
 
 import { BuildApplication } from '../../Context/builder/application/BuildApplication.mjs';
 import { DevApplication } from '../../Context/builder/application/DevApplication.mjs';
-import { EsbuildElectronBuildService } from '../../Context/builder/infrastructure/services/EsbuildElectronBuildService.mjs';
-import { EsbuildElectronDevelopService } from '../../Context/builder/infrastructure/services/EsbuildElectronDevelopService.mjs';
-import { EsbuildMainBuilder } from '../../Context/builder/infrastructure/services/EsbuildMainBuilder.mjs';
+import { EsbuildMainProcessBuilder } from '../../Context/builder/infrastructure/services/EsbuildMainProcessBuilder.mjs';
 import { EsbuildPreloadBuilder } from '../../Context/builder/infrastructure/services/EsbuildPreloadBuilder.mjs';
-import { EsbuildRendererBuilder } from '../../Context/builder/infrastructure/services/EsbuildRendererBuilder.mjs';
+import { EsbuildRendererProcessBuilder } from '../../Context/builder/infrastructure/services/EsbuildRendererProcessBuilder.mjs';
 import { JsonElectronConfigParser } from '../../Context/config/infrastructure/JsonElectronConfigParser.mjs';
 import { YamlElectronConfigParser } from '../../Context/config/infrastructure/YamlElectronConfigParser.mjs';
 import { Logger } from '../../Context/shared/domain/Logger.mjs';
@@ -46,17 +44,15 @@ export class CommandLine {
     const jsonParser = new JsonElectronConfigParser();
     const yamlParser = new YamlElectronConfigParser();
 
-    const mainBuilder = new EsbuildMainBuilder(loaders, logger);
+    const mainBuilder = new EsbuildMainProcessBuilder(loaders, logger);
     const preloadBuilder = new EsbuildPreloadBuilder(loaders, logger);
-    const rendererBuilder = new EsbuildRendererBuilder(loaders, logger);
-    const buildService = new EsbuildElectronBuildService(mainBuilder, preloadBuilder, rendererBuilder, logger);
-    const developService = new EsbuildElectronDevelopService(mainBuilder, preloadBuilder, rendererBuilder, logger);
+    const rendererBuilder = new EsbuildRendererProcessBuilder(loaders, logger);
 
-    this.jsonEsbuildDev = new DevApplication(jsonParser, developService, logger);
-    this.jsonEsbuildBuild = new BuildApplication(jsonParser, buildService, logger);
+    this.jsonEsbuildDev = new DevApplication(jsonParser, mainBuilder, rendererBuilder, preloadBuilder, logger);
+    this.jsonEsbuildBuild = new BuildApplication(jsonParser, mainBuilder, rendererBuilder, preloadBuilder, logger);
 
-    this.yamlEsbuildDev = new DevApplication(yamlParser, developService, logger);
-    this.yamlEsbuildBuild = new BuildApplication(yamlParser, buildService, logger);
+    this.yamlEsbuildDev = new DevApplication(yamlParser, mainBuilder, rendererBuilder, preloadBuilder, logger);
+    this.yamlEsbuildBuild = new BuildApplication(yamlParser, mainBuilder, rendererBuilder, preloadBuilder, logger);
   }
 
   private loadCommands(): void {
@@ -81,11 +77,11 @@ export class CommandLine {
 
             switch (extension) {
               case '.json':
-                this.jsonEsbuildDev.dev(pathConfig, options.clean || false);
+                this.jsonEsbuildDev.develop(pathConfig, options.clean || false);
                 break;
               case '.yml':
               case '.yaml':
-                this.yamlEsbuildDev.dev(pathConfig, options.clean || false);
+                this.yamlEsbuildDev.develop(pathConfig, options.clean || false);
                 break;
               default:
                 this.logger.warn('CLI', 'Config file not supported');

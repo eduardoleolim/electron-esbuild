@@ -6,9 +6,10 @@ import path from 'path';
 import { PreloadConfig } from '../../../config/domain/PreloadConfig.mjs';
 import { Logger } from '../../../shared/domain/Logger.mjs';
 import { getDependencies } from '../../../shared/infrastructure/getDependencies.mjs';
+import { PreloadBuilderService } from '../../domain/PreloadBuilderService.mjs';
 import { getEsbuildBaseConfig } from '../utils/getEsbuildBaseConfig.mjs';
 
-export class EsbuildPreloadBuilder {
+export class EsbuildPreloadBuilder implements PreloadBuilderService {
   private readonly loaders: ReadonlyArray<string>;
   private readonly logger: Logger;
 
@@ -61,7 +62,7 @@ export class EsbuildPreloadBuilder {
           } catch (error: any) {
             this.logger.error('PRELOAD-BUILDER', error.message);
           }
-        }, 1000),
+        }, 500),
       );
 
     process.on('SIGINT', async () => {

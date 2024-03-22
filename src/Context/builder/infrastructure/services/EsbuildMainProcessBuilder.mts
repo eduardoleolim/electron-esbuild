@@ -6,16 +6,19 @@ import * as path from 'path';
 import { MainConfig } from '../../../config/domain/MainConfig.mjs';
 import { Logger } from '../../../shared/domain/Logger.mjs';
 import { getDependencies } from '../../../shared/infrastructure/getDependencies.mjs';
+import { MainProcessBuilderService } from '../../domain/MainProcessBuilderService.mjs';
 import { getEsbuildBaseConfig } from '../utils/getEsbuildBaseConfig.mjs';
 import { MainProcess, MainProcessDispatcher } from './MainProcessDispatcher.mjs';
 
-export class EsbuildMainBuilder {
+export class EsbuildMainProcessBuilder implements MainProcessBuilderService {
   private readonly loaders: ReadonlyArray<string>;
+  private readonly mainProcessDispatcher: MainProcessDispatcher;
   private readonly logger: Logger;
 
   constructor(loaders: ReadonlyArray<string>, logger: Logger) {
     this.loaders = loaders;
     this.logger = logger;
+    this.mainProcessDispatcher = new MainProcessDispatcher(this.logger);
   }
 
   public async build(output: string, config: MainConfig): Promise<void> {
@@ -36,7 +39,7 @@ export class EsbuildMainBuilder {
     const context = await this.generateEsbuilContext(output, config);
     let dependencies = this.resolveDependencies(config);
     const watcher = chokidar.watch(dependencies);
-    const dispatcher = new MainProcessDispatcher(this.logger);
+    await this.mainProcessDispatcher.initProcessCollector()
 
     watcher
       .on('ready', async () => {
@@ -44,7 +47,7 @@ export class EsbuildMainBuilder {
           this.logger.log('MAIN-BUILDER', 'Building main electron process');
           await context.rebuild();
           this.logger.log('MAIN-BUILDER', 'Main process built');
-          currentProcess = dispatcher.dispatchProcess(output, config);
+          currentProcess = this.mainProcessDispatcher.startMainProcess(output, config);
         } catch (error: any) {
           this.logger.error('MAIN-BUILDER', error.message);
           this.logger.log('MAIN-BUILDER', 'The main process will not be started');
@@ -65,9 +68,9 @@ export class EsbuildMainBuilder {
             watcher.add(dependencies);
 
             if (currentProcess !== undefined) {
-              dispatcher.killProcess(currentProcess);
+              this.mainProcessDispatcher.killMainProcess(currentProcess);
             }
-            currentProcess = dispatcher.dispatchProcess(output, config);
+            currentProcess = this.mainProcessDispatcher.startMainProcess(output, config);
           } catch (error: any) {
             this.logger.error('MAIN-BUILDER', error.message);
           }
@@ -84,13 +87,6 @@ export class EsbuildMainBuilder {
   private resolveDependencies(config: MainConfig): string[] {
     const dependencies: string[] = [];
     dependencies.push(...getDependencies(path.resolve(config.entryPoint)));
-
-    config.preloadConfigs.forEach((preloadConfig) => {
-      if (preloadConfig.reloadMainProcess) {
-        const preloadDependencies = getDependencies(path.resolve(preloadConfig.entryPoint));
-        dependencies.push(...preloadDependencies);
-      }
-    });
 
     return dependencies;
   }

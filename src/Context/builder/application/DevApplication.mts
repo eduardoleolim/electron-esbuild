@@ -1,34 +1,75 @@
 import path from 'path';
 
-import { ElectronConfigParser } from '../../config/domain/ElectronConfigParser.mjs';
+import { ConfigParser } from '../../config/domain/ConfigParser.mjs';
+import { MainConfig } from '../../config/domain/MainConfig.mjs';
+import { PreloadConfig } from '../../config/domain/PreloadConfig.mjs';
+import { RendererConfig } from '../../config/domain/RendererConfig.mjs';
 import { Logger } from '../../shared/domain/Logger.mjs';
-import { ElectronDevelopService } from '../domain/ElectronDevelopService.mjs';
+import { MainProcessBuilderService } from '../domain/MainProcessBuilderService.mjs';
+import { PreloadBuilderService } from '../domain/PreloadBuilderService.mjs';
+import { RendererProcessBuilderService } from '../domain/RendererProcessBuilderService.mjs';
+import { BaseApplication } from './BaseApplication.mjs';
 
-export class DevApplication {
-  private readonly parser: ElectronConfigParser;
-  private readonly builder: ElectronDevelopService;
-  private readonly logger: Logger;
+export class DevApplication extends BaseApplication {
+  private readonly configParser: ConfigParser;
+  private readonly mainBuilder: MainProcessBuilderService;
+  private readonly rendererBuilder: RendererProcessBuilderService;
+  private readonly preloadBuilder: PreloadBuilderService;
 
-  constructor(parser: ElectronConfigParser, builder: ElectronDevelopService, logger: Logger) {
-    this.parser = parser;
-    this.builder = builder;
-    this.logger = logger;
+  constructor(
+    configParser: ConfigParser,
+    mainBuilder: MainProcessBuilderService,
+    rendererBuilder: RendererProcessBuilderService,
+    preloadBuilder: PreloadBuilderService,
+    logger: Logger,
+  ) {
+    super(logger);
+    this.configParser = configParser;
+    this.mainBuilder = mainBuilder;
+    this.rendererBuilder = rendererBuilder;
+    this.preloadBuilder = preloadBuilder;
   }
 
-  async dev(configPath: string, clean: boolean): Promise<void> {
-    this.logger.log('DEV', 'Starting dev mode');
-    const configs = this.parser.parse(configPath);
+  public async develop(configEntryPoint: string, clean: boolean): Promise<void> {
+    const configs = this.configParser.parse(configEntryPoint);
 
     for (const config of configs) {
       if (clean) {
-        const outputDir = path.resolve(process.cwd(), config.output);
-
-        await this.builder.clean(outputDir);
+        await this.clean(config.output);
       }
 
-      await this.builder.copyResources(config.resourceConfigs, config.output);
+      await this.copyResources(config.output, config.resourceConfigs);
 
-      this.builder.develop(config);
+      for (const preloadConfig of config.preloadConfigs) {
+        await this.developPreload(config.output, preloadConfig);
+      }
+
+      for (const rendererConfig of config.rendererConfigs) {
+        const rendererIndex: number = config.rendererConfigs.indexOf(rendererConfig);
+        const preloadEntryPoints: string[] = config.preloadConfigs
+          .filter((preloadConfig) => preloadConfig.rendererProcesses.includes(rendererIndex))
+          .map((preloadConfig) => preloadConfig.entryPoint);
+
+        await this.developRenderer(config.output, rendererConfig, preloadEntryPoints);
+      }
+
+      await this.developMain(config.output, config.mainConfig);
     }
+  }
+
+  private async developMain(outputDirectory: string, config: MainConfig): Promise<void> {
+    await this.mainBuilder.develop(outputDirectory, config);
+  }
+
+  private async developPreload(outputDirectory: string, config: PreloadConfig): Promise<void> {
+    await this.preloadBuilder.develop(outputDirectory, config);
+  }
+
+  private async developRenderer(
+    outputDirectory: string,
+    config: RendererConfig,
+    preloadEntryPoints: string[],
+  ): Promise<void> {
+    await this.rendererBuilder.develop(outputDirectory, config, preloadEntryPoints);
   }
 }
