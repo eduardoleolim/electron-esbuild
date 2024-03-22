@@ -21,7 +21,7 @@ export abstract class ConfigParser {
    * @throws {Error} - If the config is not valid
    * @returns {ElectronConfig} - The parsed electron config object
    */
-  protected parseElectronConfig(config: any): ElectronConfig {
+  public parseElectronConfig(config: any): ElectronConfig {
     let output = './dist';
     const preloadConfigs: PreloadConfig[] = [];
     const rendererConfigs: RendererConfig[] = [];
@@ -78,7 +78,7 @@ export abstract class ConfigParser {
    * @throws {Error} - If the config is not valid
    * @returns {MainConfig} - Main config object
    */
-  protected parseMainConfig(config: any): MainConfig {
+  public parseMainConfig(config: any): MainConfig {
     const entryPoint = config.entry;
     let baseConfigEntryPoint: string | undefined = undefined;
     const loaderConfigs: LoaderConfig[] = [];
@@ -131,7 +131,7 @@ export abstract class ConfigParser {
    * @param {OutputConfig} defaultOutputConfig - Default output config
    * @throws {Error} - If the config is not valid
    */
-  protected parseRendererConfig(config: any, defaultOutputConfig: OutputConfig): RendererConfig {
+  public parseRendererConfig(config: any, defaultOutputConfig: OutputConfig): RendererConfig {
     const htmlEntryPoint = config.html;
     const entryPoint = config.entry;
     const output = config.output;
@@ -202,7 +202,7 @@ export abstract class ConfigParser {
     );
   }
 
-  protected parsePreloadConfig(config: any, defaultOutputConfig: OutputConfig): PreloadConfig {
+  public parsePreloadConfig(config: any, defaultOutputConfig: OutputConfig): PreloadConfig {
     const entryPoint = config.entry;
     const output = config.output;
     let baseConfigEntryPoint: string | undefined = undefined;
@@ -275,7 +275,7 @@ export abstract class ConfigParser {
     );
   }
 
-  protected parseResourceConfig(config: any, defaultOutputDirectory: string): ResourceConfig {
+  public parseResourceConfig(config: any, defaultOutputDirectory: string): ResourceConfig {
     if (typeof config === 'string') {
       return new SimpleResourceConfig(config, defaultOutputDirectory);
     }
@@ -307,7 +307,7 @@ export abstract class ConfigParser {
     return new LoaderConfig(loaderConfig.extension, loaderConfig.loader);
   }
 
-  protected parseOutputConfig(outputConfig: any): OutputConfig {
+  public parseOutputConfig(outputConfig: any): OutputConfig {
     if (typeof outputConfig.directory !== 'string') {
       throw new Error('Output directory must be a string');
     }
