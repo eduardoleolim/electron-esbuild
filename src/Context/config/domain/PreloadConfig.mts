@@ -3,17 +3,17 @@ import { LoaderConfig } from './LoaderConfig.mjs';
 import { OutputConfig } from './OutputConfig.mjs';
 
 export class PreloadConfig extends BaseConfig {
-  readonly reloadMainProcess: boolean;
+  readonly rendererProcesses: number[];
 
   constructor(
     entryPoint: string,
     output: OutputConfig,
-    reloadMainProcess: boolean,
+    rendererProcesses: number[],
     loaderConfigs: LoaderConfig[],
     excludedLibraries: string[],
     baseConfigEntryPoint?: string,
   ) {
     super(entryPoint, output, loaderConfigs, excludedLibraries, baseConfigEntryPoint);
-    this.reloadMainProcess = reloadMainProcess;
+    this.rendererProcesses = rendererProcesses;
   }
 }
