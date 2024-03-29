@@ -33,7 +33,7 @@ export class MainProcessDispatcher {
 
     this.logger.log('MAIN-PROCESS', 'Starting main process');
 
-    const electronProcess = spawn(electronPath, [entryPath], { stdio: 'inherit' }).on('close', (code, signal) => {
+    const electronProcess = spawn(electronPath, [entryPath, ...config.args], { stdio: 'inherit' }).on('close', (code, signal) => {
       if (code === null) {
         this.logger.error('MAIN-PROCESS', `Main Process exited with signal ${signal}`);
         process.exit(1);

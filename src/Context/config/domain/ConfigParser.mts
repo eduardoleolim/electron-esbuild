@@ -83,9 +83,22 @@ export abstract class ConfigParser {
     let baseConfigEntryPoint: string | undefined = undefined;
     const loaderConfigs: LoaderConfig[] = [];
     const excludeConfigs: string[] = [];
+    const args: string[] = []
 
     if (typeof config.entry !== 'string') {
       throw new Error('Main entry point must be a string');
+    }
+
+    if (config.args != undefined) {
+      if (Array.isArray(config.args)) {
+        if (config.args.some((arg: any) => typeof arg !== 'string')) {
+          throw new Error('Main args must be an array of strings');
+        }
+
+        args.push(...config.args);
+      } else {
+        throw new Error('Main args must be an array');
+      }
     }
 
     if (config.output == undefined) {
@@ -122,7 +135,7 @@ export abstract class ConfigParser {
       baseConfigEntryPoint = config.esbuild;
     }
 
-    return new MainConfig(entryPoint, outputConfig, loaderConfigs, excludeConfigs, baseConfigEntryPoint);
+    return new MainConfig(entryPoint, args, outputConfig, loaderConfigs, excludeConfigs, baseConfigEntryPoint);
   }
 
   /**
