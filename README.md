@@ -110,6 +110,7 @@ The electron config has the following properties:
 The main config has the following properties:
 
 - `entry` - The entry file of your main process
+- `args` - Optional. The arguments to pass to the main process
 - `output` - The output configuration of bundle
   - `directory` - The output directory of your main process. It is relative to the `output` property of ElectronConfig
   - `filename` - The output filename of your main process
@@ -120,6 +121,9 @@ The main config has the following properties:
 ```json5
 {
   "entry": "<rootProjectDir>/main/file/directory",
+  "args": [
+    ...
+  ],
   "output": {
     "directory": "<outputDir>/directory",
     "filename": "filename"
