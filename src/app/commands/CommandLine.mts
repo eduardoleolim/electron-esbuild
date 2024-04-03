@@ -73,6 +73,8 @@ export class CommandLine {
 
         (async () => {
           try {
+            let isUsingVite
+            const clean = options.clean || false;
             const pathConfig = this.prepareConfigPath(options.config);
             const extension = path.extname(pathConfig);
             let parser: ConfigParser
@@ -88,12 +90,14 @@ export class CommandLine {
 
             if (options.vite) {
               rendererBuilder = this.viteRendererBuilder;
+              isUsingVite = true
             } else {
               rendererBuilder = this.esbuildRendererBuilder;
+              isUsingVite = false
             }
             
             const devApplication = new DevApplication(parser, this.esbuildMainBuilder, rendererBuilder, this.esbuildPreloadBuilder, this.logger);
-            await devApplication.develop(pathConfig, options.clean || false);
+            await devApplication.develop(pathConfig, clean, isUsingVite);
           } catch (error: any) {
             this.logger.error('CLI', error.message);
           }
@@ -109,6 +113,7 @@ export class CommandLine {
 
         (async () => {
           try {
+            let isUsingVite
             const pathConfig = this.prepareConfigPath(options.config);
             const extension = path.extname(pathConfig);
             let parser: ConfigParser
@@ -124,12 +129,14 @@ export class CommandLine {
 
             if (options.vite) {
               rendererBuilder = this.viteRendererBuilder;
+              isUsingVite = true
             } else {
               rendererBuilder = this.esbuildRendererBuilder;
+              isUsingVite = false
             }
 
             const buildApplication = new BuildApplication(parser, this.esbuildMainBuilder, rendererBuilder, this.esbuildPreloadBuilder, this.logger);
-            await buildApplication.build(pathConfig, true);
+            await buildApplication.build(pathConfig, true, isUsingVite);
           } catch (error: any) {
             this.logger.error('CLI', error.message);
           }

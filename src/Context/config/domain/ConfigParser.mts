@@ -10,18 +10,20 @@ export abstract class ConfigParser {
   /**
    * Parse a file and return the parsed object
    * @param {string} sourcePath - The path to the file to parse
+   * @param {boolean} isUsingVite - Indicates if the project must use Vite
    * @throws {Error} - If the source is not valid
    * @returns {ElectronConfig[]} - The parsed object
    */
-  abstract parse(sourcePath: string): ElectronConfig[];
+  abstract parse(sourcePath: string, isUsingVite: boolean): ElectronConfig[];
 
   /**
    * Parse the electron config object
    * @param {any} config - The electron config object
+   * @param {boolean} isUsingVite - Indicates if the project must use Vite
    * @throws {Error} - If the config is not valid
    * @returns {ElectronConfig} - The parsed electron config object
    */
-  public parseElectronConfig(config: any): ElectronConfig {
+  public parseElectronConfig(config: any, isUsingVite: boolean): ElectronConfig {
     let output = './dist';
     const preloadConfigs: PreloadConfig[] = [];
     const rendererConfigs: RendererConfig[] = [];
@@ -53,10 +55,10 @@ export abstract class ConfigParser {
 
     if (Array.isArray(config.renderers)) {
       config.renderers.map((config: any) => {
-        rendererConfigs.push(this.parseRendererConfig(config, mainConfig.output));
+        rendererConfigs.push(this.parseRendererConfig(config, mainConfig.output, isUsingVite));
       });
     } else {
-      rendererConfigs.push(this.parseRendererConfig(config.renderers, mainConfig.output));
+      rendererConfigs.push(this.parseRendererConfig(config.renderers, mainConfig.output, isUsingVite));
     }
 
     if (config.resources !== undefined) {
@@ -142,11 +144,12 @@ export abstract class ConfigParser {
    * Parses the renderer config object from the object
    * @param {any} config - Renderer config object
    * @param {OutputConfig} defaultOutputConfig - Default output config
+   * @param {boolean} isUsingVite - Indicates if the project must use Vite
    * @throws {Error} - If the config is not valid
    */
-  public parseRendererConfig(config: any, defaultOutputConfig: OutputConfig): RendererConfig {
+  public parseRendererConfig(config: any, defaultOutputConfig: OutputConfig, isUsingVite: boolean): RendererConfig {
     const htmlEntryPoint = config.html;
-    const entryPoint = config.entry;
+    const entryPoint = isUsingVite ? config.html : config.entry; // Vite uses HTML as entry point
     const output = config.output;
     const devPort = config.devPort;
     let baseConfigEntryPoint: string | undefined = undefined;
@@ -158,7 +161,7 @@ export abstract class ConfigParser {
       throw new Error('Renderer HTML point is required');
     }
 
-    if (typeof entryPoint !== 'string') {
+    if (isUsingVite === false && typeof entryPoint !== 'string') {
       throw new Error('Renderer entry must be a string');
     }
 

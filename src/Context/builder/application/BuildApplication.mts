@@ -28,8 +28,8 @@ export class BuildApplication extends BaseApplication {
     this.preloadBuilder = preloadBuilder;
   }
 
-  public async build(configEntryPoint: string, clean: boolean): Promise<void> {
-    const configs = this.configParser.parse(configEntryPoint);
+  public async build(configEntryPoint: string, clean: boolean, isUsingVite: boolean): Promise<void> {
+    const configs = this.configParser.parse(configEntryPoint, isUsingVite);
 
     for (const config of configs) {
       if (clean) {
