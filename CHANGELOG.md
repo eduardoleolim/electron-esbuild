@@ -1,3 +1,22 @@
+## 3.0.0 (2024-04-03)
+
+* chore: update dependencies ([b77f6a5](https://github.com/eduardoleolim/electron-esbuild/commit/b77f6a5))
+* chore: update readme ([6b8ba2c](https://github.com/eduardoleolim/electron-esbuild/commit/6b8ba2c))
+* chore: update readme ([4c0a4b3](https://github.com/eduardoleolim/electron-esbuild/commit/4c0a4b3))
+* chore: update README ([3cfe230](https://github.com/eduardoleolim/electron-esbuild/commit/3cfe230))
+* feat: add vite option in command line app ([a1d9d38](https://github.com/eduardoleolim/electron-esbuild/commit/a1d9d38))
+* feat: support commnad line arguments for main process ([fd58331](https://github.com/eduardoleolim/electron-esbuild/commit/fd58331))
+* feat(renderer): implement builder with vite ([49b30b7](https://github.com/eduardoleolim/electron-esbuild/commit/49b30b7))
+* feat(renderer): set htmlEntryPoint as entryPoint when use vite ([488075b](https://github.com/eduardoleolim/electron-esbuild/commit/488075b))
+* docs: add electron arguments for development mode ([cdaf866](https://github.com/eduardoleolim/electron-esbuild/commit/cdaf866))
+* docs: include flag of vite in config parser ([f70ac22](https://github.com/eduardoleolim/electron-esbuild/commit/f70ac22))
+
+
+### BREAKING-CHANGE
+
+* Add support for use vite
+
+
 ## 2.8.0 (2024-03-22)
 
 * release: v2.8.0 ([9ca13e4](https://github.com/eduardoleolim/electron-esbuild/commit/9ca13e4))
