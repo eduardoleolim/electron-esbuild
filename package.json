@@ -6,7 +6,7 @@
   "main": "dist/app/index.cjs",
   "scripts": {
     "lint": "eslint src --quiet --fix",
-    "prepare": "husky install",
+    "prepare": "husky",
     "build": "rimraf dist && tsc",
     "dev:basic-js": "cd examples/basic-js && npm run dev",
     "build:basic-js": "cd examples/basic-js && npm run build",
@@ -78,10 +78,17 @@
     "rimraf": "5.0.5",
     "ts-jest": "29.1.2",
     "ts-node": "10.9.2",
-    "typescript": "^5.1.6"
+    "typescript": "^5.1.6",
+    "vite": "5.2.7"
   },
   "peerDependencies": {
-    "esbuild": "0.20.x"
+    "esbuild": "0.20.x",
+    "vite": "5.x"
+  },
+  "peerDependenciesMeta": {
+    "vite": {
+      "optional": true
+    }
   },
   "lint-staged": {
     "*.{js,ts}": [
