@@ -24,6 +24,7 @@ A package to build your electron app with esbuild.
 - Build your electron app with esbuild
 - Start a hot reload dev server for your renderer process
 - Copy static files to the output directory
+- Support to use vite for the renderer process
 - Support for preload scripts
 - Support for esbuild loaders and exclude options in each configuration
 - Support for multiple main, preload and renderer configurations.
@@ -49,9 +50,10 @@ Builds your electron app.
 Options:
 
 - `--config or -c` Config file path.
+- `--vite` Use vite for the renderer process. Default: `false`
 
 ```bash
-npx electron-esbuild build [--config electron-esbuild.config.json]
+npx electron-esbuild build [--config electron-esbuild.config.json] [--vite]
 ```
 
 #### 👨‍💻 dev
@@ -61,10 +63,11 @@ Builds your electron app and starts a dev server for your renderer process.
 Options:
 
 - `--config or -c` Config file path.
+- `--vite` Use vite for the renderer process. Default: `false`
 - `--clean` Clean the output directory before building. Default: `false`
 
 ```bash
-npx electron-esbuild dev [--config electron-esbuild.config.json] [--clean]
+npx electron-esbuild dev [--config electron-esbuild.config.json] [--vite] [--clean]
 ```
 
 ## ⚙️ Configuration
@@ -84,7 +87,7 @@ The electron config has the following properties:
 - `output` - Optional. The output directory of your electron app, default: `dist`. It is relative to the root of your project
 - `main` - The main process config
 - `preloads` - Optional. A preload config can be an array of configs or a single config
-- `renderers` - Optional. The renderer process config can be an array of configs or a single config
+- `renderers` - The renderer process config can be an array of configs or a single config
 - `resources` - Optional. An array of files to copy to the output directory
 
 ```json5
