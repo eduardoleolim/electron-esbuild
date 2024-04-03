@@ -157,7 +157,7 @@ export class EsbuildRendererProcessBuilder implements RendererProcessBuilderServ
       throw new Error(`Html file not found in <${htmlInputDirectory}>`);
     }
 
-    // Add preload script to html
+    // Add renderer script to html
     const scriptRelativePath = path.relative(
       path.dirname(htmlOutputDirectory),
       path.resolve(process.cwd(), output, config.output.directory, config.output.filename),

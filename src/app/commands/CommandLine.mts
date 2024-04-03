@@ -12,12 +12,16 @@ import { JsonElectronConfigParser } from '../../Context/config/infrastructure/Js
 import { YamlElectronConfigParser } from '../../Context/config/infrastructure/YamlElectronConfigParser.mjs';
 import { Logger } from '../../Context/shared/domain/Logger.mjs';
 import { loaders } from '../../Context/shared/infrastructure/esbuidLoaders.mjs';
+import { ViteRendererProcessBuilder } from '../../Context/builder/infrastructure/services/ViteRendererProcessBuilder.mjs';
+import { ConfigParser } from '../../Context/config/domain/ConfigParser.mjs';
+import { RendererProcessBuilderService } from '../../Context/builder/domain/RendererProcessBuilderService.mjs';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
 type Options = {
   config?: string;
+  vite?: boolean;
 };
 
 type DevOptions = Options & {
@@ -29,30 +33,26 @@ type BuildOptions = Options;
 export class CommandLine {
   private readonly program: Command;
   private readonly packageJson: any;
-  private readonly jsonEsbuildDev: DevApplication;
-  private readonly jsonEsbuildBuild: BuildApplication;
-  private readonly yamlEsbuildDev: DevApplication;
-  private readonly yamlEsbuildBuild: BuildApplication;
+  private readonly jsonParser: JsonElectronConfigParser;
+  private readonly yamlParser: YamlElectronConfigParser;
+  private readonly esbuildMainBuilder: EsbuildMainProcessBuilder;
+  private readonly esbuildRendererBuilder: EsbuildRendererProcessBuilder;
+  private readonly esbuildPreloadBuilder: EsbuildPreloadBuilder;
+  private readonly viteRendererBuilder: ViteRendererProcessBuilder;
   private readonly logger: Logger;
 
   constructor(logger: Logger) {
     this.packageJson = JSON.parse(fs.readFileSync(path.resolve(__dirname, '../../../package.json'), 'utf8'));
     this.logger = logger;
+    this.jsonParser = new JsonElectronConfigParser();
+    this.yamlParser = new YamlElectronConfigParser();
+
+    this.esbuildMainBuilder = new EsbuildMainProcessBuilder(loaders, logger);
+    this.esbuildPreloadBuilder = new EsbuildPreloadBuilder(loaders, logger);
+    this.esbuildRendererBuilder = new EsbuildRendererProcessBuilder(loaders, logger);
+    this.viteRendererBuilder = new ViteRendererProcessBuilder(logger);
     this.program = new Command();
-    this.loadCommands();
-
-    const jsonParser = new JsonElectronConfigParser();
-    const yamlParser = new YamlElectronConfigParser();
-
-    const mainBuilder = new EsbuildMainProcessBuilder(loaders, logger);
-    const preloadBuilder = new EsbuildPreloadBuilder(loaders, logger);
-    const rendererBuilder = new EsbuildRendererProcessBuilder(loaders, logger);
-
-    this.jsonEsbuildDev = new DevApplication(jsonParser, mainBuilder, rendererBuilder, preloadBuilder, logger);
-    this.jsonEsbuildBuild = new BuildApplication(jsonParser, mainBuilder, rendererBuilder, preloadBuilder, logger);
-
-    this.yamlEsbuildDev = new DevApplication(yamlParser, mainBuilder, rendererBuilder, preloadBuilder, logger);
-    this.yamlEsbuildBuild = new BuildApplication(yamlParser, mainBuilder, rendererBuilder, preloadBuilder, logger);
+    this.loadCommands();    
   }
 
   private loadCommands(): void {
@@ -67,6 +67,7 @@ export class CommandLine {
       .description('Starts the development server')
       .option('-c, --config <path>', 'Path to the config file')
       .option('--clean', 'Clean the output directory')
+      .option('--vite', 'Use Vite for renderer process')
       .action((options: DevOptions) => {
         process.env.NODE_ENV = 'development';
 
@@ -74,18 +75,25 @@ export class CommandLine {
           try {
             const pathConfig = this.prepareConfigPath(options.config);
             const extension = path.extname(pathConfig);
+            let parser: ConfigParser
+            let rendererBuilder: RendererProcessBuilderService
 
-            switch (extension) {
-              case '.json':
-                this.jsonEsbuildDev.develop(pathConfig, options.clean || false);
-                break;
-              case '.yml':
-              case '.yaml':
-                this.yamlEsbuildDev.develop(pathConfig, options.clean || false);
-                break;
-              default:
-                this.logger.warn('CLI', 'Config file not supported');
+            if (extension === '.json') {
+              parser = this.jsonParser;
+            } else if (extension === '.yml' || extension === '.yaml') {
+              parser = this.yamlParser;
+            } else {
+              throw new Error('Config file not supported');
             }
+
+            if (options.vite) {
+              rendererBuilder = this.viteRendererBuilder;
+            } else {
+              rendererBuilder = this.esbuildRendererBuilder;
+            }
+            
+            const devApplication = new DevApplication(parser, this.esbuildMainBuilder, rendererBuilder, this.esbuildPreloadBuilder, this.logger);
+            await devApplication.develop(pathConfig, options.clean || false);
           } catch (error: any) {
             this.logger.error('CLI', error.message);
           }
@@ -95,6 +103,7 @@ export class CommandLine {
     commandBuild
       .description('Builds the application')
       .option('-c, --config <path>', 'Path to the config file')
+      .option('--vite', 'Use Vite for renderer process')
       .action((options: BuildOptions) => {
         process.env.NODE_ENV = 'production';
 
@@ -102,18 +111,25 @@ export class CommandLine {
           try {
             const pathConfig = this.prepareConfigPath(options.config);
             const extension = path.extname(pathConfig);
+            let parser: ConfigParser
+            let rendererBuilder: RendererProcessBuilderService
 
-            switch (extension) {
-              case '.json':
-                await this.jsonEsbuildBuild.build(pathConfig, true);
-                break;
-              case '.yml':
-              case '.yaml':
-                await this.yamlEsbuildBuild.build(pathConfig, true);
-                break;
-              default:
-                this.logger.warn('CLI', 'Config file not supported');
+            if (extension === '.json') {
+              parser = this.jsonParser;
+            } else if (extension === '.yml' || extension === '.yaml') {
+              parser = this.yamlParser;
+            } else {
+              throw new Error('Config file not supported');
             }
+
+            if (options.vite) {
+              rendererBuilder = this.viteRendererBuilder;
+            } else {
+              rendererBuilder = this.esbuildRendererBuilder;
+            }
+
+            const buildApplication = new BuildApplication(parser, this.esbuildMainBuilder, rendererBuilder, this.esbuildPreloadBuilder, this.logger);
+            await buildApplication.build(pathConfig, true);
           } catch (error: any) {
             this.logger.error('CLI', error.message);
           }
