@@ -1,5 +1,12 @@
+## 3.1.0 (2024-08-15)
+
+* chore: update libraries ([1305a1a](https://github.com/eduardoleolim/electron-esbuild/commit/1305a1a))
+
+
+
 ## 3.0.0 (2024-04-03)
 
+* release: v3.0.0 ([4bd6ff7](https://github.com/eduardoleolim/electron-esbuild/commit/4bd6ff7))
 * chore: update dependencies ([b77f6a5](https://github.com/eduardoleolim/electron-esbuild/commit/b77f6a5))
 * chore: update readme ([6b8ba2c](https://github.com/eduardoleolim/electron-esbuild/commit/6b8ba2c))
 * chore: update readme ([4c0a4b3](https://github.com/eduardoleolim/electron-esbuild/commit/4c0a4b3))
