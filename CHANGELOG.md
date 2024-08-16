@@ -1,5 +1,13 @@
+## 3.2.0 (2024-08-16)
+
+* fix(main-dispatcher): finish the tool process after finish all main processes ([cc88306](https://github.com/eduardoleolim/electron-esbuild/commit/cc88306))
+* chore: update examples' libraries ([8d60e7d](https://github.com/eduardoleolim/electron-esbuild/commit/8d60e7d))
+
+
+
 ## 3.1.0 (2024-08-15)
 
+* release: v3.1.0 ([9b1be04](https://github.com/eduardoleolim/electron-esbuild/commit/9b1be04))
 * chore: update libraries ([1305a1a](https://github.com/eduardoleolim/electron-esbuild/commit/1305a1a))
 
 
