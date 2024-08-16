@@ -14,7 +14,9 @@ export class MainProcessDispatcher {
   private readonly isWindows: boolean;
   private readonly electronBin: string;
   private readonly mainProcessQueue: MainProcess[];
-  private requestForFinish;
+  private requestForFinish: boolean;
+  private dispatchedProcessCount: number
+  private killedProcessCount: number
 
   constructor(logger: Logger) {
     this.logger = logger;
@@ -22,6 +24,8 @@ export class MainProcessDispatcher {
     this.electronBin = this.isWindows ? 'electron.cmd' : 'electron';
     this.mainProcessQueue = [];
     this.requestForFinish = false;
+    this.dispatchedProcessCount = 0;
+    this.killedProcessCount = 0;
     process.on('SIGINT', async () => {
       this.requestForFinish = true;
     });
@@ -34,14 +38,21 @@ export class MainProcessDispatcher {
     this.logger.log('MAIN-PROCESS', 'Starting main process');
 
     const electronProcess = spawn(electronPath, [entryPath, ...config.args], { stdio: 'inherit' }).on('close', (code, signal) => {
+      this.killedProcessCount += 1;
+      
       if (code === null) {
         this.logger.error('MAIN-PROCESS', `Main Process exited with signal ${signal}`);
-        process.exit(1);
+        if (this.killedProcessCount === this.dispatchedProcessCount) {
+          process.exit(1);
+        }
+      } else {
+        this.logger.info('MAIN-PROCESS', `Main Process exited with code ${code}`);
+        if (this.killedProcessCount === this.dispatchedProcessCount) {
+          process.exit(code);
+        }
       }
-
-      this.logger.info('MAIN-PROCESS', `Main Process exited with code ${code}`);
-      process.exit(code);
     });
+    this.dispatchedProcessCount += 1;
 
     return {
       process: electronProcess,
@@ -50,6 +61,7 @@ export class MainProcessDispatcher {
           const onKillComplete = () => {
             resolve();
             this.logger.info('MAIN-PROCESS', `Main Process with pid ${electronProcess.pid} killed`);
+            this.killedProcessCount += 1;
           };
 
           electronProcess.removeAllListeners('close');
@@ -88,10 +100,10 @@ export class MainProcessDispatcher {
 
   private killProcessMacOSLinux(
     process: ChildProcess,
-    onKillComplete: () => void,
+    onKillCompleted: () => void,
     onError: (error: Error) => void,
   ): void {
-    process.on('close', onKillComplete);
+    process.on('close', onKillCompleted);
     process.on('error', onError);
 
     process.kill();
