@@ -18,8 +18,8 @@
   "author": "",
   "license": "ISC",
   "devDependencies": {
-    "@eduardoleolim/electron-esbuild": "3.1.0",
-    "electron": "31.3.1",
+    "@eduardoleolim/electron-esbuild": "3.2.0",
+    "electron": "31.4.0",
     "esbuild": "0.23.0",
     "esbuild-svelte": "0.8.1",
     "svelte-preprocess": "6.0.2"
