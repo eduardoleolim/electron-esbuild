@@ -15,8 +15,6 @@
   <a href="https://github.com/eduardoleolim/electron-esbuild/stargazers">Stars are welcome 😊</a>
 </p>
 
-Inspired by [electron-esbuild](https://github.com/Kiyozz/electron-esbuild) of [Kiyozz](https://github.com/Kiyozz).
-
 A package to build your electron app with esbuild.
 
 ## ✨ Features
@@ -238,10 +236,15 @@ The `to` property also can be and object with the following properties:
 ]
 ```
 
+## 😊 Thanks
+
+Inspired by [electron-esbuild](https://github.com/Kiyozz/electron-esbuild) of [Kiyozz](https://github.com/Kiyozz).
+
 ## 📄 Examples
 
 There are some examples in the [examples](https://github.com/eduardoleolim/electron-esbuild/tree/master/examples) directory.
 
 - *[basic-js](https://github.com/eduardoleolim/electron-esbuild/tree/master/examples/basic-js)* - A basic example with javascript using the basic configuration of electron-esbuild.
 - *[basic-ts](https://github.com/eduardoleolim/electron-esbuild/tree/master/examples/basic-ts)* - A basic example with typescript using the basic configuration of electron-esbuild.
+- *[react-ts](https://github.com/eduardoleolim/electron-esbuild/tree/master/examples/react-ts)* - An example with react and typescript using the basic configuration of electron-esbuild with esbuild loaders for renderer process.
 - *[svelte-ts](https://github.com/eduardoleolim/electron-esbuild/tree/master/examples/svelte-ts)* - An example with svelte and typescript using the basic configuration of electron-esbuild. Also, it shows how to use an esbuild config file for the renderer process.

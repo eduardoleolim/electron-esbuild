@@ -85,7 +85,7 @@ export abstract class ConfigParser {
     let baseConfigEntryPoint: string | undefined = undefined;
     const loaderConfigs: LoaderConfig[] = [];
     const excludeConfigs: string[] = [];
-    const args: string[] = []
+    const args: string[] = [];
 
     if (typeof config.entry !== 'string') {
       throw new Error('Main entry point must be a string');

@@ -15,8 +15,8 @@ export class MainProcessDispatcher {
   private readonly electronBin: string;
   private readonly mainProcessQueue: MainProcess[];
   private requestForFinish: boolean;
-  private dispatchedProcessCount: number
-  private killedProcessCount: number
+  private dispatchedProcessCount: number;
+  private killedProcessCount: number;
 
   constructor(logger: Logger) {
     this.logger = logger;
@@ -37,21 +37,24 @@ export class MainProcessDispatcher {
 
     this.logger.log('MAIN-PROCESS', 'Starting main process');
 
-    const electronProcess = spawn(electronPath, [entryPath, ...config.args], { stdio: 'inherit' }).on('close', (code, signal) => {
-      this.killedProcessCount += 1;
-      
-      if (code === null) {
-        this.logger.error('MAIN-PROCESS', `Main Process exited with signal ${signal}`);
-        if (this.killedProcessCount === this.dispatchedProcessCount) {
-          process.exit(1);
+    const electronProcess = spawn(electronPath, [entryPath, ...config.args], { stdio: 'inherit' }).on(
+      'close',
+      (code, signal) => {
+        this.killedProcessCount += 1;
+
+        if (code === null) {
+          this.logger.error('MAIN-PROCESS', `Main Process exited with signal ${signal}`);
+          if (this.killedProcessCount === this.dispatchedProcessCount) {
+            process.exit(1);
+          }
+        } else {
+          this.logger.info('MAIN-PROCESS', `Main Process exited with code ${code}`);
+          if (this.killedProcessCount === this.dispatchedProcessCount) {
+            process.exit(code);
+          }
         }
-      } else {
-        this.logger.info('MAIN-PROCESS', `Main Process exited with code ${code}`);
-        if (this.killedProcessCount === this.dispatchedProcessCount) {
-          process.exit(code);
-        }
-      }
-    });
+      },
+    );
     this.dispatchedProcessCount += 1;
 
     return {

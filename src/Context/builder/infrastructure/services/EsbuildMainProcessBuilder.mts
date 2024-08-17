@@ -39,7 +39,7 @@ export class EsbuildMainProcessBuilder implements MainProcessBuilderService {
     const context = await this.generateEsbuilContext(output, config);
     let dependencies = this.resolveDependencies(config);
     const watcher = chokidar.watch(dependencies);
-    await this.mainProcessDispatcher.initProcessCollector()
+    await this.mainProcessDispatcher.initProcessCollector();
 
     watcher
       .on('ready', async () => {

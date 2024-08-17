@@ -1,0 +1,30 @@
+{
+  "name": "react-ts",
+  "version": "1.0.0",
+  "description": "Basic example of using electron-esbuild with React and TypeScript",
+  "main": "./dist/main/main.js",
+  "scripts": {
+    "start": "electron .",
+    "build": "electron-esbuild build",
+    "dev": "electron-esbuild dev --clean"
+  },
+  "keywords": [
+    "electron",
+    "react",
+    "esbuild",
+    "electron-esbuild",
+    "typescript",
+    "example"
+  ],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "@eduardoleolim/electron-esbuild": "3.2.0",
+    "@types/react": "18.3.3",
+    "@types/react-dom": "18.3.0",
+    "electron": "31.4.0",
+    "esbuild": "0.23.1",
+    "react": "18.3.1",
+    "react-dom": "18.3.1"
+  }
+}

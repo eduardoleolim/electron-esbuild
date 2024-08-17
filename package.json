@@ -14,6 +14,8 @@
     "build:basic-ts": "cd examples/basic-ts && npm run build",
     "dev:svelte-ts": "cd examples/svelte-ts && npm run dev",
     "build:svelte-ts": "cd examples/svelte-ts && npm run build",
+    "dev:react-ts": "cd examples/react-ts && npm run dev",
+    "build:react-ts": "cd examples/react-ts && npm run build",
     "test": "jest",
     "changelog": "conventional-changelog -i CHANGELOG.md -s -r 0"
   },

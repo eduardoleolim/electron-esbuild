@@ -1,8 +1,8 @@
+import debounce from 'debounce';
 import esbuild, { BuildContext, BuildOptions, ServeOptions } from 'esbuild';
 import * as fs from 'fs';
 import path from 'path';
 
-import debounce from 'debounce';
 import { RendererConfig } from '../../../config/domain/RendererConfig.mjs';
 import { Logger } from '../../../shared/domain/Logger.mjs';
 import { findFreePort } from '../../../shared/infrastructure/findFreePort.mjs';
@@ -70,15 +70,18 @@ export class EsbuildRendererProcessBuilder implements RendererProcessBuilderServ
     watcher.on('ready', async () => {
       await this.copyHtmlInDevelop(output, config);
 
-      watcher.on('change', debounce(async () => {
-        await this.copyHtmlInDevelop(output, config);
-        watcher.unwatch(dependencies);
-        dependencies = this.resolveDependencies(config, preloadEntryPoints);
-        watcher.add(dependencies);
+      watcher.on(
+        'change',
+        debounce(async () => {
+          await this.copyHtmlInDevelop(output, config);
+          watcher.unwatch(dependencies);
+          dependencies = this.resolveDependencies(config, preloadEntryPoints);
+          watcher.add(dependencies);
 
-        hotReloadServer.refresh();
-        this.logger.info('RENDERER-BUILDER', 'Change in renderer source detected');
-      },1000));
+          hotReloadServer.refresh();
+          this.logger.info('RENDERER-BUILDER', 'Change in renderer source detected');
+        }, 1000),
+      );
     });
 
     await this.copyHtmlInDevelop(output, config);

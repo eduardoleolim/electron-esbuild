@@ -8,13 +8,12 @@ import { DevApplication } from '../../Context/builder/application/DevApplication
 import { EsbuildMainProcessBuilder } from '../../Context/builder/infrastructure/services/EsbuildMainProcessBuilder.mjs';
 import { EsbuildPreloadBuilder } from '../../Context/builder/infrastructure/services/EsbuildPreloadBuilder.mjs';
 import { EsbuildRendererProcessBuilder } from '../../Context/builder/infrastructure/services/EsbuildRendererProcessBuilder.mjs';
+import { ViteRendererProcessBuilder } from '../../Context/builder/infrastructure/services/ViteRendererProcessBuilder.mjs';
+import { ConfigParser } from '../../Context/config/domain/ConfigParser.mjs';
 import { JsonElectronConfigParser } from '../../Context/config/infrastructure/JsonElectronConfigParser.mjs';
 import { YamlElectronConfigParser } from '../../Context/config/infrastructure/YamlElectronConfigParser.mjs';
 import { Logger } from '../../Context/shared/domain/Logger.mjs';
 import { loaders } from '../../Context/shared/infrastructure/esbuidLoaders.mjs';
-import { ViteRendererProcessBuilder } from '../../Context/builder/infrastructure/services/ViteRendererProcessBuilder.mjs';
-import { ConfigParser } from '../../Context/config/domain/ConfigParser.mjs';
-import { RendererProcessBuilderService } from '../../Context/builder/domain/RendererProcessBuilderService.mjs';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -52,7 +51,7 @@ export class CommandLine {
     this.esbuildRendererBuilder = new EsbuildRendererProcessBuilder(loaders, logger);
     this.viteRendererBuilder = new ViteRendererProcessBuilder(logger);
     this.program = new Command();
-    this.loadCommands();    
+    this.loadCommands();
   }
 
   private loadCommands(): void {
@@ -73,12 +72,12 @@ export class CommandLine {
 
         (async () => {
           try {
-            let isUsingVite
+            let isUsingVite;
             const clean = options.clean || false;
             const pathConfig = this.prepareConfigPath(options.config);
             const extension = path.extname(pathConfig);
-            let parser: ConfigParser
-            let rendererBuilder: RendererProcessBuilderService
+            let parser: ConfigParser;
+            let rendererBuilder: RendererProcessBuilderService;
 
             if (extension === '.json') {
               parser = this.jsonParser;
@@ -90,13 +89,19 @@ export class CommandLine {
 
             if (options.vite) {
               rendererBuilder = this.viteRendererBuilder;
-              isUsingVite = true
+              isUsingVite = true;
             } else {
               rendererBuilder = this.esbuildRendererBuilder;
-              isUsingVite = false
+              isUsingVite = false;
             }
-            
-            const devApplication = new DevApplication(parser, this.esbuildMainBuilder, rendererBuilder, this.esbuildPreloadBuilder, this.logger);
+
+            const devApplication = new DevApplication(
+              parser,
+              this.esbuildMainBuilder,
+              rendererBuilder,
+              this.esbuildPreloadBuilder,
+              this.logger,
+            );
             await devApplication.develop(pathConfig, clean, isUsingVite);
           } catch (error: any) {
             this.logger.error('CLI', error.message);
@@ -113,11 +118,11 @@ export class CommandLine {
 
         (async () => {
           try {
-            let isUsingVite
+            let isUsingVite;
             const pathConfig = this.prepareConfigPath(options.config);
             const extension = path.extname(pathConfig);
-            let parser: ConfigParser
-            let rendererBuilder: RendererProcessBuilderService
+            let parser: ConfigParser;
+            let rendererBuilder: RendererProcessBuilderService;
 
             if (extension === '.json') {
               parser = this.jsonParser;
@@ -129,13 +134,19 @@ export class CommandLine {
 
             if (options.vite) {
               rendererBuilder = this.viteRendererBuilder;
-              isUsingVite = true
+              isUsingVite = true;
             } else {
               rendererBuilder = this.esbuildRendererBuilder;
-              isUsingVite = false
+              isUsingVite = false;
             }
 
-            const buildApplication = new BuildApplication(parser, this.esbuildMainBuilder, rendererBuilder, this.esbuildPreloadBuilder, this.logger);
+            const buildApplication = new BuildApplication(
+              parser,
+              this.esbuildMainBuilder,
+              rendererBuilder,
+              this.esbuildPreloadBuilder,
+              this.logger,
+            );
             await buildApplication.build(pathConfig, true, isUsingVite);
           } catch (error: any) {
             this.logger.error('CLI', error.message);
