@@ -8,14 +8,18 @@
     "lint": "eslint src --quiet --fix",
     "prepare": "husky",
     "build": "rimraf dist && tsc",
-    "dev:basic-js": "cd examples/basic-js && npm run dev",
-    "build:basic-js": "cd examples/basic-js && npm run build",
-    "dev:basic-ts": "cd examples/basic-ts && npm run dev",
-    "build:basic-ts": "cd examples/basic-ts && npm run build",
-    "dev:svelte-ts": "cd examples/svelte-ts && npm run dev",
-    "build:svelte-ts": "cd examples/svelte-ts && npm run build",
-    "dev:react-ts": "cd examples/react-ts && npm run dev",
-    "build:react-ts": "cd examples/react-ts && npm run build",
+    "basic-js:install": "rimraf examples/basic-js/node_modules && npm install --prefix examples/basic-js",
+    "basic-js:dev": "npm run dev --prefix examples/basic-js",
+    "basic-js:build": "npm run build --prefix examples/basic-js",
+    "basic-ts:install": "rimraf examples/basic-ts/node_modules && npm install --prefix examples/basic-ts",
+    "basic-ts:dev": "npm run dev --prefix examples/basic-ts",
+    "basic-ts:build": "npm run build --prefix examples/basic-ts",
+    "svelte-ts:install": "rimraf examples/svelte-ts/node_modules && npm install --prefix examples/svelte-ts",
+    "svelte-ts:dev": "npm run dev --prefix examples/svelte-ts",
+    "svelte-ts:build": "npm run build --prefix examples/svelte-ts",
+    "react-ts:install": "rimraf examples/react-ts/node_modules && npm install --prefix examples/react-ts",
+    "react-ts:dev": "npm run dev --prefix examples/react-ts",
+    "react-ts:build": "npm run build --prefix examples/react-ts",
     "test": "jest",
     "changelog": "conventional-changelog -i CHANGELOG.md -s -r 0"
   },
@@ -94,7 +98,7 @@
     }
   },
   "lint-staged": {
-    "*.{js,ts}": [
+    "*.{js,ts,mjs,mts}": [
       "eslint src --fix",
       "git add"
     ]
