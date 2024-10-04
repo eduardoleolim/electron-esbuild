@@ -1,4 +1,4 @@
-import chokidar from 'chokidar';
+import * as chokidar from 'chokidar';
 import compression from 'compression';
 import connect from 'connect';
 import { Server, createServer } from 'http';
@@ -36,7 +36,7 @@ export class RendererHotReloadServer {
     this.hotReloadPort = hotReloadPort;
     this.hotReloadServer = this.loadHotReloadServer();
     this.hotReloadServer.watch(this.dependencies);
-    this.watcher = this.hotReloadServer.watcher as chokidar.FSWatcher;
+    this.watcher = this.hotReloadServer.watcher as unknown as chokidar.FSWatcher;
     this.watcher.removeAllListeners('unlink');
     this.watcher.removeAllListeners('change');
     this.watcher.removeAllListeners('add');
