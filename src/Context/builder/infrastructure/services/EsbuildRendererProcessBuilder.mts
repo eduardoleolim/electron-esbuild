@@ -167,9 +167,9 @@ export class EsbuildRendererProcessBuilder implements RendererProcessBuilderServ
     );
     let htmlContent = fs.readFileSync(htmlInputDirectory, 'utf-8');
     htmlContent = htmlContent.replace(
-      '</body>',
-      `  <script src="${scriptRelativePath}"></script>
-  </body>`,
+      '</head>',
+      `  <script src="${scriptRelativePath}" defer></script>
+  </head>`,
     );
 
     // if exists, add css link to html
@@ -198,9 +198,9 @@ export class EsbuildRendererProcessBuilder implements RendererProcessBuilderServ
     const htmlOutputDirectory = path.resolve(process.cwd(), output, config.output.directory, 'index.html');
 
     const htmlContent = fs.readFileSync(htmlOutputDirectory, 'utf-8').replace(
-      '</body>',
-      `  <script src="/livereload.js?snipver=1"></script>
-</body>`,
+      '</head>',
+      `  <script src="/livereload.js?snipver=1" defer></script>
+</head>`,
     );
 
     fs.writeFileSync(htmlOutputDirectory, htmlContent, 'utf-8');

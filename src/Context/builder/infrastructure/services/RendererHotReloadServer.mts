@@ -75,12 +75,12 @@ export class RendererHotReloadServer {
 <html>
   <head>
     <title>Error 503 - Esbuild Service Unavailable</title>
+    <script src="/livereload.js?snipver=1" defer></script>
   </head>
   <body>
     <pre>
 ${body}
     </pre>
-    <script src="/livereload.js?snipver=1"></script>
   </body>
 </html>`.trim();
 
