@@ -5,6 +5,7 @@ import { fileURLToPath } from 'url';
 
 import { BuildApplication } from '../../Context/builder/application/BuildApplication.mjs';
 import { DevApplication } from '../../Context/builder/application/DevApplication.mjs';
+import { RendererProcessBuilderService } from '../../Context/builder/domain/RendererProcessBuilderService.mjs';
 import { EsbuildMainProcessBuilder } from '../../Context/builder/infrastructure/services/EsbuildMainProcessBuilder.mjs';
 import { EsbuildPreloadBuilder } from '../../Context/builder/infrastructure/services/EsbuildPreloadBuilder.mjs';
 import { EsbuildRendererProcessBuilder } from '../../Context/builder/infrastructure/services/EsbuildRendererProcessBuilder.mjs';
