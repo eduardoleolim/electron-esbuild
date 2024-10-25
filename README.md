@@ -242,10 +242,10 @@ Inspired by [electron-esbuild](https://github.com/Kiyozz/electron-esbuild) of [K
 
 ## 📄 Examples
 
-There are some examples in the [examples](https://github.com/eduardoleolim/electron-esbuild/tree/master/examples) directory.
+There are some examples in the [examples](https://github.com/eduardoleolim/electron-esbuild/tree/main/examples) directory.
 
-- *[basic-js](https://github.com/eduardoleolim/electron-esbuild/tree/master/examples/basic-js)* - A basic example with javascript using the basic configuration of electron-esbuild.
-- *[basic-ts](https://github.com/eduardoleolim/electron-esbuild/tree/master/examples/basic-ts)* - A basic example with typescript using the basic configuration of electron-esbuild.
-- *[react-ts](https://github.com/eduardoleolim/electron-esbuild/tree/master/examples/react-ts)* - An example with react and typescript using the basic configuration of electron-esbuild with esbuild loaders for renderer process.
-- *[svelte-ts](https://github.com/eduardoleolim/electron-esbuild/tree/master/examples/svelte-ts)* - An example with svelte and typescript using the basic configuration of electron-esbuild. Also, it shows how to use an esbuild config file for the renderer process.
-- *[tailwind-ts](https://github.com/eduardoleolim/electron-esbuild/tree/master/examples/tailwind-ts)* - An example with tailwind, react and typescript.
+- *[basic-js](https://github.com/eduardoleolim/electron-esbuild/tree/main/examples/basic-js)* - A basic example with javascript using the basic configuration of electron-esbuild.
+- *[basic-ts](https://github.com/eduardoleolim/electron-esbuild/tree/main/examples/basic-ts)* - A basic example with typescript using the basic configuration of electron-esbuild.
+- *[react-ts](https://github.com/eduardoleolim/electron-esbuild/tree/main/examples/react-ts)* - An example with react and typescript using the basic configuration of electron-esbuild with esbuild loaders for renderer process.
+- *[svelte-ts](https://github.com/eduardoleolim/electron-esbuild/tree/main/examples/svelte-ts)* - An example with svelte and typescript using the basic configuration of electron-esbuild. Also, it shows how to use an esbuild config file for the renderer process.
+- *[tailwind-ts](https://github.com/eduardoleolim/electron-esbuild/tree/main/examples/tailwind-ts)* - An example with tailwind, react and typescript.
