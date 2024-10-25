@@ -20,6 +20,9 @@
     "react-ts:install": "rimraf examples/react-ts/node_modules && npm install --prefix examples/react-ts",
     "react-ts:dev": "npm run dev --prefix examples/react-ts",
     "react-ts:build": "npm run build --prefix examples/react-ts",
+    "tailwind-ts:install": "rimraf examples/tailwind-ts/node_modules && npm install --prefix examples/tailwind-ts",
+    "tailwind-ts:dev": "npm run dev --prefix examples/tailwind-ts",
+    "tailwind-ts:build": "npm run build --prefix examples/tailwind-ts",
     "test": "jest",
     "changelog": "conventional-changelog -i CHANGELOG.md -s -r 0"
   },
