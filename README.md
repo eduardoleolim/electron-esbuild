@@ -115,7 +115,7 @@ The main config has the following properties:
 - `output` - The output configuration of bundle
   - `directory` - The output directory of your main process. It is relative to the `output` property of ElectronConfig
   - `filename` - The output filename of your main process
-- `esbuild` - Optional. Path to a javascript file exporting esbuild options
+- `base` - Optional. The path of esbuild config file
 - `exclude` - Optional. An array of libs that you don't want to bundle
 - `loaders` - Optional. An array of esbuild's loaders for specific files
 
@@ -129,7 +129,7 @@ The main config has the following properties:
     "directory": "<outputDir>/directory",
     "filename": "filename"
   },
-  "esbuild": "<rootProjectDir>/esbuild/config/file",
+  "base": "<rootProjectDir>/esbuild/config/file",
   "exclude": [
     ...
   ],
@@ -148,7 +148,7 @@ The preload config is composed of the following properties:
 - `output` - The output configuration of bundle
   - `directory` - Optional. The output directory of your preload process. Default: same as `output.directory` of MainConfig
   - `filename` - The output filename of your preload process
-- `esbuild` - Optional. Path to a javascript file exporting esbuild options
+- `base` - Optional. The path of esbuild config file
 - `exclude` - Optional. An array of libs that you don't want to bundle
 - `loaders` - Optional. An array of esbuild's loaders for specific files
 
@@ -160,7 +160,7 @@ The preload config is composed of the following properties:
     "directory": "<outputDir>/directory",
     "filename": "filename"
   },
-  "esbuild": "<rootProjectDir>/esbuild/config/file",
+  "base": "<rootProjectDir>/esbuild/config/file",
   "exclude": [
     ...
   ],
@@ -180,7 +180,7 @@ The renderer config has the following properties:
 - `output` - The output configuration of bundle
   - `directory` - Optional. The output directory of your renderer process. Default: same as `output.directory` of MainConfig
   - `filename` - The output filename of your renderer process
-- `esbuild` - Optional. Path to a javascript file exporting esbuild options
+- `base` - Optional. The path of esbuild or vite config file
 - `exclude` - Optional. An array of libs that you don't want to bundle
 - `loaders` - Optional. An array of esbuild's loaders for specific files
 
@@ -193,7 +193,7 @@ The renderer config has the following properties:
     "directory": "<outputDir>/directory",
     "filename": "filename"
   },
-  "esbuild": "<rootProjectDir>/esbuild/config/file",
+  "base": "<rootProjectDir>/esbuild-or-vite/config/file",
   "exclude": [
     ...
   ],
