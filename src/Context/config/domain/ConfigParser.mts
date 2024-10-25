@@ -129,12 +129,12 @@ export abstract class ConfigParser {
       throw new Error('Main exclude must be an array');
     }
 
-    if (config.esbuild !== undefined) {
-      if (typeof config.esbuild !== 'string') {
+    if (config.base !== undefined) {
+      if (typeof config.base !== 'string') {
         throw new Error('Base config entry point must be a string');
       }
 
-      baseConfigEntryPoint = config.esbuild;
+      baseConfigEntryPoint = config.base;
     }
 
     return new MainConfig(entryPoint, args, outputConfig, loaderConfigs, excludeConfigs, baseConfigEntryPoint);
@@ -199,12 +199,12 @@ export abstract class ConfigParser {
       throw new Error('Main exclude must be an array');
     }
 
-    if (config.esbuild !== undefined) {
-      if (typeof config.esbuild !== 'string') {
+    if (config.base !== undefined) {
+      if (typeof config.base !== 'string') {
         throw new Error('Base config entry point must be a string');
       }
 
-      baseConfigEntryPoint = config.esbuild;
+      baseConfigEntryPoint = config.base;
     }
 
     return new RendererConfig(
@@ -273,12 +273,12 @@ export abstract class ConfigParser {
       throw new Error('Main exclude must be an array');
     }
 
-    if (config.esbuild !== undefined) {
-      if (typeof config.esbuild !== 'string') {
+    if (config.base !== undefined) {
+      if (typeof config.base !== 'string') {
         throw new Error('Base config entry point must be a string');
       }
 
-      baseConfigEntryPoint = config.esbuild;
+      baseConfigEntryPoint = config.base;
     }
 
     return new PreloadConfig(
