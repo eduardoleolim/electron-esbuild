@@ -5,9 +5,9 @@ main:
     directory: main
     filename: main.js
 renderers:
-  devPort: 8080
   entry: src/renderer/index.tsx
   html: src/renderer/index.html
+  devPort: 8080
   output:
     directory: renderer
     filename: renderer.js

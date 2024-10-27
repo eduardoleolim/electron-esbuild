@@ -5,11 +5,10 @@ main:
     directory: main
     filename: main.js
 renderers:
-  devPort: 8080
   entry: src/renderer/index.tsx
   html: src/renderer/index.html
+  base: electron-esbuild.renderer.config.js
+  devPort: 8080
   output:
     directory: renderer
     filename: renderer.js
-  esbuild: electron-esbuild.renderer.config.js
-
