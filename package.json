@@ -1,9 +1,9 @@
 {
   "name": "@eduardoleolim/electron-esbuild",
-  "version": "3.3.0",
+  "version": "3.4.0",
   "description": "Use esbuild with electron",
   "type": "module",
-  "main": "dist/app/index.cjs",
+  "main": "dist/app/index.mjs",
   "scripts": {
     "lint": "eslint src --quiet --fix",
     "prepare": "husky",
