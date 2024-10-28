@@ -44,31 +44,22 @@ export abstract class ConfigParser {
     const mainConfig: MainConfig = this.parseMainConfig(config.main);
 
     if (config.preloads !== undefined) {
-      if (Array.isArray(config.preloads)) {
-        config.preloads.map((config: any) => {
-          preloadConfigs.push(this.parsePreloadConfig(config, mainConfig.output));
-        });
-      } else {
-        preloadConfigs.push(this.parsePreloadConfig(config.preloads, mainConfig.output));
-      }
+      const tempPreloadConfigs: any[] = Array.isArray(config.preloads) ? config.preloads : [config.preloads];
+      preloadConfigs.push(
+        ...tempPreloadConfigs.map((config: any) => this.parsePreloadConfig(config, mainConfig.output)),
+      );
     }
 
-    if (Array.isArray(config.renderers)) {
-      config.renderers.map((config: any) => {
-        rendererConfigs.push(this.parseRendererConfig(config, mainConfig.output, isUsingVite));
-      });
-    } else {
-      rendererConfigs.push(this.parseRendererConfig(config.renderers, mainConfig.output, isUsingVite));
-    }
+    const tempRendererConfigs: any[] = Array.isArray(config.renderers) ? config.renderers : [config.renderers];
+    rendererConfigs.push(
+      ...tempRendererConfigs.map((config: any) => this.parseRendererConfig(config, mainConfig.output, isUsingVite)),
+    );
 
     if (config.resources !== undefined) {
-      if (Array.isArray(config.resources)) {
-        config.resources.map((config: any) => {
-          resourceConfigs.push(this.parseResourceConfig(config, mainConfig.output.directory));
-        });
-      } else {
-        resourceConfigs.push(this.parseResourceConfig(config.resources, mainConfig.output.directory));
-      }
+      const tempResourceConfigs: any[] = Array.isArray(config.resources) ? config.resources : [config.resources];
+      resourceConfigs.push(
+        ...tempResourceConfigs.map((config: any) => this.parseResourceConfig(config, mainConfig.output.directory)),
+      );
     }
 
     return new ElectronConfig(output, mainConfig, preloadConfigs, rendererConfigs, resourceConfigs);
@@ -110,15 +101,13 @@ export abstract class ConfigParser {
     const outputConfig: OutputConfig = this.parseOutputConfig(config.output);
 
     if (Array.isArray(config.loaders)) {
-      config.loaders.map((config: any) => {
-        loaderConfigs.push(this.parseLoaderConfig(config));
-      });
+      loaderConfigs.push(...config.loaders.map((config: any) => this.parseLoaderConfig(config)));
     } else if (config.loaders != undefined) {
       throw new Error('Main loaders must be an array');
     }
 
     if (Array.isArray(config.exclude)) {
-      config.exclude.map((exclude: any) => {
+      config.exclude.forEach((exclude: any) => {
         if (typeof exclude !== 'string') {
           throw new Error('Excluded library must be a string');
         }
@@ -180,7 +169,7 @@ export abstract class ConfigParser {
     }
 
     if (Array.isArray(config.loaders)) {
-      config.loaders.map((config: any) => {
+      config.loaders.forEach((config: any) => {
         loaderConfigs.push(this.parseLoaderConfig(config));
       });
     } else if (config.loaders != undefined) {
@@ -188,7 +177,7 @@ export abstract class ConfigParser {
     }
 
     if (Array.isArray(config.exclude)) {
-      config.exclude.map((exclude: any) => {
+      config.exclude.forEach((exclude: any) => {
         if (typeof exclude !== 'string') {
           throw new Error('Excluded library must be a string');
         }
@@ -242,7 +231,7 @@ export abstract class ConfigParser {
     }
 
     if (Array.isArray(config.renderers)) {
-      config.renderers.map((renderer: any) => {
+      config.renderers.forEach((renderer: any) => {
         if (typeof renderer !== 'number') {
           throw new Error('Renderer process must be a number');
         }
@@ -254,15 +243,13 @@ export abstract class ConfigParser {
     }
 
     if (Array.isArray(config.loaders)) {
-      config.loaders.map((config: any) => {
-        loaderConfigs.push(this.parseLoaderConfig(config));
-      });
+      loaderConfigs.push(...config.loaders.map((config: any) => this.parseLoaderConfig(config)));
     } else if (config.loaders != undefined) {
       throw new Error('Main loaders must be an array');
     }
 
     if (Array.isArray(config.exclude)) {
-      config.exclude.map((exclude: any) => {
+      config.exclude.forEach((exclude: any) => {
         if (typeof exclude !== 'string') {
           throw new Error('Excluded library must be a string');
         }
