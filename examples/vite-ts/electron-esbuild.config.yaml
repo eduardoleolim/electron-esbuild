@@ -1,0 +1,15 @@
+output: dist
+
+main:
+  entry: src/main/main.ts
+  output:
+    directory: main
+    filename: main.js
+
+renderers:
+  devPort: 8080
+  html: src/renderer/index.html
+  base: vite.config.mjs
+  output:
+    directory: renderer
+    filename: renderer.js
