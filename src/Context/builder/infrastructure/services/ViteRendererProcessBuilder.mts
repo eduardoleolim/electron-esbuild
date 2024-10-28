@@ -38,23 +38,26 @@ export class ViteRendererProcessBuilder implements RendererProcessBuilderService
       let preloadDependencies = this.resolvePreloadDependencies(preloadEntryPoints);
       const watcher = chokidar.watch(preloadDependencies);
 
-      watcher
-        .on('ready', async () => {
-          this.logger.info('RENDERER-BUILDER', 'Building renderer electron process');
-          server.listen(config.devPort);
-          this.logger.info('RENDERER-BUILDER', `Renderer process running on http://localhost:${config.devPort}`);
-        })
-        .on(
-          'change',
-          debounce(async () => {
-            this.logger.info('RENDERER-BUILDER', 'Preload source changed, restarting renderer process');
-            await server.restart();
+      try {
+        server.listen(config.devPort);
+        this.logger.info('RENDERER-BUILDER', `Renderer process running on http://localhost:${config.devPort}`);
+      } catch (error: any) {
+        this.logger.error('RENDERER-BUILDER', error.message);
+      } finally {
+        this.logger.info('RENDERER-BUILDER', 'Watching for changes');
+      }
 
-            watcher.unwatch(preloadDependencies);
-            preloadDependencies = this.resolvePreloadDependencies(preloadEntryPoints);
-            watcher.add(preloadDependencies);
-          }, 1000),
-        );
+      watcher.on(
+        'change',
+        debounce(async () => {
+          this.logger.info('RENDERER-BUILDER', 'Preload source changed, restarting renderer process');
+          await server.restart();
+
+          watcher.unwatch(preloadDependencies);
+          preloadDependencies = this.resolvePreloadDependencies(preloadEntryPoints);
+          watcher.add(preloadDependencies);
+        }, 1000),
+      );
 
       process.on('SIGINT', async () => {
         await server.close();
