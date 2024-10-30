@@ -19,10 +19,10 @@ export class ViteRendererProcessBuilder implements RendererProcessBuilderService
     try {
       this.logger.log('RENDERER-BUILDER', 'Building renderer electron process');
 
-      const { build: vBuild } = await import('vite');
+      const { build } = await import('vite');
       const options = await this.loadRendererViteOptions(outputDirectory, config);
 
-      await vBuild(options);
+      await build(options);
 
       this.logger.log('RENDERER-BUILDER', 'Build finished');
     } catch (error: any) {
@@ -32,9 +32,9 @@ export class ViteRendererProcessBuilder implements RendererProcessBuilderService
 
   public async develop(outputDirectory: string, config: RendererConfig, preloadEntryPoints: string[]): Promise<void> {
     try {
-      const { createServer: vCreateServer } = await import('vite');
+      const { createServer } = await import('vite');
       const options = await this.loadRendererViteOptions(outputDirectory, config);
-      const server = await vCreateServer(options);
+      const server = await createServer(options);
       let preloadDependencies = this.resolvePreloadDependencies(preloadEntryPoints);
       const watcher = chokidar.watch(preloadDependencies);
 
