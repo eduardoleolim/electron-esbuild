@@ -5,7 +5,7 @@
   "type": "module",
   "main": "dist/app/index.mjs",
   "scripts": {
-    "lint": "eslint src --quiet --fix",
+    "lint": "eslint --quiet --fix",
     "prepare": "husky",
     "build": "rimraf dist && tsc",
     "basic-js:install": "rimraf examples/basic-js/node_modules && npm install --prefix examples/basic-js",

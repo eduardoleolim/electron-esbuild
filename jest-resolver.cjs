@@ -1,12 +1,12 @@
 const resolutions = [
   {
     matcher: /\.cjs$/i,
-    extensions: ['.cts'],
+    extensions: ['.cts']
   },
   {
     matcher: /\.mjs$/i,
-    extensions: ['.mts'],
-  },
+    extensions: ['.mts']
+  }
 ];
 
 function resolver(path, options) {
@@ -27,4 +27,4 @@ function resolver(path, options) {
   return resolver(path, options);
 }
 
-module.exports = resolver
+module.exports = resolver;
