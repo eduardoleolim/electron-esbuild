@@ -45,7 +45,7 @@ jobs:
           fetch-depth: 0
 
       - name: 🚀 Release in repository
-        uses: justincy/github-action-npm-release@2
+        uses: justincy/github-action-npm-release@2.0.2
         id: release
 
       - name: ❇️ Setup node.js
