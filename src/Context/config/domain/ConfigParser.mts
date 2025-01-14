@@ -6,6 +6,57 @@ import { PreloadConfig } from './PreloadConfig.mjs';
 import { RendererConfig } from './RendererConfig.mjs';
 import { CustomResourceConfig, ResourceConfig, SimpleResourceConfig } from './ResourceConfig.mjs';
 
+interface UnparsedOutputConfig {
+  directory?: string;
+  filename?: string;
+}
+
+interface UnparsedLoaderConfig {
+  loader?: string;
+  extension?: string;
+}
+
+interface UnparsedResoruceConfig {
+  from?: string;
+  to?: string | object;
+}
+
+interface UnparsedPreloadConfig {
+  entry: string;
+  output: unknown;
+  renderers: number[];
+  loaders: unknown[];
+  exclude: string[];
+  base: string;
+}
+
+interface UnparsedRendererConfig {
+  html: string;
+  entry?: string;
+  devPort: number;
+  output: unknown;
+  loaders?: unknown[];
+  exclude?: string[];
+  base?: string;
+}
+
+interface UnparsedMainConfig {
+  entry: string;
+  args?: string[];
+  output: unknown;
+  loaders?: unknown[];
+  exclude?: string[];
+  base?: string;
+}
+
+interface UnparsedElectronConfig {
+  output?: string;
+  main: unknown;
+  renderers: unknown | unknown[];
+  preloads?: unknown | unknown[];
+  resources?: unknown | unknown[];
+}
+
 export abstract class ConfigParser {
   /**
    * Parse a file and return the parsed object
@@ -18,307 +69,232 @@ export abstract class ConfigParser {
 
   /**
    * Parse the electron config object
-   * @param {any} config - The electron config object
+   * @param {unknown} config - The electron config object
    * @param {boolean} isUsingVite - Indicates if the project must use Vite
    * @throws {Error} - If the config is not valid
    * @returns {ElectronConfig} - The parsed electron config object
    */
-  public parseElectronConfig(config: any, isUsingVite: boolean): ElectronConfig {
-    let output = './dist';
-    const preloadConfigs: PreloadConfig[] = [];
-    const rendererConfigs: RendererConfig[] = [];
-    const resourceConfigs: ResourceConfig[] = [];
-
-    if (typeof config.output === 'string') {
-      output = config.output;
+  public parseElectronConfig(config: unknown, isUsingVite: boolean): ElectronConfig {
+    if (typeof config !== 'object' || config === null) {
+      throw new Error('Config is required');
     }
 
-    if (config.main == undefined) {
+    const electronConfig = config as UnparsedElectronConfig;
+
+    const output = typeof electronConfig.output === 'string' ? electronConfig.output : './dist';
+
+    if (!('main' in electronConfig)) {
       throw new Error('Main config is required');
     }
 
-    if (config.renderers == undefined) {
+    if (!('renderers' in electronConfig)) {
       throw new Error('Renderer config is required');
     }
 
-    const mainConfig: MainConfig = this.parseMainConfig(config.main);
+    const mainConfig = this.parseMainConfig(electronConfig.main);
 
-    if (config.preloads !== undefined) {
-      const tempPreloadConfigs: any[] = Array.isArray(config.preloads) ? config.preloads : [config.preloads];
-      preloadConfigs.push(
-        ...tempPreloadConfigs.map((config: any) => this.parsePreloadConfig(config, mainConfig.output)),
-      );
-    }
+    const preloadConfigs = Array.isArray(electronConfig.preloads)
+      ? electronConfig.preloads.map((config) => this.parsePreloadConfig(config, mainConfig.output))
+      : electronConfig.preloads
+        ? [this.parsePreloadConfig(electronConfig.preloads, mainConfig.output)]
+        : [];
 
-    const tempRendererConfigs: any[] = Array.isArray(config.renderers) ? config.renderers : [config.renderers];
-    rendererConfigs.push(
-      ...tempRendererConfigs.map((config: any) => this.parseRendererConfig(config, mainConfig.output, isUsingVite)),
-    );
+    const rendererConfigs = Array.isArray(electronConfig.renderers)
+      ? electronConfig.renderers.map((config) => this.parseRendererConfig(config, mainConfig.output, isUsingVite))
+      : [this.parseRendererConfig(electronConfig.renderers, mainConfig.output, isUsingVite)];
 
-    if (config.resources !== undefined) {
-      const tempResourceConfigs: any[] = Array.isArray(config.resources) ? config.resources : [config.resources];
-      resourceConfigs.push(
-        ...tempResourceConfigs.map((config: any) => this.parseResourceConfig(config, mainConfig.output.directory)),
-      );
-    }
+    const resourceConfigs = Array.isArray(electronConfig.resources)
+      ? electronConfig.resources.map((config) => this.parseResourceConfig(config, mainConfig.output.directory))
+      : electronConfig.resources
+        ? [this.parseResourceConfig(electronConfig.resources, mainConfig.output.directory)]
+        : [];
 
     return new ElectronConfig(output, mainConfig, preloadConfigs, rendererConfigs, resourceConfigs);
   }
 
   /**
    * Parses the main config object from the object
-   * @param {any} config - Main config object
+   * @param {unknown} config - Main config object
    * @throws {Error} - If the config is not valid
    * @returns {MainConfig} - Main config object
    */
-  public parseMainConfig(config: any): MainConfig {
-    const entryPoint = config.entry;
-    let baseConfigEntryPoint: string | undefined = undefined;
-    const loaderConfigs: LoaderConfig[] = [];
-    const excludeConfigs: string[] = [];
-    const args: string[] = [];
+  public parseMainConfig(config: unknown): MainConfig {
+    if (typeof config !== 'object' || config === null) {
+      throw new Error('Main config is required');
+    }
 
-    if (typeof config.entry !== 'string') {
+    const mainConfig = config as UnparsedMainConfig;
+
+    if (typeof mainConfig.entry !== 'string') {
       throw new Error('Main entry point must be a string');
     }
 
-    if (config.args != undefined) {
-      if (Array.isArray(config.args)) {
-        if (config.args.some((arg: any) => typeof arg !== 'string')) {
-          throw new Error('Main args must be an array of strings');
-        }
+    const args =
+      Array.isArray(mainConfig.args) && mainConfig.args.every((arg) => typeof arg === 'string') ? mainConfig.args : [];
 
-        args.push(...config.args);
-      } else {
-        throw new Error('Main args must be an array');
-      }
-    }
+    const outputConfig = this.parseOutputConfig(mainConfig.output);
 
-    if (config.output == undefined) {
-      throw new Error('Main output is required');
-    }
+    const loaderConfigs = Array.isArray(mainConfig.loaders)
+      ? mainConfig.loaders.map((loader) => this.parseLoaderConfig(loader))
+      : [];
 
-    const outputConfig: OutputConfig = this.parseOutputConfig(config.output);
+    const excludeConfigs =
+      Array.isArray(mainConfig.exclude) && mainConfig.exclude.every((exclude) => typeof exclude === 'string')
+        ? mainConfig.exclude
+        : [];
 
-    if (Array.isArray(config.loaders)) {
-      loaderConfigs.push(...config.loaders.map((config: any) => this.parseLoaderConfig(config)));
-    } else if (config.loaders != undefined) {
-      throw new Error('Main loaders must be an array');
-    }
+    const baseConfigEntryPoint = typeof mainConfig.base === 'string' ? mainConfig.base : undefined;
 
-    if (Array.isArray(config.exclude)) {
-      config.exclude.forEach((exclude: any) => {
-        if (typeof exclude !== 'string') {
-          throw new Error('Excluded library must be a string');
-        }
-
-        excludeConfigs.push(exclude);
-      });
-    } else if (config.exclude != undefined) {
-      throw new Error('Main exclude must be an array');
-    }
-
-    if (config.base !== undefined) {
-      if (typeof config.base !== 'string') {
-        throw new Error('Base config entry point must be a string');
-      }
-
-      baseConfigEntryPoint = config.base;
-    }
-
-    return new MainConfig(entryPoint, args, outputConfig, loaderConfigs, excludeConfigs, baseConfigEntryPoint);
+    return new MainConfig(mainConfig.entry, args, outputConfig, loaderConfigs, excludeConfigs, baseConfigEntryPoint);
   }
 
   /**
    * Parses the renderer config object from the object
-   * @param {any} config - Renderer config object
+   * @param {unknown} config - Renderer config object
    * @param {OutputConfig} defaultOutputConfig - Default output config
    * @param {boolean} isUsingVite - Indicates if the project must use Vite
    * @throws {Error} - If the config is not valid
    */
-  public parseRendererConfig(config: any, defaultOutputConfig: OutputConfig, isUsingVite: boolean): RendererConfig {
-    const htmlEntryPoint = config.html;
-    const entryPoint = isUsingVite ? config.html : config.entry; // Vite uses HTML as entry point
-    const output = config.output;
-    const devPort = config.devPort;
-    let baseConfigEntryPoint: string | undefined = undefined;
-    let outputConfig: OutputConfig;
-    const loaderConfigs: LoaderConfig[] = [];
-    const excludeConfigs: string[] = [];
-
-    if (typeof htmlEntryPoint !== 'string') {
-      throw new Error('Renderer HTML point is required');
+  public parseRendererConfig(config: unknown, defaultOutputConfig: OutputConfig, isUsingVite: boolean): RendererConfig {
+    if (typeof config !== 'object' || config === null) {
+      throw new Error('Renderer config is required');
     }
 
-    if (isUsingVite === false && typeof entryPoint !== 'string') {
-      throw new Error('Renderer entry must be a string');
+    const rendererConfig = config as UnparsedRendererConfig;
+
+    if (typeof rendererConfig.html !== 'string') {
+      throw new Error('Renderer HTML entry must be a string');
     }
 
-    if (typeof devPort !== 'number') {
+    let entryPoint = rendererConfig.html;
+    if (!isUsingVite && typeof rendererConfig.entry === 'string') {
+      entryPoint = rendererConfig.entry;
+    }
+
+    if (typeof rendererConfig.devPort !== 'number') {
       throw new Error('Renderer dev port must be a number');
     }
 
-    if (output == undefined) {
-      throw new Error('Renderer output is required');
-    } else {
-      if (output.directory === undefined) {
-        output.directory = defaultOutputConfig.directory;
-      }
+    const outputConfig = this.parseOutputConfig(rendererConfig.output);
 
-      outputConfig = this.parseOutputConfig(output);
-    }
+    const loaderConfigs = Array.isArray(rendererConfig.loaders)
+      ? rendererConfig.loaders.map((loader) => this.parseLoaderConfig(loader))
+      : [];
 
-    if (Array.isArray(config.loaders)) {
-      config.loaders.forEach((config: any) => {
-        loaderConfigs.push(this.parseLoaderConfig(config));
-      });
-    } else if (config.loaders != undefined) {
-      throw new Error('Main loaders must be an array');
-    }
+    const excludeConfigs = Array.isArray(rendererConfig.exclude)
+      ? rendererConfig.exclude.every((exclude) => typeof exclude === 'string')
+        ? rendererConfig.exclude
+        : []
+      : [];
 
-    if (Array.isArray(config.exclude)) {
-      config.exclude.forEach((exclude: any) => {
-        if (typeof exclude !== 'string') {
-          throw new Error('Excluded library must be a string');
-        }
-
-        excludeConfigs.push(exclude);
-      });
-    } else if (config.exclude != undefined) {
-      throw new Error('Main exclude must be an array');
-    }
-
-    if (config.base !== undefined) {
-      if (typeof config.base !== 'string') {
-        throw new Error('Base config entry point must be a string');
-      }
-
-      baseConfigEntryPoint = config.base;
-    }
+    const baseConfigEntryPoint = typeof rendererConfig.base === 'string' ? rendererConfig.base : undefined;
 
     return new RendererConfig(
-      htmlEntryPoint,
+      rendererConfig.html,
       entryPoint,
       outputConfig,
       loaderConfigs,
       excludeConfigs,
-      devPort,
-      baseConfigEntryPoint,
+      rendererConfig.devPort,
+      baseConfigEntryPoint
     );
   }
 
-  public parsePreloadConfig(config: any, defaultOutputConfig: OutputConfig): PreloadConfig {
-    const entryPoint = config.entry;
-    const output = config.output;
-    let baseConfigEntryPoint: string | undefined = undefined;
-    let outputConfig: OutputConfig;
-    const rendererProcesses: number[] = [];
-    const loaderConfigs: LoaderConfig[] = [];
-    const excludeConfigs: string[] = [];
+  public parsePreloadConfig(preloadConfig: unknown, defaultOutputConfig: OutputConfig): PreloadConfig {
+    if (typeof preloadConfig !== 'object' || preloadConfig === null) {
+      throw new Error('Preload config is required');
+    }
 
-    if (typeof entryPoint !== 'string') {
+    const config = preloadConfig as UnparsedPreloadConfig;
+
+    if (typeof config.entry !== 'string') {
       throw new Error('Preload entry must be a string');
     }
 
-    if (output == undefined) {
-      throw new Error('Preload output is required');
-    } else {
-      if (output.directory === undefined) {
-        output.directory = defaultOutputConfig.directory;
-      }
+    const outputConfig = this.parseOutputConfig(config.output || { directory: defaultOutputConfig.directory });
 
-      outputConfig = this.parseOutputConfig(output);
-    }
+    const rendererProcesses =
+      Array.isArray(config.renderers) && config.renderers.every((renderer) => typeof renderer === 'number')
+        ? config.renderers
+        : [];
 
-    if (Array.isArray(config.renderers)) {
-      config.renderers.forEach((renderer: any) => {
-        if (typeof renderer !== 'number') {
-          throw new Error('Renderer process must be a number');
-        }
+    const loaderConfigs = Array.isArray(config.loaders)
+      ? config.loaders.map((loader) => this.parseLoaderConfig(loader))
+      : [];
 
-        rendererProcesses.push(renderer);
-      });
-    } else if (config.renderers != undefined) {
-      throw new Error('Renderer processes must be an array');
-    }
+    const excludeConfigs =
+      Array.isArray(config.exclude) && config.exclude.every((exclude) => typeof exclude === 'string')
+        ? config.exclude
+        : [];
 
-    if (Array.isArray(config.loaders)) {
-      loaderConfigs.push(...config.loaders.map((config: any) => this.parseLoaderConfig(config)));
-    } else if (config.loaders != undefined) {
-      throw new Error('Main loaders must be an array');
-    }
-
-    if (Array.isArray(config.exclude)) {
-      config.exclude.forEach((exclude: any) => {
-        if (typeof exclude !== 'string') {
-          throw new Error('Excluded library must be a string');
-        }
-
-        excludeConfigs.push(exclude);
-      });
-    } else if (config.exclude != undefined) {
-      throw new Error('Main exclude must be an array');
-    }
-
-    if (config.base !== undefined) {
-      if (typeof config.base !== 'string') {
-        throw new Error('Base config entry point must be a string');
-      }
-
-      baseConfigEntryPoint = config.base;
-    }
+    const baseConfigEntryPoint = typeof config.base === 'string' ? config.base : undefined;
 
     return new PreloadConfig(
-      entryPoint,
+      config.entry,
       outputConfig,
       rendererProcesses,
       loaderConfigs,
       excludeConfigs,
-      baseConfigEntryPoint,
+      baseConfigEntryPoint
     );
   }
 
-  public parseResourceConfig(config: any, defaultOutputDirectory: string): ResourceConfig {
-    if (typeof config === 'string') {
-      return new SimpleResourceConfig(config, defaultOutputDirectory);
+  public parseResourceConfig(resourceConfig: unknown, defaultOutputDirectory: string): ResourceConfig {
+    if (typeof resourceConfig === 'string') {
+      return new SimpleResourceConfig(resourceConfig, defaultOutputDirectory);
     }
+
+    if (typeof resourceConfig !== 'object' || resourceConfig === null) {
+      throw new Error('Resource config is required');
+    }
+
+    const config = resourceConfig as UnparsedResoruceConfig;
 
     if (typeof config.from !== 'string') {
-      throw new Error('Resource from must be a string');
+      throw new Error('Resource from is required and must be a string');
     }
 
-    if (config.to === undefined) {
-      return new SimpleResourceConfig(config.from, defaultOutputDirectory);
-    }
-    if (typeof config.to === 'string') {
-      return new SimpleResourceConfig(config.from, config.to);
+    if (config.to === undefined || typeof config.to === 'string') {
+      return new SimpleResourceConfig(config.from, config.to || defaultOutputDirectory);
     }
 
-    const outputConfig: OutputConfig = this.parseOutputConfig(config.to);
+    const outputConfig = this.parseOutputConfig(config.to);
     return new CustomResourceConfig(config.from, outputConfig);
   }
 
-  parseLoaderConfig(loaderConfig: any): LoaderConfig {
-    if (typeof loaderConfig.extension !== 'string') {
+  parseLoaderConfig(loaderConfig: unknown): LoaderConfig {
+    if (typeof loaderConfig !== 'object' || loaderConfig === null) {
+      throw new Error('Loader config is required');
+    }
+
+    const config = loaderConfig as UnparsedLoaderConfig;
+
+    if (typeof config.extension !== 'string') {
       throw new Error('Loader extension must be a string');
     }
 
-    if (typeof loaderConfig.loader !== 'string') {
+    if (typeof config.loader !== 'string') {
       throw new Error('Loader loader must be a string');
     }
 
-    return new LoaderConfig(loaderConfig.extension, loaderConfig.loader);
+    return new LoaderConfig(config.extension, config.loader);
   }
 
-  public parseOutputConfig(outputConfig: any): OutputConfig {
-    if (typeof outputConfig.directory !== 'string') {
+  public parseOutputConfig(outputConfig: unknown): OutputConfig {
+    if (typeof outputConfig !== 'object' || outputConfig === null) {
+      throw new Error('Output config is required');
+    }
+
+    const config = outputConfig as UnparsedOutputConfig;
+
+    if (typeof config.directory !== 'string') {
       throw new Error('Output directory must be a string');
     }
 
-    if (typeof outputConfig.filename !== 'string') {
+    if (typeof config.filename !== 'string') {
       throw new Error('Output file name must be a string');
     }
 
-    return new OutputConfig(outputConfig.directory, outputConfig.filename);
+    return new OutputConfig(config.directory, config.filename);
   }
 }
