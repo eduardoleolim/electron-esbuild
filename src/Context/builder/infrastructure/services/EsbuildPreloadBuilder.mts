@@ -1,6 +1,6 @@
 import chokidar from 'chokidar';
 import debounce from 'debounce';
-import esbuild, { BuildContext, BuildOptions } from 'esbuild';
+import esbuild, { BuildContext, BuildOptions, Loader } from 'esbuild';
 import path from 'path';
 
 import { PreloadConfig } from '../../../config/domain/PreloadConfig.mjs';
@@ -9,11 +9,13 @@ import { getDependencies } from '../../../shared/infrastructure/getDependencies.
 import { PreloadBuilderService } from '../../domain/PreloadBuilderService.mjs';
 import { getEsbuildBaseConfig } from '../utils/getEsbuildBaseConfig.mjs';
 
+type LoadersInput = Record<string, Loader>;
+
 export class EsbuildPreloadBuilder implements PreloadBuilderService {
-  private readonly loaders: ReadonlyArray<string>;
+  private readonly loaders: readonly string[];
   private readonly logger: Logger;
 
-  constructor(loaders: ReadonlyArray<string>, logger: Logger) {
+  constructor(loaders: readonly string[], logger: Logger) {
     this.loaders = loaders;
     this.logger = logger;
   }
@@ -26,8 +28,12 @@ export class EsbuildPreloadBuilder implements PreloadBuilderService {
       await esbuild.build(esbuildOptions);
 
       this.logger.log('PRELOAD-BUILDER', 'Build finished');
-    } catch (error: any) {
-      this.logger.error('PRELOAD-BUILDER', error.message);
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        this.logger.error('PRELOAD-BUILDER', error.message);
+      } else {
+        this.logger.error('PRELOAD-BUILDER', `An error occurred while building the preload script.\n${error}`);
+      }
     }
   }
 
@@ -42,8 +48,12 @@ export class EsbuildPreloadBuilder implements PreloadBuilderService {
           this.logger.log('PRELOAD-BUILDER', 'Building preload electron process');
           await context.rebuild();
           this.logger.info('PRELOAD-BUILDER', 'Preload process built');
-        } catch (error: any) {
-          this.logger.error('PRELOAD-BUILDER', error.message);
+        } catch (error: unknown) {
+          if (error instanceof Error) {
+            this.logger.error('PRELOAD-BUILDER', error.message);
+          } else {
+            this.logger.error('PRELOAD-BUILDER', `An error occurred while building the preload script.\n${error}`);
+          }
         } finally {
           this.logger.info('PRELOAD-BUILDER', 'Watching for changes');
         }
@@ -59,10 +69,14 @@ export class EsbuildPreloadBuilder implements PreloadBuilderService {
             watcher.unwatch(dependencies);
             dependencies = getDependencies(config.entryPoint);
             watcher.add(dependencies);
-          } catch (error: any) {
-            this.logger.error('PRELOAD-BUILDER', error.message);
+          } catch (error: unknown) {
+            if (error instanceof Error) {
+              this.logger.error('PRELOAD-BUILDER', error.message);
+            } else {
+              this.logger.error('PRELOAD-BUILDER', `An error occurred while building the preload script.\n${error}`);
+            }
           }
-        }, 500),
+        }, 500)
       );
 
     process.on('SIGINT', async () => {
@@ -80,13 +94,13 @@ export class EsbuildPreloadBuilder implements PreloadBuilderService {
   async loadPreloadEsbuildOptions(output: string, config: PreloadConfig): Promise<BuildOptions> {
     const outputFileDirectory = path.resolve(process.cwd(), output, config.output.directory, config.output.filename);
     const external = ['electron', ...config.excludedLibraries];
-    const loaders: any = {};
+    const loaders: LoadersInput = {};
 
     for (const loader of config.loaderConfigs) {
       if (!this.loaders.includes(loader.loaderName)) {
         this.logger.warn('PRELOAD-BUILDER', `Loader ${loader.loaderName} not found`);
       } else {
-        loaders[loader.fileExtension] = loader.loaderName;
+        loaders[loader.fileExtension] = loader.loaderName as Loader;
       }
     }
 
@@ -95,8 +109,12 @@ export class EsbuildPreloadBuilder implements PreloadBuilderService {
       try {
         esbuildOptions = await getEsbuildBaseConfig(config.baseConfigEntryPoint);
         this.logger.info('PRELOAD-BUILDER', `Plugins loaded from <${config.baseConfigEntryPoint}>`);
-      } catch (error: any) {
-        this.logger.warn('MAIN-BUILDER', error.message);
+      } catch (error: unknown) {
+        if (error instanceof Error) {
+          this.logger.error('PRELOAD-BUILDER', error.message);
+        } else {
+          this.logger.error('PRELOAD-BUILDER', `An error occurred while building the preload script.\n${error}`);
+        }
       }
     }
 
@@ -113,7 +131,7 @@ export class EsbuildPreloadBuilder implements PreloadBuilderService {
       define:
         esbuildOptions.define === undefined
           ? { 'process.env.NODE_ENV': `"${process.env.NODE_ENV}"` }
-          : { ...esbuildOptions.define, 'process.env.NODE_ENV': `"${process.env.NODE_ENV}"` },
+          : { ...esbuildOptions.define, 'process.env.NODE_ENV': `"${process.env.NODE_ENV}"` }
     };
   }
 }

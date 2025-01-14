@@ -19,10 +19,14 @@ import { loaders } from '../../Context/shared/infrastructure/esbuidLoaders.mjs';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
-type Options = {
+interface PackageJson {
+  version: string;
+}
+
+interface Options {
   config?: string;
   vite?: boolean;
-};
+}
 
 type DevOptions = Options & {
   clean?: boolean;
@@ -32,7 +36,7 @@ type BuildOptions = Options;
 
 export class CommandLine {
   private readonly program: Command;
-  private readonly packageJson: any;
+  private readonly packageJson: PackageJson;
   private readonly jsonParser: JsonElectronConfigParser;
   private readonly yamlParser: YamlElectronConfigParser;
   private readonly esbuildMainBuilder: EsbuildMainProcessBuilder;
@@ -70,7 +74,6 @@ export class CommandLine {
       .option('--vite', 'Use Vite for renderer process')
       .action((options: DevOptions) => {
         process.env.NODE_ENV = 'development';
-
         (async () => {
           try {
             let isUsingVite;
@@ -101,11 +104,15 @@ export class CommandLine {
               this.esbuildMainBuilder,
               rendererBuilder,
               this.esbuildPreloadBuilder,
-              this.logger,
+              this.logger
             );
             await devApplication.develop(pathConfig, clean, isUsingVite);
-          } catch (error: any) {
-            this.logger.error('CLI', error.message);
+          } catch (error: unknown) {
+            if (error instanceof Error) {
+              this.logger.error('CLI', error.message);
+            } else {
+              this.logger.error('CLI', 'An error occurred');
+            }
           }
         })();
       });
@@ -116,7 +123,6 @@ export class CommandLine {
       .option('--vite', 'Use Vite for renderer process')
       .action((options: BuildOptions) => {
         process.env.NODE_ENV = 'production';
-
         (async () => {
           try {
             let isUsingVite;
@@ -146,11 +152,15 @@ export class CommandLine {
               this.esbuildMainBuilder,
               rendererBuilder,
               this.esbuildPreloadBuilder,
-              this.logger,
+              this.logger
             );
             await buildApplication.build(pathConfig, true, isUsingVite);
-          } catch (error: any) {
-            this.logger.error('CLI', error.message);
+          } catch (error: unknown) {
+            if (error instanceof Error) {
+              this.logger.error('CLI', error.message);
+            } else {
+              this.logger.error('CLI', 'An error occurred');
+            }
           }
         })();
       });

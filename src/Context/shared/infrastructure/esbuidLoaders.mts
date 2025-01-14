@@ -12,5 +12,5 @@ export const loaders = [
   'jsx',
   'text',
   'ts',
-  'tsx',
+  'tsx'
 ];

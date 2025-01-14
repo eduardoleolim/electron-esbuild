@@ -19,7 +19,7 @@ export class BuildApplication extends BaseApplication {
     mainBuilder: MainProcessBuilderService,
     rendererBuilder: RendererProcessBuilderService,
     preloadBuilder: PreloadBuilderService,
-    logger: Logger,
+    logger: Logger
   ) {
     super(logger);
     this.configParser = configParser;

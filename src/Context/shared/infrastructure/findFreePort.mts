@@ -23,7 +23,7 @@ export function findFreePort(port: number, host: string, reservePort: boolean): 
  * @param portEnd - The port to end searching
  * @param reservePort - Reserve the port, so it will be ignored in the next searches
  */
-export function findFreePort(portBegin: number, portEnd: number, reservePort: boolean): Promise<number>;
+export function findFreePort(portBegin: number, portEnd: number, reservePort: boolean): Promise<number>; // eslint-disable-line
 /**
  * Find a free port between the given ports with the given host
  * @param portBegin - The port to start searching
@@ -37,7 +37,7 @@ export function findFreePort<S extends boolean | string, T extends number | stri
   portBegin: number,
   portEnd: T,
   host?: T extends string ? boolean : S,
-  reservePort?: boolean,
+  reservePort?: boolean
 ): Promise<number> {
   let usePortEnd: number;
   let useHost: string;

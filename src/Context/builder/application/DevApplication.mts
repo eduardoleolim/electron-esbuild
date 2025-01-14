@@ -1,5 +1,3 @@
-import path from 'path';
-
 import { ConfigParser } from '../../config/domain/ConfigParser.mjs';
 import { MainConfig } from '../../config/domain/MainConfig.mjs';
 import { PreloadConfig } from '../../config/domain/PreloadConfig.mjs';
@@ -21,7 +19,7 @@ export class DevApplication extends BaseApplication {
     mainBuilder: MainProcessBuilderService,
     rendererBuilder: RendererProcessBuilderService,
     preloadBuilder: PreloadBuilderService,
-    logger: Logger,
+    logger: Logger
   ) {
     super(logger);
     this.configParser = configParser;
@@ -68,7 +66,7 @@ export class DevApplication extends BaseApplication {
   private async developRenderer(
     outputDirectory: string,
     config: RendererConfig,
-    preloadEntryPoints: string[],
+    preloadEntryPoints: string[]
   ): Promise<void> {
     await this.rendererBuilder.develop(outputDirectory, config, preloadEntryPoints);
   }

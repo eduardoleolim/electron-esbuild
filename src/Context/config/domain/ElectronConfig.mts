@@ -6,8 +6,8 @@ import { ResourceConfig } from './ResourceConfig.mjs';
 export class ElectronConfig {
   readonly output: string;
   readonly mainConfig: MainConfig;
-  readonly preloadConfigs: ReadonlyArray<PreloadConfig>;
-  readonly rendererConfigs: ReadonlyArray<RendererConfig>;
+  readonly preloadConfigs: readonly PreloadConfig[];
+  readonly rendererConfigs: readonly RendererConfig[];
   readonly resourceConfigs: ResourceConfig[];
 
   constructor(
@@ -15,7 +15,7 @@ export class ElectronConfig {
     mainConfig: MainConfig,
     preloadConfigs: PreloadConfig[],
     rendererConfigs: RendererConfig[],
-    resourceConfigs: ResourceConfig[],
+    resourceConfigs: ResourceConfig[]
   ) {
     this.output = output;
     this.mainConfig = mainConfig;

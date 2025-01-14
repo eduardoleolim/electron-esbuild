@@ -1,6 +1,6 @@
 import chokidar from 'chokidar';
 import debounce from 'debounce';
-import esbuild, { BuildContext, BuildOptions } from 'esbuild';
+import esbuild, { BuildContext, BuildOptions, Loader } from 'esbuild';
 import * as path from 'path';
 
 import { MainConfig } from '../../../config/domain/MainConfig.mjs';
@@ -10,12 +10,14 @@ import { MainProcessBuilderService } from '../../domain/MainProcessBuilderServic
 import { getEsbuildBaseConfig } from '../utils/getEsbuildBaseConfig.mjs';
 import { MainProcess, MainProcessDispatcher } from './MainProcessDispatcher.mjs';
 
+type LoadersInput = Record<string, Loader>;
+
 export class EsbuildMainProcessBuilder implements MainProcessBuilderService {
-  private readonly loaders: ReadonlyArray<string>;
+  private readonly loaders: readonly string[];
   private readonly mainProcessDispatcher: MainProcessDispatcher;
   private readonly logger: Logger;
 
-  constructor(loaders: ReadonlyArray<string>, logger: Logger) {
+  constructor(loaders: readonly string[], logger: Logger) {
     this.loaders = loaders;
     this.logger = logger;
     this.mainProcessDispatcher = new MainProcessDispatcher(this.logger);
@@ -29,8 +31,12 @@ export class EsbuildMainProcessBuilder implements MainProcessBuilderService {
       await esbuild.build(buildOptions);
 
       this.logger.log('MAIN-BUILDER', 'Build finished');
-    } catch (error: any) {
-      this.logger.error('MAIN-BUILDER', error.message);
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        this.logger.error('MAIN-BUILDER', error.message);
+      } else {
+        this.logger.error('MAIN-BUILDER', `An error occurred while building the main process.\n${error}`);
+      }
     }
   }
 
@@ -48,8 +54,12 @@ export class EsbuildMainProcessBuilder implements MainProcessBuilderService {
           await context.rebuild();
           this.logger.log('MAIN-BUILDER', 'Main process built');
           currentProcess = this.mainProcessDispatcher.startMainProcess(output, config);
-        } catch (error: any) {
-          this.logger.error('MAIN-BUILDER', error.message);
+        } catch (error: unknown) {
+          if (error instanceof Error) {
+            this.logger.error('MAIN-BUILDER', error.message);
+          } else {
+            this.logger.error('MAIN-BUILDER', `An error occurred while building the main process.\n${error}`);
+          }
           this.logger.log('MAIN-BUILDER', 'The main process will not be started');
         } finally {
           this.logger.log('MAIN-BUILDER', 'Watching for changes');
@@ -71,10 +81,14 @@ export class EsbuildMainProcessBuilder implements MainProcessBuilderService {
               this.mainProcessDispatcher.killMainProcess(currentProcess);
             }
             currentProcess = this.mainProcessDispatcher.startMainProcess(output, config);
-          } catch (error: any) {
-            this.logger.error('MAIN-BUILDER', error.message);
+          } catch (error: unknown) {
+            if (error instanceof Error) {
+              this.logger.error('MAIN-BUILDER', error.message);
+            } else {
+              this.logger.error('MAIN-BUILDER', `An error occurred while building the main process.\n${error}`);
+            }
           }
-        }, 1000),
+        }, 1000)
       );
 
     process.on('SIGINT', async () => {
@@ -99,13 +113,13 @@ export class EsbuildMainProcessBuilder implements MainProcessBuilderService {
   public async loadMainEsbuildOptions(output: string, config: MainConfig): Promise<BuildOptions> {
     const outputFileDirectory = path.resolve(process.cwd(), output, config.output.directory, config.output.filename);
     const external = ['electron', ...config.excludedLibraries];
-    const loaders: any = {};
+    const loaders: LoadersInput = {};
 
     for (const loader of config.loaderConfigs) {
       if (!this.loaders.includes(loader.loaderName)) {
         this.logger.warn('MAIN-BUILDER', `Loader ${loader.loaderName} not found`);
       } else {
-        loaders[loader.fileExtension] = loader.loaderName;
+        loaders[loader.fileExtension] = loader.loaderName as Loader;
       }
     }
 
@@ -114,8 +128,12 @@ export class EsbuildMainProcessBuilder implements MainProcessBuilderService {
       try {
         esbuildOptions = await getEsbuildBaseConfig(config.baseConfigEntryPoint);
         this.logger.info('MAIN-BUILDER', `Plugins loaded from <${config.baseConfigEntryPoint}>`);
-      } catch (error: any) {
-        this.logger.warn('MAIN-BUILDER', error.message);
+      } catch (error: unknown) {
+        if (error instanceof Error) {
+          this.logger.error('MAIN-BUILDER', error.message);
+        } else {
+          this.logger.error('MAIN-BUILDER', `An error occurred while building the main process.\n${error}`);
+        }
       }
     }
 
@@ -132,7 +150,7 @@ export class EsbuildMainProcessBuilder implements MainProcessBuilderService {
       define:
         esbuildOptions.define === undefined
           ? { 'process.env.NODE_ENV': `"${process.env.NODE_ENV}"` }
-          : { ...esbuildOptions.define, 'process.env.NODE_ENV': `"${process.env.NODE_ENV}"` },
+          : { ...esbuildOptions.define, 'process.env.NODE_ENV': `"${process.env.NODE_ENV}"` }
     };
   }
 }

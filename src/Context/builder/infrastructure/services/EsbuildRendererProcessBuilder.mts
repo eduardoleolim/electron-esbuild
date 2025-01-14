@@ -1,5 +1,5 @@
 import debounce from 'debounce';
-import esbuild, { BuildContext, BuildOptions, ServeOptions } from 'esbuild';
+import esbuild, { BuildContext, BuildOptions, Loader, ServeOptions } from 'esbuild';
 import * as fs from 'fs';
 import path from 'path';
 
@@ -11,11 +11,13 @@ import { RendererProcessBuilderService } from '../../domain/RendererProcessBuild
 import { getEsbuildBaseConfig } from '../utils/getEsbuildBaseConfig.mjs';
 import { RendererHotReloadServer, RendererHotReloadServerOptions } from './RendererHotReloadServer.mjs';
 
+type LoadersInput = Record<string, Loader>;
+
 export class EsbuildRendererProcessBuilder implements RendererProcessBuilderService {
-  private readonly loaders: ReadonlyArray<string>;
+  private readonly loaders: readonly string[];
   private readonly logger: Logger;
 
-  constructor(loaders: ReadonlyArray<string>, logger: Logger) {
+  constructor(loaders: readonly string[], logger: Logger) {
     this.loaders = loaders;
     this.logger = logger;
   }
@@ -29,8 +31,12 @@ export class EsbuildRendererProcessBuilder implements RendererProcessBuilderServ
       await this.copyHtml(output, config);
 
       this.logger.log('RENDERER-BUILDER', 'Build finished');
-    } catch (error: any) {
-      this.logger.error('RENDERER-BUILDER', error.message);
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        this.logger.error('RENDERER-BUILDER', error.message);
+      } else {
+        this.logger.error('RENDERER-BUILDER', `An error occurred while building the renderer process.\n${error}`);
+      }
     }
   }
 
@@ -44,21 +50,25 @@ export class EsbuildRendererProcessBuilder implements RendererProcessBuilderServ
     const serveOptions: ServeOptions = {
       port: portContext,
       host: host,
-      servedir: outputDirectory,
+      servedir: outputDirectory
     };
     const hotReloadServerOptions: RendererHotReloadServerOptions = {
       dependencies: dependencies,
       esbuildHost: host,
       esbuildPort: portContext,
       hotReloadHost: host,
-      hotReloadPort: hotReloadPort,
+      hotReloadPort: hotReloadPort
     };
 
     try {
       await context.rebuild();
       this.logger.info('RENDERER-BUILDER', 'Renderer process built');
-    } catch (error: any) {
-      this.logger.error('RENDERER-BUILDER', error.message);
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        this.logger.error('RENDERER-BUILDER', error.message);
+      } else {
+        this.logger.error('RENDERER-BUILDER', `An error occurred while building the renderer process.\n${error}`);
+      }
     } finally {
       this.logger.info('RENDERER-BUILDER', 'Watching for changes');
     }
@@ -80,7 +90,7 @@ export class EsbuildRendererProcessBuilder implements RendererProcessBuilderServ
 
           hotReloadServer.refresh();
           this.logger.info('RENDERER-BUILDER', 'Change in renderer source detected');
-        }, 1000),
+        }, 1000)
       );
     });
 
@@ -114,13 +124,13 @@ export class EsbuildRendererProcessBuilder implements RendererProcessBuilderServ
   public async loadRendererEsbuildOptions(output: string, config: RendererConfig): Promise<BuildOptions> {
     const outputFileDirectory = path.resolve(process.cwd(), output, config.output.directory, config.output.filename);
     const external = ['electron', ...config.excludedLibraries];
-    const loaders: any = {};
+    const loaders: LoadersInput = {};
 
     for (const loader of config.loaderConfigs) {
       if (!this.loaders.includes(loader.loaderName)) {
         this.logger.warn('RENDERER-BUILDER', `Loader ${loader.loaderName} not found`);
       } else {
-        loaders[loader.fileExtension] = loader.loaderName;
+        loaders[loader.fileExtension] = loader.loaderName as Loader;
       }
     }
 
@@ -128,9 +138,13 @@ export class EsbuildRendererProcessBuilder implements RendererProcessBuilderServ
     if (config.baseConfigEntryPoint !== undefined) {
       try {
         esbuildOptions = await getEsbuildBaseConfig(config.baseConfigEntryPoint);
-        this.logger.info('MAIN-RENDERER', `Plugins loaded from <${config.baseConfigEntryPoint}>`);
-      } catch (error: any) {
-        this.logger.warn('MAIN-BUILDER', error.message);
+        this.logger.info('RENDERER-BUILDER', `Plugins loaded from <${config.baseConfigEntryPoint}>`);
+      } catch (error: unknown) {
+        if (error instanceof Error) {
+          this.logger.error('RENDERER-BUILDER', error.message);
+        } else {
+          this.logger.error('RENDERER-BUILDER', `An error occurred while building the renderer process.\n${error}`);
+        }
       }
     }
 
@@ -147,7 +161,7 @@ export class EsbuildRendererProcessBuilder implements RendererProcessBuilderServ
       define:
         esbuildOptions.define === undefined
           ? { 'process.env.NODE_ENV': `"${process.env.NODE_ENV}"` }
-          : { ...esbuildOptions.define, 'process.env.NODE_ENV': `"${process.env.NODE_ENV}"` },
+          : { ...esbuildOptions.define, 'process.env.NODE_ENV': `"${process.env.NODE_ENV}"` }
     };
   }
 
@@ -163,13 +177,13 @@ export class EsbuildRendererProcessBuilder implements RendererProcessBuilderServ
     // Add renderer script to html
     const scriptRelativePath = path.relative(
       path.dirname(htmlOutputDirectory),
-      path.resolve(process.cwd(), output, config.output.directory, config.output.filename),
+      path.resolve(process.cwd(), output, config.output.directory, config.output.filename)
     );
     let htmlContent = fs.readFileSync(htmlInputDirectory, 'utf-8');
     htmlContent = htmlContent.replace(
       '</head>',
       `  <script src="${scriptRelativePath}" defer></script>
-  </head>`,
+  </head>`
     );
 
     // if exists, add css link to html
@@ -177,14 +191,14 @@ export class EsbuildRendererProcessBuilder implements RendererProcessBuilderServ
       process.cwd(),
       output,
       config.output.directory,
-      config.output.filename.replace('.js', '.css'),
+      config.output.filename.replace('.js', '.css')
     );
     const cssRelativePath = path.relative(path.dirname(htmlOutputDirectory), cssDirectory);
     if (fs.existsSync(cssDirectory)) {
       htmlContent = htmlContent.replace(
         '</head>',
         `  <link rel="stylesheet" href="${cssRelativePath}">
-</head>`,
+</head>`
       );
     }
 
@@ -200,7 +214,7 @@ export class EsbuildRendererProcessBuilder implements RendererProcessBuilderServ
     const htmlContent = fs.readFileSync(htmlOutputDirectory, 'utf-8').replace(
       '</head>',
       `  <script src="/livereload.js?snipver=1" defer></script>
-</head>`,
+</head>`
     );
 
     fs.writeFileSync(htmlOutputDirectory, htmlContent, 'utf-8');

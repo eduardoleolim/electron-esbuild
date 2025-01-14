@@ -47,7 +47,7 @@ export class RendererHotReloadServer {
   private loadHotReloadServer(): LiveReloadServer {
     const config: CreateServerConfig = {
       port: this.hotReloadPort,
-      noListen: true,
+      noListen: true
     };
     return livereload.createServer(config);
   }
@@ -55,14 +55,14 @@ export class RendererHotReloadServer {
   private loadServer(): Server {
     const esbuildProxy = httpProxy.createProxyServer({
       target: `http://${this.esbuildHost}:${this.esbuildPort}`,
-      selfHandleResponse: true,
+      selfHandleResponse: true
     });
     const hotReloadProxy = httpProxy.createProxyServer({
-      target: `http://${this.hotReloadHost}:${this.hotReloadPort}`,
+      target: `http://${this.hotReloadHost}:${this.hotReloadPort}`
     });
 
     esbuildProxy.on('proxyRes', (proxyRes, req, res) => {
-      const bodyChuck: any[] = [];
+      const bodyChuck: Uint8Array[] = [];
       proxyRes.on('data', function (chunk) {
         bodyChuck.push(chunk);
       });
@@ -85,21 +85,21 @@ ${body}
 </html>`.trim();
 
           res.writeHead(200, {
-            'Content-Type': 'text/html',
+            'Content-Type': 'text/html'
           });
           res.end(response);
         } else {
-          res.writeHead(proxyRes.statusCode!, proxyRes.headers);
+          res.writeHead(proxyRes.statusCode || 200, proxyRes.headers);
           res.end(Buffer.concat(bodyChuck));
         }
       });
     });
 
     const handlers = connect();
-    handlers.use(compression() as any);
+    handlers.use(compression() as unknown as connect.NextHandleFunction);
     handlers.use((req, res) => {
       const regex = /^\/livereload.js?(\?.*)?$/;
-      const url = req.url!;
+      const url = req.url || '/';
 
       if (regex.test(url)) {
         hotReloadProxy.web(req, res);

@@ -13,7 +13,7 @@ export class RendererConfig extends BaseConfig {
     loaderConfigs: LoaderConfig[],
     excludedLibraries: string[],
     devPort: number,
-    baseConfigEntryPoint?: string,
+    baseConfigEntryPoint?: string
   ) {
     super(entryPoint, output, loaderConfigs, excludedLibraries, baseConfigEntryPoint);
     this.htmlEntryPoint = htmlEntryPoint;

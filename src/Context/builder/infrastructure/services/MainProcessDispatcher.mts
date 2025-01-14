@@ -53,7 +53,7 @@ export class MainProcessDispatcher {
             process.exit(code);
           }
         }
-      },
+      }
     );
     this.dispatchedProcessCount += 1;
 
@@ -75,7 +75,7 @@ export class MainProcessDispatcher {
             this.killProcessMacOSLinux(electronProcess, onKillComplete, reject);
           }
         });
-      },
+      }
     };
   }
 
@@ -104,7 +104,7 @@ export class MainProcessDispatcher {
   private killProcessMacOSLinux(
     process: ChildProcess,
     onKillCompleted: () => void,
-    onError: (error: Error) => void,
+    onError: (error: Error) => void
   ): void {
     process.on('close', onKillCompleted);
     process.on('error', onError);

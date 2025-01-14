@@ -25,7 +25,11 @@ export async function getEsbuildBaseConfig(baseConfigEntry: string): Promise<Bui
     }
 
     return Promise.resolve(defaultEsbuildConfig);
-  } catch (error: any) {
-    return Promise.reject(new Error(`Esbuild base config entry: ${error.message}`));
+  } catch (error: unknown) {
+    if (error instanceof Error) {
+      return Promise.reject(new Error(`Esbuild base config entry: ${error.message}`));
+    } else {
+      return Promise.reject(new Error(`Esbuild base config entry: ${error}`));
+    }
   }
 }

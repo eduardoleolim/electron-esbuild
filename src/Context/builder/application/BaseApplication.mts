@@ -31,7 +31,7 @@ export abstract class BaseApplication {
           process.cwd(),
           outputDirectory,
           customConfig.output.directory,
-          customConfig.output.filename,
+          customConfig.output.filename
         );
       } else {
         this.logger.warn('DEVELOP', `Invalid resource config of <${config.from}>`);

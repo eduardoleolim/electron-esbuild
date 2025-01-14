@@ -11,7 +11,7 @@ export class MainConfig extends BaseConfig {
     output: OutputConfig,
     loaders: LoaderConfig[],
     exclude: string[],
-    baseConfigEntryPoint?: string,
+    baseConfigEntryPoint?: string
   ) {
     super(entryPoint, output, loaders, exclude, baseConfigEntryPoint);
     this.args = args;

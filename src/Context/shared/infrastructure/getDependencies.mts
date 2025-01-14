@@ -14,6 +14,6 @@ export function getDependencies(filename: string): string[] {
   return dependencyTree.toList({
     filename,
     directory,
-    filter: (path) => path.indexOf('node_modules') === -1,
+    filter: (path) => path.indexOf('node_modules') === -1
   });
 }

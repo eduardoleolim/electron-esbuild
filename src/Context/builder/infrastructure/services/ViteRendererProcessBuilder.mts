@@ -25,8 +25,12 @@ export class ViteRendererProcessBuilder implements RendererProcessBuilderService
       await build(options);
 
       this.logger.log('RENDERER-BUILDER', 'Build finished');
-    } catch (error: any) {
-      this.logger.error('RENDERER-BUILDER', error.message);
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        this.logger.error('RENDERER-BUILDER', error.message);
+      } else {
+        this.logger.error('RENDERER-BUILDER', `An error occurred while building the renderer process.\n${error}`);
+      }
     }
   }
 
@@ -41,8 +45,12 @@ export class ViteRendererProcessBuilder implements RendererProcessBuilderService
       try {
         server.listen(config.devPort);
         this.logger.info('RENDERER-BUILDER', `Renderer process running on http://localhost:${config.devPort}`);
-      } catch (error: any) {
-        this.logger.error('RENDERER-BUILDER', error.message);
+      } catch (error: unknown) {
+        if (error instanceof Error) {
+          this.logger.error('RENDERER-BUILDER', error.message);
+        } else {
+          this.logger.error('RENDERER-BUILDER', `An error occurred while building the renderer process.\n${error}`);
+        }
       } finally {
         this.logger.info('RENDERER-BUILDER', 'Watching for changes');
       }
@@ -56,14 +64,18 @@ export class ViteRendererProcessBuilder implements RendererProcessBuilderService
           watcher.unwatch(preloadDependencies);
           preloadDependencies = this.resolvePreloadDependencies(preloadEntryPoints);
           watcher.add(preloadDependencies);
-        }, 1000),
+        }, 1000)
       );
 
       process.on('SIGINT', async () => {
         await server.close();
       });
-    } catch (error: any) {
-      this.logger.error('RENDERER-BUILDER', error.message);
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        this.logger.error('RENDERER-BUILDER', error.message);
+      } else {
+        this.logger.error('RENDERER-BUILDER', `An error occurred while building the renderer process.\n${error}`);
+      }
     }
   }
 
@@ -95,10 +107,10 @@ export class ViteRendererProcessBuilder implements RendererProcessBuilderService
               return '[name][extname]';
             },
             chunkFileNames: '[name].js',
-            entryFileNames: config.output.filename,
-          },
-        },
-      },
+            entryFileNames: config.output.filename
+          }
+        }
+      }
     };
   }
 

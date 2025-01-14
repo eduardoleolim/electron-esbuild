@@ -11,7 +11,7 @@ export class PreloadConfig extends BaseConfig {
     rendererProcesses: number[],
     loaderConfigs: LoaderConfig[],
     excludedLibraries: string[],
-    baseConfigEntryPoint?: string,
+    baseConfigEntryPoint?: string
   ) {
     super(entryPoint, output, loaderConfigs, excludedLibraries, baseConfigEntryPoint);
     this.rendererProcesses = rendererProcesses;
