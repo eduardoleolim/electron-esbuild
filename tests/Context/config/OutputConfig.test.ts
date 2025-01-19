@@ -16,6 +16,56 @@ describe('OutputConfig module', () => {
     }
   });
 
+  test('Invalid output config', () => {
+    try {
+      jsonParser.parseOutputConfig(undefined);
+
+      fail('Invalid output config should throw an error');
+    } catch (error: unknown) {
+      if (!(error instanceof Error)) {
+        fail(`Other type of error: ${error}`);
+      }
+
+      expect(error.message).toBe('Output config is required');
+    }
+
+    try {
+      jsonParser.parseOutputConfig(null);
+
+      fail('Invalid output config should throw an error');
+    } catch (error: unknown) {
+      if (!(error instanceof Error)) {
+        fail(`Other type of error: ${error}`);
+      }
+
+      expect(error.message).toBe('Output config is required');
+    }
+
+    try {
+      jsonParser.parseOutputConfig(1);
+
+      fail('Invalid output config should throw an error');
+    } catch (error: unknown) {
+      if (!(error instanceof Error)) {
+        fail(`Other type of error: ${error}`);
+      }
+
+      expect(error.message).toBe('Output config is required');
+    }
+
+    try {
+      jsonParser.parseOutputConfig('string');
+
+      fail('Invalid output config should throw an error');
+    } catch (error: unknown) {
+      if (!(error instanceof Error)) {
+        fail(`Other type of error: ${error}`);
+      }
+
+      expect(error.message).toBe('Output config is required');
+    }
+  });
+
   test('Invalid directory', () => {
     try {
       const jsonParsed = JSON.parse(invalidDirectoryConfigData);
