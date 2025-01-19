@@ -11,8 +11,8 @@ describe('OutputConfig module', () => {
 
       expect(outputConfig.directory).toBe(jsonParsed.directory);
       expect(outputConfig.filename).toBe(jsonParsed.filename);
-    } catch (error: any) {
-      throw error.message;
+    } catch (error: unknown) {
+      fail(`Error: ${error}`);
     }
   });
 
@@ -21,19 +21,27 @@ describe('OutputConfig module', () => {
       const jsonParsed = JSON.parse(invalidDirectoryConfigData);
       jsonParser.parseOutputConfig(jsonParsed);
 
-      expect(true).toBe(false);
-    } catch (error: any) {
+      fail('Invalid directory should throw an error');
+    } catch (error: unknown) {
+      if (!(error instanceof Error)) {
+        fail(`Other type of error: ${error}`);
+      }
+
       expect(error.message).toBe('Output directory must be a string');
     }
   });
 
   test('Invalid filename', () => {
     try {
-      const jsonParsed = JSON.parse(invalidFilenameConfigData);
+      const jsonParsed: unknown = JSON.parse(invalidFilenameConfigData);
       jsonParser.parseOutputConfig(jsonParsed);
 
-      expect(true).toBe(false);
-    } catch (error: any) {
+      fail('Invalid filename should throw an error');
+    } catch (error: unknown) {
+      if (!(error instanceof Error)) {
+        fail(`Other type of error: ${error}`);
+      }
+
       expect(error.message).toBe('Output file name must be a string');
     }
   });
