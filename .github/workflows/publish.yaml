@@ -32,6 +32,13 @@ jobs:
 
       - name: 🧑‍🔬 Execute Tests
         run: npm test
+
+      - name: 📊 Publish Test Report
+        uses: ctrf-io/github-test-reporter@v1
+        with:
+          report-path: './ctrf/*.json'
+        if: always()
+
   release:
     name: 🚀 Publish
     runs-on: ubuntu-latest
