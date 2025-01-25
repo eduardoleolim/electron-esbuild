@@ -76,3 +76,4 @@ jobs:
         with:
           token: ${{ secrets.NPM_PUBLISH_TOKEN }}
           access: public
+          provenance: true
