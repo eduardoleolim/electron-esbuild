@@ -12,6 +12,8 @@ on:
       - 'tsconfig.test.json'
       - 'jest.config.js'
 
+permissions: write-all
+
 jobs:
   test:
     name: 🧪 Test
