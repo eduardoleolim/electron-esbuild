@@ -1,3 +1,4 @@
+import { ConfigParser } from '../../../src/Context/config/domain/ConfigParser.mjs';
 import { OutputConfig } from '../../../src/Context/config/domain/OutputConfig.mjs';
 import { CustomResourceConfig, SimpleResourceConfig } from '../../../src/Context/config/domain/ResourceConfig.mjs';
 import {
@@ -5,10 +6,9 @@ import {
   invalidToResourcesConfigData,
   validCustomResourceConfigData
 } from './ConfigData';
-import { InMemoryConfigParser } from './InMemoryConfigParser';
 
 describe('ResourceConfig module', () => {
-  const configParser = new InMemoryConfigParser();
+  const configParser = new ConfigParser();
 
   test('Invalid resource config', () => {
     try {

@@ -1,8 +1,8 @@
+import { ConfigParser } from '../../../src/Context/config/domain/ConfigParser.mjs';
 import { invalidDirectoryConfigData, invalidFilenameConfigData, validOutputConfig } from './ConfigData';
-import { InMemoryConfigParser } from './InMemoryConfigParser';
 
 describe('OutputConfig module', () => {
-  const configParser = new InMemoryConfigParser();
+  const configParser = new ConfigParser();
 
   test('Invalid output config', () => {
     try {

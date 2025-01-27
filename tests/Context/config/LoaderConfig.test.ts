@@ -1,7 +1,7 @@
-import { InMemoryConfigParser } from './InMemoryConfigParser';
+import { ConfigParser } from '../../../src/Context/config/domain/ConfigParser.mjs';
 
 describe('LoaderConfig module', () => {
-  const configParser = new InMemoryConfigParser();
+  const configParser = new ConfigParser();
 
   test('Invalid loader config', () => {
     try {
