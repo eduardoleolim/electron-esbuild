@@ -1,3 +1,4 @@
+import { ConfigReader } from './ConfigReader.mjs';
 import { ElectronConfig } from './ElectronConfig.mjs';
 import { LoaderConfig } from './LoaderConfig.mjs';
 import { MainConfig } from './MainConfig.mjs';
@@ -57,15 +58,25 @@ interface UnparsedElectronConfig {
   resources?: unknown | unknown[];
 }
 
-export abstract class ConfigParser {
+export class ConfigParser {
   /**
    * Parse a file and return the parsed object
-   * @param {string} sourcePath - The path to the file to parse
+   * @param {ConfigReader} reader - The reader to use
    * @param {boolean} isUsingVite - Indicates if the project must use Vite
    * @throws {Error} - If the source is not valid
    * @returns {ElectronConfig[]} - The parsed object
    */
-  abstract parse(sourcePath: string, isUsingVite: boolean): ElectronConfig[];
+  public parse(reader: ConfigReader, isUsingVite: boolean): ElectronConfig[] {
+    const config = reader.read();
+
+    if (!config) throw new Error('Invalid config file');
+
+    if (!Array.isArray(config)) {
+      return [this.parseElectronConfig(config, isUsingVite)];
+    } else {
+      return config.map((config) => this.parseElectronConfig(config, isUsingVite));
+    }
+  }
 
   /**
    * Parse the electron config object

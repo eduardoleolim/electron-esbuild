@@ -11,8 +11,9 @@ import { EsbuildPreloadBuilder } from '../../Context/builder/infrastructure/serv
 import { EsbuildRendererProcessBuilder } from '../../Context/builder/infrastructure/services/EsbuildRendererProcessBuilder.mjs';
 import { ViteRendererProcessBuilder } from '../../Context/builder/infrastructure/services/ViteRendererProcessBuilder.mjs';
 import { ConfigParser } from '../../Context/config/domain/ConfigParser.mjs';
-import { JsonElectronConfigParser } from '../../Context/config/infrastructure/JsonElectronConfigParser.mjs';
-import { YamlElectronConfigParser } from '../../Context/config/infrastructure/YamlElectronConfigParser.mjs';
+import { ConfigReader } from '../../Context/config/domain/ConfigReader.mjs';
+import { JsonConfigReader } from '../../Context/config/infrastructure/JsonConfigReader.mjs';
+import { YamlConfigReader } from '../../Context/config/infrastructure/YamlConfigReader.mjs';
 import { Logger } from '../../Context/shared/domain/Logger.mjs';
 import { loaders } from '../../Context/shared/infrastructure/esbuidLoaders.mjs';
 
@@ -37,8 +38,6 @@ type BuildOptions = Options;
 export class CommandLine {
   private readonly program: Command;
   private readonly packageJson: PackageJson;
-  private readonly jsonParser: JsonElectronConfigParser;
-  private readonly yamlParser: YamlElectronConfigParser;
   private readonly esbuildMainBuilder: EsbuildMainProcessBuilder;
   private readonly esbuildRendererBuilder: EsbuildRendererProcessBuilder;
   private readonly esbuildPreloadBuilder: EsbuildPreloadBuilder;
@@ -48,8 +47,6 @@ export class CommandLine {
   constructor(logger: Logger) {
     this.packageJson = JSON.parse(fs.readFileSync(path.resolve(__dirname, '../../../package.json'), 'utf8'));
     this.logger = logger;
-    this.jsonParser = new JsonElectronConfigParser();
-    this.yamlParser = new YamlElectronConfigParser();
 
     this.esbuildMainBuilder = new EsbuildMainProcessBuilder(loaders, logger);
     this.esbuildPreloadBuilder = new EsbuildPreloadBuilder(loaders, logger);
@@ -80,13 +77,14 @@ export class CommandLine {
             const clean = options.clean || false;
             const pathConfig = this.prepareConfigPath(options.config);
             const extension = path.extname(pathConfig);
-            let parser: ConfigParser;
+            const parser = new ConfigParser();
+            let reader: ConfigReader;
             let rendererBuilder: RendererProcessBuilderService;
 
             if (extension === '.json') {
-              parser = this.jsonParser;
+              reader = new JsonConfigReader(pathConfig);
             } else if (extension === '.yml' || extension === '.yaml') {
-              parser = this.yamlParser;
+              reader = new YamlConfigReader(pathConfig);
             } else {
               throw new Error('Config file not supported');
             }
@@ -106,7 +104,7 @@ export class CommandLine {
               this.esbuildPreloadBuilder,
               this.logger
             );
-            await devApplication.develop(pathConfig, clean, isUsingVite);
+            await devApplication.develop(reader, clean, isUsingVite);
           } catch (error: unknown) {
             if (error instanceof Error) {
               this.logger.error('CLI', error.message);
@@ -128,13 +126,14 @@ export class CommandLine {
             let isUsingVite;
             const pathConfig = this.prepareConfigPath(options.config);
             const extension = path.extname(pathConfig);
-            let parser: ConfigParser;
+            const parser = new ConfigParser();
+            let reader: ConfigReader;
             let rendererBuilder: RendererProcessBuilderService;
 
             if (extension === '.json') {
-              parser = this.jsonParser;
+              reader = new JsonConfigReader(pathConfig);
             } else if (extension === '.yml' || extension === '.yaml') {
-              parser = this.yamlParser;
+              reader = new YamlConfigReader(pathConfig);
             } else {
               throw new Error('Config file not supported');
             }
@@ -154,7 +153,7 @@ export class CommandLine {
               this.esbuildPreloadBuilder,
               this.logger
             );
-            await buildApplication.build(pathConfig, true, isUsingVite);
+            await buildApplication.build(reader, true, isUsingVite);
           } catch (error: unknown) {
             if (error instanceof Error) {
               this.logger.error('CLI', error.message);
