@@ -5,7 +5,7 @@
   "type": "module",
   "main": "dist/app/index.mjs",
   "scripts": {
-    "prepack": "clean-pkg-json",
+    "clean:package": "clean-pkg-json",
     "lint": "eslint --quiet --fix",
     "prepare": "husky",
     "build": "rimraf dist && tsc",
