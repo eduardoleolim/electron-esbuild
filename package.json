@@ -1,6 +1,6 @@
 {
   "name": "@eduardoleolim/electron-esbuild",
-  "version": "3.4.1",
+  "version": "3.4.2",
   "description": "Use esbuild with electron",
   "type": "module",
   "main": "dist/app/index.mjs",
