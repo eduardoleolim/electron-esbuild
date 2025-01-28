@@ -72,6 +72,10 @@ jobs:
         if: steps.release.outputs.released == 'true'
         run: npm run build
 
+      - name: 🗑️ Clean 'package.json'
+        if: steps.release.outputs.released == 'true'
+        run: npm run clean:package
+
       - name: 🚀 Publish to npm
         uses: JS-DevTools/npm-publish@v3
         if: steps.release.outputs.released == 'true'
