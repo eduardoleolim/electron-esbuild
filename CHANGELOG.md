@@ -1,3 +1,11 @@
+## <small>3.4.2 (2025-01-28)</small>
+
+* chore : bump version to 3.4.2 ([e5a8ec6](https://github.com/eduardoleolim/electron-esbuild/commit/e5a8ec6))
+* build: clean package.json before publishing ([4b8aec2](https://github.com/eduardoleolim/electron-esbuild/commit/4b8aec2))
+* chore: add 3.4.1 to changelog ([7f3d81a](https://github.com/eduardoleolim/electron-esbuild/commit/7f3d81a))
+
+
+
 ## <small>3.4.1 (2025-01-27)</small>
 
 * chore: add 3.4.0 to changelog ([969f7a3](https://github.com/eduardoleolim/electron-esbuild/commit/969f7a3))
