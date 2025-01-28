@@ -5,6 +5,7 @@
   "type": "module",
   "main": "dist/app/index.mjs",
   "scripts": {
+    "prepack": "clean-pkg-json",
     "lint": "eslint --quiet --fix",
     "prepare": "husky",
     "build": "rimraf dist && tsc",
@@ -78,6 +79,8 @@
     "@types/node": "18.19.70",
     "@typescript-eslint/eslint-plugin": "8.19.1",
     "@typescript-eslint/parser": "8.19.1",
+    "clean-pkg-json": "1.2.0",
+    "conventional-changelog-cli": "5.0.0",
     "esbuild": "0.24.x",
     "eslint": "9.18.0",
     "eslint-config-prettier": "9.1.0",
@@ -92,7 +95,7 @@
     "ts-node": "10.9.2",
     "typescript": "5.1.6",
     "typescript-eslint": "8.19.1",
-    "vite": "5.4.8"
+    "vite": "6.0.11"
   },
   "peerDependencies": {
     "esbuild": ">= 0.20.0",
