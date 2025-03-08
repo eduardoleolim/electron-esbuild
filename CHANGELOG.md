@@ -1,3 +1,12 @@
+## <small>3.4.3 (2025-01-28)</small>
+
+* chore: :tada: bump version to 3.4.3 ([488a3ed](https://github.com/eduardoleolim/electron-esbuild/commit/488a3ed))
+* chore: add 3.4.2 to changelog ([e094ca5](https://github.com/eduardoleolim/electron-esbuild/commit/e094ca5))
+* chore: clear package.json with custom script ([10fe543](https://github.com/eduardoleolim/electron-esbuild/commit/10fe543))
+* ci: clean 'package.json' before publishing ([6728156](https://github.com/eduardoleolim/electron-esbuild/commit/6728156))
+
+
+
 ## <small>3.4.2 (2025-01-28)</small>
 
 * chore : bump version to 3.4.2 ([e5a8ec6](https://github.com/eduardoleolim/electron-esbuild/commit/e5a8ec6))
