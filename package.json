@@ -45,8 +45,10 @@
     "vite",
     "electron",
     "hot reload",
+    "hmr",
     "renderer",
-    "cli"
+    "cli",
+    "build-tool"
   ],
   "author": "eduardoleolim",
   "license": "MIT",
