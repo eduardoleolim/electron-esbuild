@@ -34,13 +34,13 @@ main:
     directory: main
     filename: main.js
 renderers:
-  devPort: 8080
-  entry: src/renderer/index.ts
+  entry: src/renderer/index.tsx
   html: src/renderer/index.html
+  base: electron-esbuild.renderer.config.js
+  devPort: 8080
   output:
     directory: renderer
     filename: renderer.js
-  esbuild: electron-esbuild.renderer.config.js
 ```
 
 Each section of the configuration file is explained below.
@@ -61,48 +61,34 @@ Each section of the configuration file is explained below.
   - `output`: The output configuration of bundle
     - `directory`: The output directory of the renderer process. It is relative to the `output` property of ElectronConfig
     - `filename`: The output filename of the renderer process
-  - esbuild: The path of base esbuild config file
+  - base: The path of base esbuild config file
 
 
 ## 🎨 Setting Up esbuild with TailwindCSS
 
-To integrate TailwindCSS with esbuild, follow these steps to configure the required files:
+To integrate TailwindCSS v4 with esbuild, follow these steps to configure the required files:
 
 1. **Install Dependencies**: Ensure you have installed the following packages for TailwindCSS to work correctly with esbuild:
    
    ```json
+   // Install those version or major
+   "@tailwindcss/postcss": "4.1.1"
    "esbuild-postcss": "0.0.4",
-   "postcss": "8.4.47",
-   "tailwindcss": "3.4.14"
+   "postcss": "8.5.3",
+   "tailwindcss": "4.1.1"
    ```
 
-2. **`tailwind.config.js`**: Define the configuration for TailwindCSS in this file. Specify the content files where Tailwind should look for class names to generate the required styles.
-
-   ```js
-   /** @type {import("tailwindcss").Config} */
-   module.exports = {
-       content: ['./src/renderer/**/*.{ts,tsx}', './src/renderer/index.html'],
-       theme: {
-           extend: {
-               // Add any theme customization here
-           }
-       },
-       plugins: []
-   }
-   ```
-
-3. **`postcss.config.js`**: TailwindCSS uses PostCSS to process its styles. Here, `tailwindcss` and `autoprefixer` are configured as plugins for PostCSS, allowing esbuild to handle styles correctly.
+2. **`postcss.config.js`**: TailwindCSS uses PostCSS to process its styles. Here, `@tailwindcss/postcss` is configured as plugins for PostCSS, allowing esbuild to handle styles correctly.
 
    ```js
    module.exports = {
-       plugins: {
-           tailwindcss: { },
-           autoprefixer: { },
-       }
-   }
+    plugins: {
+      "@tailwindcss/postcss": {},
+    },
+  };
    ```
 
-4. **`electron-esbuild.renderer.config.js`**: Finally, configure esbuild to use PostCSS during the build process. The `esbuild-postcss` plugin will automatically load the PostCSS configuration.
+3. **`electron-esbuild.renderer.config.js`**: Configure esbuild to use PostCSS during the build process. The `esbuild-postcss` plugin will automatically load the PostCSS configuration.
 
    ```js
    const postcss = require("esbuild-postcss")
@@ -115,13 +101,11 @@ To integrate TailwindCSS with esbuild, follow these steps to configure the requi
    }
    ```
 
-5. **`index.css`**: In the main CSS file, include the base Tailwind directives to apply the framework’s styles throughout the project.
+4. **`index.css`**: Finnaly, in the main CSS file include the base Tailwind directives to apply the framework’s styles throughout the project.
 
     ```css
-    @tailwind base;
-    @tailwind components;
-    @tailwind utilities;
+    @import "tailwindcss";
     ```
 
 
-With this setup, esbuild will process TailwindCSS styles in the specified files and automatically generate the required styles during the project build.
+With this setup, esbuild will process TailwindCSS v4 styles in the specified files and automatically generate the required styles during the project build.
