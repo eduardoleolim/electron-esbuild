@@ -59,7 +59,7 @@
   "dependencies": {
     "chalk": "5.4.1",
     "chokidar": "4.0.3",
-    "commander": "12.1.0",
+    "commander": "13.1.0",
     "compression": "1.7.5",
     "connect": "3.7.0",
     "debounce": "2.2.0",
