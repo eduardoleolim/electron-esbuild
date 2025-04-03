@@ -12,12 +12,12 @@ export function App(): React.JSX.Element {
     }
 
     return (
-        <div className="flex flex-col items-center justify-center min-h-screen bg-gray-100">
+        <div className="flex flex-col items-center justify-center min-h-screen min-w-scren bg-gray-100">
             <h1 className="text-4xl font-bold text-blue-600 mb-4">Hello Electron</h1>
 
             <dialog 
                 ref={dialogRef}
-                className="bg-white p-6 rounded-lg shadow-lg border border-gray-200 max-w-md w-full"
+                className="m-auto w-auto max-w-md bg-white p-6 rounded-lg shadow-lg border border-gray-200 "
             >
                 <h2 className="text-2xl font-semibold text-gray-700 mb-2">Dialog</h2>
                 <p className="text-gray-600 mb-4">This is a dialog message</p>
