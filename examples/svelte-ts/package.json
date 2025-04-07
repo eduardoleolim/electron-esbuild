@@ -1,8 +1,9 @@
 {
   "name": "svelte-example-ts",
   "version": "1.0.0",
+  "type": "module",
   "description": "Basic example of using electron-esbuild with TypeScript and Svelte",
-  "main": "./dist/main/main.js",
+  "main": "./dist/main/main.cjs",
   "scripts": {
     "start": "electron .",
     "build": "electron-esbuild build",
@@ -19,9 +20,10 @@
   "license": "ISC",
   "devDependencies": {
     "@eduardoleolim/electron-esbuild": "../../",
-    "electron": "31.4.0",
-    "esbuild": "0.23.0",
-    "esbuild-svelte": "0.8.1",
-    "svelte-preprocess": "6.0.2"
+    "electron": "35.1.4",
+    "esbuild": "0.25.2",
+    "esbuild-svelte": "0.9.2",
+    "svelte": "4.2.19",
+    "svelte-preprocess": "6.0.3"
   }
 }

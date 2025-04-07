@@ -3,7 +3,7 @@ main:
   entry: src/main/main.ts
   output:
     directory: main
-    filename: main.js
+    filename: main.cjs
 renderers:
   base: electron-esbuild.renderer.mjs
   devPort: 8080
@@ -11,4 +11,4 @@ renderers:
   html: src/renderer/index.html
   output:
     directory: renderer
-    filename: renderer.js
+    filename: renderer.cjs

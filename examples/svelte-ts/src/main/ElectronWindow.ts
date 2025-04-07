@@ -15,6 +15,8 @@ export class ElectronWindow extends BrowserWindow {
   async show() {
     await this.loadURL(this.url);
     super.show();
-    this.webContents.openDevTools({ mode: 'detach' });
+    if (process.env.NODE_ENV === 'development') {
+      this.webContents.openDevTools({ mode: 'detach' });
+    }
   }
 }
