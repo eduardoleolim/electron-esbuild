@@ -2,7 +2,7 @@
   "name": "vite-ts",
   "version": "1.0.0",
   "description": "Example using vite",
-  "main": "index.js",
+  "main": "dist/main/main.js",
   "scripts": {
     "start": "electron .",
     "build": "electron-esbuild build --vite",
