@@ -49,9 +49,10 @@ Options:
 
 - `--config or -c` Config file path.
 - `--vite` Use vite for the renderer process. Default: `false`
+- `--astro` Use astro for the renderer process. Default: `false`
 
 ```bash
-npx electron-esbuild build [--config electron-esbuild.config.json] [--vite]
+npx electron-esbuild build [--config electron-esbuild.config.json] [--vite] [--astro]
 ```
 
 #### 👨‍💻 dev
@@ -62,10 +63,11 @@ Options:
 
 - `--config or -c` Config file path.
 - `--vite` Use vite for the renderer process. Default: `false`
+- `--astro` Use astro for the renderer process. Default: `false`
 - `--clean` Clean the output directory before building. Default: `false`
 
 ```bash
-npx electron-esbuild dev [--config electron-esbuild.config.json] [--vite] [--clean]
+npx electron-esbuild dev [--config electron-esbuild.config.json] [--vite] [--astro] [--clean]
 ```
 
 ## ⚙️ Configuration
@@ -174,8 +176,8 @@ The preload config is composed of the following properties:
 
 The renderer config has the following properties:
 
-- `entry` - The entry file of your renderer process
-- `html` - The html file of your renderer process
+- `entry` - The entry file of your renderer process. It is optional when the Vite builder is used. When Astro builder is used the value of `entry` must be the parent directory of `pages` directory
+- `html` - The html file of your renderer process. It is optional when the Astro builder is used
 - `devPort` - Optional. The port of the dev server. If port is not available, it will try the next one
 - `output` - The output configuration of bundle
   - `directory` - Optional. The output directory of your renderer process. Default: same as `output.directory` of MainConfig
@@ -249,3 +251,5 @@ There are some examples in the [examples](https://github.com/eduardoleolim/elect
 - *[react-ts](https://github.com/eduardoleolim/electron-esbuild/tree/main/examples/react-ts)* - An example with react and typescript using the basic configuration of electron-esbuild with esbuild loaders for renderer process.
 - *[svelte-ts](https://github.com/eduardoleolim/electron-esbuild/tree/main/examples/svelte-ts)* - An example with svelte and typescript using the basic configuration of electron-esbuild. Also, it shows how to use an esbuild config file for the renderer process.
 - *[tailwind-ts](https://github.com/eduardoleolim/electron-esbuild/tree/main/examples/tailwind-ts)* - An example with tailwind, react and typescript.
+- *[vite-ts](https://github.com/eduardoleolim/electron-esbuild/tree/main/examples/vite-ts)* - An example with vite, tailwind, react and typescript.
+- *[astro](https://github.com/eduardoleolim/electron-esbuild/tree/main/examples/astro)* - An example with astro
