@@ -27,6 +27,9 @@
     "vite-ts:install": "rimraf examples/vite-ts/node_modules && npm install --prefix examples/vite-ts",
     "vite-ts:dev": "npm run dev --prefix examples/vite-ts",
     "vite-ts:build": "npm run build --prefix examples/vite-ts",
+    "astro:install": "rimraf examples/astro/node_modules && npm install --prefix examples/astro",
+    "astro:dev": "npm run dev --prefix examples/astro",
+    "astro:build": "npm run build --prefix examples/astro",
     "test": "jest",
     "changelog": "conventional-changelog -i CHANGELOG.md -s -r 0"
   },
