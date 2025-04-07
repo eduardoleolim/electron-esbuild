@@ -191,7 +191,7 @@ export class EsbuildRendererProcessBuilder implements RendererProcessBuilderServ
       process.cwd(),
       output,
       config.output.directory,
-      config.output.filename.replace('.js', '.css')
+      config.output.filename.replace(path.extname(config.output.filename), '.css')
     );
     const cssRelativePath = path.relative(path.dirname(htmlOutputDirectory), cssDirectory);
     if (fs.existsSync(cssDirectory)) {
