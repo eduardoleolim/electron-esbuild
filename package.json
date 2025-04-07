@@ -24,6 +24,9 @@
     "tailwind-ts:install": "rimraf examples/tailwind-ts/node_modules && npm install --prefix examples/tailwind-ts",
     "tailwind-ts:dev": "npm run dev --prefix examples/tailwind-ts",
     "tailwind-ts:build": "npm run build --prefix examples/tailwind-ts",
+    "vite-ts:install": "rimraf examples/vite-ts/node_modules && npm install --prefix examples/vite-ts",
+    "vite-ts:dev": "npm run dev --prefix examples/vite-ts",
+    "vite-ts:build": "npm run build --prefix examples/vite-ts",
     "test": "jest",
     "changelog": "conventional-changelog -i CHANGELOG.md -s -r 0"
   },
