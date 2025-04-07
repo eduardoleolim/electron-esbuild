@@ -1,4 +1,4 @@
-import { ConfigParser } from '../../config/domain/ConfigParser.mjs';
+import { ConfigParser, RendererBuilderType } from '../../config/domain/ConfigParser.mjs';
 import { ConfigReader } from '../../config/domain/ConfigReader.mjs';
 import { MainConfig } from '../../config/domain/MainConfig.mjs';
 import { PreloadConfig } from '../../config/domain/PreloadConfig.mjs';
@@ -29,8 +29,12 @@ export class BuildApplication extends BaseApplication {
     this.preloadBuilder = preloadBuilder;
   }
 
-  public async build(configReader: ConfigReader, clean: boolean, isUsingVite: boolean): Promise<void> {
-    const configs = this.configParser.parse(configReader, isUsingVite);
+  public async build(
+    configReader: ConfigReader,
+    clean: boolean,
+    rendererBuilderType: RendererBuilderType
+  ): Promise<void> {
+    const configs = this.configParser.parse(configReader, rendererBuilderType);
 
     for (const config of configs) {
       if (clean) {

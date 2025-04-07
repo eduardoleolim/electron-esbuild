@@ -32,7 +32,7 @@ interface UnparsedPreloadConfig {
 }
 
 interface UnparsedRendererConfig {
-  html: string;
+  html?: string;
   entry?: string;
   devPort: number;
   output: unknown;
@@ -58,34 +58,40 @@ interface UnparsedElectronConfig {
   resources?: unknown | unknown[];
 }
 
+export enum RendererBuilderType {
+  VITE = 'vite',
+  ASTRO = 'astro',
+  ESBUILD = 'esbuild'
+}
+
 export class ConfigParser {
   /**
    * Parse a file and return the parsed object
    * @param {ConfigReader} reader - The reader to use
-   * @param {boolean} isUsingVite - Indicates if the project must use Vite
+   * @param {RendererBuilderType} rendererBuilderType - Indicates what renderer builder type will be used
    * @throws {Error} - If the source is not valid
    * @returns {ElectronConfig[]} - The parsed object
    */
-  public parse(reader: ConfigReader, isUsingVite: boolean): ElectronConfig[] {
+  public parse(reader: ConfigReader, rendererBuilderType: RendererBuilderType): ElectronConfig[] {
     const config = reader.read();
 
     if (!config) throw new Error('Invalid config file');
 
     if (!Array.isArray(config)) {
-      return [this.parseElectronConfig(config, isUsingVite)];
+      return [this.parseElectronConfig(config, rendererBuilderType)];
     } else {
-      return config.map((config) => this.parseElectronConfig(config, isUsingVite));
+      return config.map((config) => this.parseElectronConfig(config, rendererBuilderType));
     }
   }
 
   /**
    * Parse the electron config object
    * @param {unknown} config - The electron config object
-   * @param {boolean} isUsingVite - Indicates if the project must use Vite
+   * @param {RendererBuilderType} rendererBuilderType - Indicates what renderer builder type will be used
    * @throws {Error} - If the config is not valid
    * @returns {ElectronConfig} - The parsed electron config object
    */
-  public parseElectronConfig(config: unknown, isUsingVite: boolean): ElectronConfig {
+  public parseElectronConfig(config: unknown, rendererBuilderType: RendererBuilderType): ElectronConfig {
     if (typeof config !== 'object' || config === null) {
       throw new Error('Config is required');
     }
@@ -111,8 +117,10 @@ export class ConfigParser {
         : [];
 
     const rendererConfigs = Array.isArray(electronConfig.renderers)
-      ? electronConfig.renderers.map((config) => this.parseRendererConfig(config, mainConfig.output, isUsingVite))
-      : [this.parseRendererConfig(electronConfig.renderers, mainConfig.output, isUsingVite)];
+      ? electronConfig.renderers.map((config) =>
+          this.parseRendererConfig(config, mainConfig.output, rendererBuilderType)
+        )
+      : [this.parseRendererConfig(electronConfig.renderers, mainConfig.output, rendererBuilderType)];
 
     const resourceConfigs = Array.isArray(electronConfig.resources)
       ? electronConfig.resources.map((config) => this.parseResourceConfig(config, mainConfig.output.directory))
@@ -163,30 +171,43 @@ export class ConfigParser {
    * Parses the renderer config object from the object
    * @param {unknown} config - Renderer config object
    * @param {OutputConfig} defaultOutputConfig - Default output config
-   * @param {boolean} isUsingVite - Indicates if the project must use Vite
+   * @param {RendererBuilderType} rendererBuilderType - Indicates what renderer builder type will be used
    * @throws {Error} - If the config is not valid
    */
-  public parseRendererConfig(config: unknown, defaultOutputConfig: OutputConfig, isUsingVite: boolean): RendererConfig {
+  public parseRendererConfig(
+    config: unknown,
+    defaultOutputConfig: OutputConfig,
+    rendererBuilderType: RendererBuilderType
+  ): RendererConfig {
     if (typeof config !== 'object' || config === null) {
       throw new Error('Renderer config is required');
     }
 
     const rendererConfig = config as UnparsedRendererConfig;
+    let entryPoint = rendererConfig.entry;
+    let entryHtml = rendererConfig.html;
 
-    if (typeof rendererConfig.html !== 'string') {
-      throw new Error('Renderer HTML entry must be a string');
+    if (rendererBuilderType === RendererBuilderType.VITE) {
+      entryPoint = rendererConfig.html;
     }
 
-    let entryPoint = rendererConfig.html;
-    if (!isUsingVite && typeof rendererConfig.entry === 'string') {
-      entryPoint = rendererConfig.entry;
+    if (rendererBuilderType === RendererBuilderType.ASTRO) {
+      entryHtml = entryPoint;
+    }
+
+    if (typeof entryPoint !== 'string') {
+      throw new Error('Renderer entry point must be a string');
+    }
+
+    if (typeof entryHtml !== 'string') {
+      throw new Error('Renderer entry html must be a string');
     }
 
     if (typeof rendererConfig.devPort !== 'number') {
       throw new Error('Renderer dev port must be a number');
     }
 
-    const outputConfig = this.parseOutputConfig(rendererConfig.output);
+    const outputConfig = this.parseOutputConfig(rendererConfig.output || { directory: defaultOutputConfig.directory });
 
     const loaderConfigs = Array.isArray(rendererConfig.loaders)
       ? rendererConfig.loaders.map((loader) => this.parseLoaderConfig(loader))
@@ -201,7 +222,7 @@ export class ConfigParser {
     const baseConfigEntryPoint = typeof rendererConfig.base === 'string' ? rendererConfig.base : undefined;
 
     return new RendererConfig(
-      rendererConfig.html,
+      entryHtml,
       entryPoint,
       outputConfig,
       loaderConfigs,

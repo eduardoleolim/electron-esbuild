@@ -6,11 +6,12 @@ import { fileURLToPath } from 'url';
 import { BuildApplication } from '../../Context/builder/application/BuildApplication.mjs';
 import { DevApplication } from '../../Context/builder/application/DevApplication.mjs';
 import { RendererProcessBuilderService } from '../../Context/builder/domain/RendererProcessBuilderService.mjs';
+import { AstroRendererProcessBuilder } from '../../Context/builder/infrastructure/services/AstroRendererProcessBuilder.mjs';
 import { EsbuildMainProcessBuilder } from '../../Context/builder/infrastructure/services/EsbuildMainProcessBuilder.mjs';
 import { EsbuildPreloadBuilder } from '../../Context/builder/infrastructure/services/EsbuildPreloadBuilder.mjs';
 import { EsbuildRendererProcessBuilder } from '../../Context/builder/infrastructure/services/EsbuildRendererProcessBuilder.mjs';
 import { ViteRendererProcessBuilder } from '../../Context/builder/infrastructure/services/ViteRendererProcessBuilder.mjs';
-import { ConfigParser } from '../../Context/config/domain/ConfigParser.mjs';
+import { ConfigParser, RendererBuilderType } from '../../Context/config/domain/ConfigParser.mjs';
 import { ConfigReader } from '../../Context/config/domain/ConfigReader.mjs';
 import { JsonConfigReader } from '../../Context/config/infrastructure/JsonConfigReader.mjs';
 import { YamlConfigReader } from '../../Context/config/infrastructure/YamlConfigReader.mjs';
@@ -27,6 +28,7 @@ interface PackageJson {
 interface Options {
   config?: string;
   vite?: boolean;
+  astro?: boolean;
 }
 
 type DevOptions = Options & {
@@ -42,6 +44,7 @@ export class CommandLine {
   private readonly esbuildRendererBuilder: EsbuildRendererProcessBuilder;
   private readonly esbuildPreloadBuilder: EsbuildPreloadBuilder;
   private readonly viteRendererBuilder: ViteRendererProcessBuilder;
+  private readonly astroRendererBuilder: AstroRendererProcessBuilder;
   private readonly logger: Logger;
 
   constructor(logger: Logger) {
@@ -52,6 +55,7 @@ export class CommandLine {
     this.esbuildPreloadBuilder = new EsbuildPreloadBuilder(loaders, logger);
     this.esbuildRendererBuilder = new EsbuildRendererProcessBuilder(loaders, logger);
     this.viteRendererBuilder = new ViteRendererProcessBuilder(logger);
+    this.astroRendererBuilder = new AstroRendererProcessBuilder(logger);
     this.program = new Command();
     this.loadCommands();
   }
@@ -69,11 +73,12 @@ export class CommandLine {
       .option('-c, --config <path>', 'Path to the config file')
       .option('--clean', 'Clean the output directory')
       .option('--vite', 'Use Vite for renderer process')
+      .option('--astro', 'Use Astro for renderer process')
       .action((options: DevOptions) => {
         process.env.NODE_ENV = 'development';
         (async () => {
           try {
-            let isUsingVite;
+            let rendererBuilderType: RendererBuilderType;
             const clean = options.clean || false;
             const pathConfig = this.prepareConfigPath(options.config);
             const extension = path.extname(pathConfig);
@@ -89,12 +94,20 @@ export class CommandLine {
               throw new Error('Config file not supported');
             }
 
-            if (options.vite) {
+            if (options.astro && options.vite) {
+              this.logger.error('CLI', 'You cannot use both --vite and --astro options');
+              return;
+            }
+
+            if (options.astro) {
+              rendererBuilder = this.astroRendererBuilder;
+              rendererBuilderType = RendererBuilderType.ASTRO;
+            } else if (options.vite) {
               rendererBuilder = this.viteRendererBuilder;
-              isUsingVite = true;
+              rendererBuilderType = RendererBuilderType.VITE;
             } else {
               rendererBuilder = this.esbuildRendererBuilder;
-              isUsingVite = false;
+              rendererBuilderType = RendererBuilderType.ESBUILD;
             }
 
             const devApplication = new DevApplication(
@@ -104,7 +117,7 @@ export class CommandLine {
               this.esbuildPreloadBuilder,
               this.logger
             );
-            await devApplication.develop(reader, clean, isUsingVite);
+            await devApplication.develop(reader, clean, rendererBuilderType);
           } catch (error: unknown) {
             if (error instanceof Error) {
               this.logger.error('CLI', error.message);
@@ -119,11 +132,12 @@ export class CommandLine {
       .description('Builds the application')
       .option('-c, --config <path>', 'Path to the config file')
       .option('--vite', 'Use Vite for renderer process')
+      .option('--astro', 'Use Astro for renderer process')
       .action((options: BuildOptions) => {
         process.env.NODE_ENV = 'production';
         (async () => {
           try {
-            let isUsingVite;
+            let rendererBuilderType: RendererBuilderType;
             const pathConfig = this.prepareConfigPath(options.config);
             const extension = path.extname(pathConfig);
             const parser = new ConfigParser();
@@ -138,12 +152,20 @@ export class CommandLine {
               throw new Error('Config file not supported');
             }
 
-            if (options.vite) {
+            if (options.astro && options.vite) {
+              this.logger.error('CLI', 'You cannot use both --vite and --astro options');
+              return;
+            }
+
+            if (options.astro) {
+              rendererBuilder = this.astroRendererBuilder;
+              rendererBuilderType = RendererBuilderType.ASTRO;
+            } else if (options.vite) {
               rendererBuilder = this.viteRendererBuilder;
-              isUsingVite = true;
+              rendererBuilderType = RendererBuilderType.VITE;
             } else {
               rendererBuilder = this.esbuildRendererBuilder;
-              isUsingVite = false;
+              rendererBuilderType = RendererBuilderType.ESBUILD;
             }
 
             const buildApplication = new BuildApplication(
@@ -153,7 +175,7 @@ export class CommandLine {
               this.esbuildPreloadBuilder,
               this.logger
             );
-            await buildApplication.build(reader, true, isUsingVite);
+            await buildApplication.build(reader, true, rendererBuilderType);
           } catch (error: unknown) {
             if (error instanceof Error) {
               this.logger.error('CLI', error.message);
