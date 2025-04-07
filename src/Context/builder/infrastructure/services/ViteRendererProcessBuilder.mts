@@ -91,6 +91,9 @@ export class ViteRendererProcessBuilder implements RendererProcessBuilderService
           : undefined,
       root: path.resolve(process.cwd(), entryPoint, '..'),
       base: '',
+      optimizeDeps: {
+        exclude: external
+      },
       build: {
         outDir: outputDirectory,
         emptyOutDir: true,
