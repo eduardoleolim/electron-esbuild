@@ -70,6 +70,10 @@ jobs:
         with:
           path: ${{ github.workspace }}/apps/electron-app-bundler
 
+      - name: ⚡ Setup pnpm
+        if: steps.release.outputs.released == 'true'
+        uses: pnpm/action-setup@v5
+
       - name: ❇️ Setup Node
         if: steps.release.outputs.released == 'true'
         uses: actions/setup-node@v6
@@ -87,9 +91,8 @@ jobs:
         run: pnpm bundler:build
 
       - name: 🚀 Publish to npm
-        uses: JS-DevTools/npm-publish@v3
         if: steps.release.outputs.released == 'true'
-        with:
-          token: ${{ secrets.NPM_PUBLISH_TOKEN }}
-          access: public
-          provenance: true
+        run: pnpm publish --access public --provenance --no-git-checks
+        working-directory: ./apps/electron-app-bundler
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_PUBLISH_TOKEN }}
