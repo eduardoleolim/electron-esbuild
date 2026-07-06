@@ -243,7 +243,12 @@ export class ConfigParser {
       throw new Error('Preload entry must be a string');
     }
 
-    const outputConfig = this.parseOutputConfig(config.output || { directory: defaultOutputConfig.directory });
+    const outputAsObject = config.output as Record<string, unknown>;
+
+    const outputConfig = this.parseOutputConfig({
+      ...outputAsObject,
+      directory: (outputAsObject?.directory as string | undefined) ?? defaultOutputConfig.directory
+    });
 
     const rendererProcesses =
       Array.isArray(config.renderers) && config.renderers.every((renderer) => typeof renderer === 'number')
