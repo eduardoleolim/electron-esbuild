@@ -15,18 +15,18 @@ catalog:
   debounce: 2.2.0
   dependency-tree: 11.5.0
   http-proxy: 1.18.1
-  js-yaml: 4.1.1
+  js-yaml: 5.1.0
   livereload: 0.10.3
-  "@types/compression": 1.8.1
-  "@types/connect": 3.4.38
-  "@types/debounce": 1.2.4
-  "@types/http-proxy": 1.17.16
-  "@types/jest": 29.5.12
-  "@types/js-yaml": 4.0.9
-  "@types/livereload": 0.9.5
-  "@types/node": "ts5.1"
-  "@typescript-eslint/eslint-plugin": 8.19.1
-  "@typescript-eslint/parser": 8.19.1
+  '@types/compression': 1.8.1
+  '@types/connect': 3.4.38
+  '@types/debounce': 1.2.4
+  '@types/http-proxy': 1.17.16
+  '@types/jest': 29.5.12
+  '@types/js-yaml': 4.0.9
+  '@types/livereload': 0.9.5
+  '@types/node': 'ts5.1'
+  '@typescript-eslint/eslint-plugin': 8.19.1
+  '@typescript-eslint/parser': 8.19.1
   astro: 6.3.5
   clean-pkg-json: 1.4.2
   conventional-changelog: 7.2.0
@@ -46,20 +46,22 @@ catalog:
   typescript: 5.1.6
   typescript-eslint: 8.19.1
   vite: 8.0.13
-  "@trivago/prettier-plugin-sort-imports": 5.2.2
-  "@eslint/js": 9.18.0
+  '@trivago/prettier-plugin-sort-imports': 5.2.2
+  '@eslint/js': 9.18.0
   electron: 42.1.0
-  "@types/react": 19.2.14
-  "@types/react-dom": 19.2.3
+  '@types/react': 19.2.14
+  '@types/react-dom': 19.2.3
   react: 19.2.6
   react-dom: 19.2.6
   svelte: 4.2.19
-  "esbuild-svelte": 0.9.2
-  "svelte-preprocess": 6.0.3
-  "@tailwindcss/postcss": 4.3.0
-  "@tailwindcss/vite": 4.3.0
-  "esbuild-postcss": 0.0.4
+  'esbuild-svelte': 0.9.2
+  'svelte-preprocess': 6.0.3
+  '@tailwindcss/postcss': 4.3.0
+  '@tailwindcss/vite': 4.3.0
+  'esbuild-postcss': 0.0.4
   postcss: 8.5.14
   tailwindcss: 4.1.1
-  "@vitejs/plugin-react": 6.0.2
-  "@astrojs/node": 10.1.1
+  '@vitejs/plugin-react': 6.0.2
+  '@astrojs/node': 10.1.1
+overrides:
+  'ws@>=8.0.0 <8.21.0': 8.21.0

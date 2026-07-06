@@ -18,8 +18,8 @@
   "author": "",
   "license": "ISC",
   "devDependencies": {
-    "electron-app-bundler": "workspace:*",
     "electron": "catalog:",
+    "electron-app-bundler": "workspace:*",
     "esbuild": "catalog:"
   }
 }

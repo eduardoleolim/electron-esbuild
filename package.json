@@ -1,5 +1,5 @@
 {
-  "packageManager": "pnpm@11.1.3",
+  "packageManager": "pnpm@11.7.0",
   "scripts": {
     "bundler:audit": "pnpm --filter electron-app-bundler audit --prod",
     "bundler:test": "pnpm --filter electron-app-bundler test",
@@ -39,8 +39,8 @@
   ],
   "author": "eduardoleolim",
   "devDependencies": {
-    "@trivago/prettier-plugin-sort-imports": "catalog:",
     "@eslint/js": "catalog:",
+    "@trivago/prettier-plugin-sort-imports": "catalog:",
     "@typescript-eslint/eslint-plugin": "catalog:",
     "@typescript-eslint/parser": "catalog:",
     "conventional-changelog": "catalog:",
