@@ -1,5 +1,5 @@
 {
-  "packageManager": "pnpm@11.7.0",
+  "packageManager": "pnpm@11.21.0",
   "scripts": {
     "bundler:audit": "pnpm --filter electron-app-bundler audit --prod",
     "bundler:test": "pnpm --filter electron-app-bundler test",
